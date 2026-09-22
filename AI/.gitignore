@@ -1,0 +1,7 @@
+.venv/
+models/
+__pycache__/
+.pytest_cache/
+*.pyc
+datasets/external/*
+!datasets/external/README.md

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mosaic — dashboard directions</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #eef0eb; color: #17211c; }
+    .page { max-width: 1500px; margin: auto; padding: 40px 28px 64px; }
+    .eyebrow { color: #567064; font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    h1 { margin: 8px 0 8px; font-family: Georgia, serif; font-size: clamp(32px, 4vw, 54px); font-weight: 500; }
+    .intro { max-width: 780px; color: #5d6c64; font-size: 17px; line-height: 1.6; }
+    .choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 34px; }
+    .choice { cursor: pointer; border: 2px solid transparent; border-radius: 24px; background: white; padding: 8px; box-shadow: 0 12px 40px rgba(28,42,34,.08); transition: .18s ease; }
+    .choice:hover { transform: translateY(-4px); box-shadow: 0 18px 48px rgba(28,42,34,.14); }
+    .choice.selected { border-color: #27624a; box-shadow: 0 0 0 4px rgba(39,98,74,.13), 0 18px 48px rgba(28,42,34,.14); }
+    .screen { aspect-ratio: 4/3; border-radius: 17px; overflow: hidden; font-size: 10px; position: relative; }
+    .label { padding: 18px 16px 15px; }
+    .label b { display: block; font-size: 18px; margin-bottom: 7px; }
+    .label span { color: #6b766f; line-height: 1.45; display: block; }
+    .tag { display:inline-block; margin-top:12px; padding:6px 9px; border-radius:20px; background:#edf3ef; color:#2a604b !important; font-size:11px; font-weight:700; }
+    .top { height: 40px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; border-bottom:1px solid rgba(0,0,0,.08); }
+    .brand { font-family: Georgia,serif; font-weight:700; font-size:14px; }
+    .avatar { width:20px;height:20px;border-radius:50%;background:#d6a955; }
+    .main { padding: 15px; }
+    .small { font-size:8px; opacity:.65; }
+    .title { font-family: Georgia,serif;font-size:19px;margin:5px 0 11px; }
+    .grid3 { display:grid;grid-template-columns:repeat(3,1fr);gap:8px; }
+    .metric { border-radius:10px;padding:10px;min-height:58px; }
+    .metric strong { display:block;font-size:16px;margin-top:5px; }
+    .line { height:70px;border-radius:10px;margin-top:8px;position:relative;overflow:hidden; }
+    .line:after { content:""; position:absolute;left:7%;right:5%;top:52%;height:2px;background:currentColor;transform:skewY(-8deg);box-shadow:35px -8px 0 -1px currentColor,75px 4px 0 -1px currentColor; }
+    .finding { display:flex;gap:10px;align-items:flex-start;padding:10px;border-radius:10px;margin-top:8px; }
+    .rank { width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-weight:800;flex:none; }
+    .bars { display:flex;height:52px;align-items:flex-end;gap:7px;padding:8px 10px; }
+    .bars i { display:block;width:10%;border-radius:3px 3px 0 0; }
+    .side-shell { display:grid;grid-template-columns:58px 1fr;height:100%; }
+    .side { padding:14px 9px;display:flex;flex-direction:column;gap:13px; }
+    .navdot { height:7px;border-radius:5px;opacity:.55; }
+    .question { border-radius:12px;padding:11px;font-family:Georgia,serif;font-size:15px;line-height:1.25; }
+    .evidence { display:grid;grid-template-columns:1.2fr .8fr;gap:8px;margin-top:8px; }
+    .panel { border-radius:10px;padding:10px; }
+    .progress { height:6px;border-radius:8px;margin-top:9px;overflow:hidden; }
+    .progress:after { content:"";display:block;width:68%;height:100%;background:#e06c4c; }
+    .dark { background:#15271f;color:#f3f1e8; }
+    .dark .top { border-color:#345044; }.dark .small{color:#b8c6bd}.dark .metric{background:#213a30}.dark .line{background:#213a30;color:#e7b958}.dark .finding{background:#fff8e9;color:#17211c}.dark .rank{background:#ef7553;color:white}
+    .light { background:#f7f4ec;color:#19241e; }.light .side{background:#16392d;color:white}.light .panel,.light .metric{background:white;border:1px solid #e3e1d9}.light .question{background:#f0d68a}.light .bars{background:white;border:1px solid #e3e1d9}.light .bars i{background:#31785a}.light .progress{background:#e8e1d2}
+    .editorial { background:#f1eee7;color:#17211c; }.editorial .top{background:#f1eee7}.editorial .hero{display:grid;grid-template-columns:1.35fr .65fr;gap:9px}.editorial .big{background:#245d47;color:white;border-radius:12px;padding:13px;min-height:103px}.editorial .number{font-family:Georgia,serif;font-size:34px;color:#f2cb73}.editorial .note{border:1px solid #c9cec8;border-radius:12px;padding:12px}.editorial .metric{background:#faf9f5;border:1px solid #dfe2dc}.editorial .finding{background:#f7df9b}.editorial .rank{background:#245d47;color:white}
+    .select-note { text-align:center;color:#68746d;margin-top:24px;font-size:14px; }
+    @media(max-width:980px){.choices{grid-template-columns:1fr}.choice{max-width:620px;margin:auto;width:100%}}
+  </style>
+</head>
+<body>
+<main class="page">
+  <div class="eyebrow">Mosaic · visual direction</div>
+  <h1>How should the hidden problem reveal itself?</h1>
+  <p class="intro">All three directions use the same real Olist story: sales look healthy at first glance, but delivery reliability and customer sentiment need attention. Choose the structure that feels most convincing for a business owner and hackathon judge.</p>
+  <div class="choices">
+    <article class="choice" data-choice="a-command-center" onclick="toggleSelect(this)">
+      <div class="screen dark">
+        <div class="top"><span class="brand">Mosaic</span><span>Overview &nbsp; Evidence &nbsp; Scenarios</span><span class="avatar"></span></div>
+        <div class="main">
+          <div class="small">GOOD MORNING, ANA · OLIST 2017–2018</div><div class="title">Your business at a glance</div>
+          <div class="grid3"><div class="metric">Gross sales<strong>BRL 1.02m</strong><span class="small">↓ 12.7% period over period</span></div><div class="metric">Late delivery<strong>3.6%</strong><span class="small">272 orders exposed</span></div><div class="metric">Low reviews<strong>11.1%</strong><span class="small">watch customer trust</span></div></div>
+          <div class="line"></div>
+          <div class="finding"><span class="rank">1</span><div><b>Growth is hiding a delivery trade-off</b><br><span class="small">Volume and late-delivery risk are moving together. Inspect 41 sellers near capacity →</span></div></div>
+        </div>
+      </div>
+      <div class="label"><b>A · Command center</b><span>Dense, dark, high-signal dashboard. Feels analytical and gives judges the breadth of the backend immediately.</span><span class="tag">Best for data-heavy credibility</span></div>
+    </article>
+    <article class="choice" data-choice="b-guided-story" onclick="toggleSelect(this)">
+      <div class="screen light">
+        <div class="side-shell">
+          <aside class="side"><span class="brand">M</span><span class="navdot" style="background:#f0cc77"></span><span class="navdot" style="background:#fff"></span><span class="navdot" style="background:#fff"></span><span class="navdot" style="background:#fff"></span></aside>
+          <div><div class="top"><span>Overview / August 2018</span><span class="avatar"></span></div><div class="main">
+            <div class="small">PRIORITY FINDING 01</div><div class="title">A positive result is masking pressure elsewhere.</div>
+            <div class="question">“If sales rise 20%, can delivery quality keep up?”</div>
+            <div class="evidence"><div class="panel"><b>What we observed</b><div class="bars"><i style="height:35%"></i><i style="height:48%"></i><i style="height:58%"></i><i style="height:76%"></i><i style="height:68%"></i><i style="height:86%"></i></div><span class="small">Order volume vs late deliveries · 20 months</span></div><div class="panel"><b>Why it matters</b><div class="title" style="font-size:21px">BRL 37.4k</div><span class="small">monthly sales exposed to late delivery — not loss</span><div class="progress"></div></div></div>
+            <div class="finding" style="border:1px solid #e3e1d9"><span class="rank">→</span><div><b>Inspect the evidence</b><br><span class="small">See formulas, periods and supporting seller records</span></div></div>
+          </div></div>
+        </div>
+      </div>
+      <div class="label"><b>B · Guided investigation</b><span>One finding dominates the screen, then leads naturally into evidence and a what-if scenario. Minimal cognitive load.</span><span class="tag">Recommended · strongest demo story</span></div>
+    </article>
+    <article class="choice" data-choice="c-editorial-brief" onclick="toggleSelect(this)">
+      <div class="screen editorial">
+        <div class="top"><span class="brand">Mosaic / Briefing</span><span>22 September 2026 &nbsp; ● Live data</span></div>
+        <div class="main">
+          <div class="small">THIS MONTH'S BUSINESS BRIEF</div><div class="title" style="font-size:22px">Sales tell only half the story.</div>
+          <div class="hero"><div class="big"><div class="small">GROSS ITEM SALES</div><div class="number">BRL 1.02m</div><div>Healthy volume, uneven reliability.</div></div><div class="note"><b>3 things to know</b><p class="small">18 categories underperforming<br><br>41 sellers near peak<br><br>Late orders rate poorly</p></div></div>
+          <div class="grid3" style="margin-top:8px"><div class="metric">Sales change<strong>−12.7%</strong></div><div class="metric">Late rate<strong>3.6%</strong></div><div class="metric">Low review<strong>11.1%</strong></div></div>
+          <div class="finding"><span class="rank">!</span><div><b>The signal worth investigating</b><br><span class="small">A concise narrative backed by expandable calculations and records.</span></div></div>
+        </div>
+      </div>
+      <div class="label"><b>C · Editorial briefing</b><span>Warm, distinctive monthly-report feel. Makes finance approachable and gives the project a memorable visual identity.</span><span class="tag">Best for personality</span></div>
+    </article>
+  </div>
+  <p class="select-note">Click a direction to select it, then tell me what you like or want mixed in from another option.</p>
+</main>
+</body>
+</html>
