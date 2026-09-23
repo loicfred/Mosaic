@@ -32,7 +32,7 @@ class LocalAiTest {
     @Test
     void theShippedConfigDefinesTheModelAndBothBots() {
         useHome(Path.of("../OpportunityApp").toAbsolutePath().normalize());
-        LocalAi ai = new LocalAi(new AIManager());
+        LocalAi ai = new LocalAi(new AIManager(), java.util.Map.of());
         assertEquals("http://localhost:1234", ai.service().getBaseUrl());
         assertEquals("google/gemma-4-e4b", ai.service().getModel());
         assertNotNull(ai.bot(LocalAi.ASSISTANT));
@@ -49,5 +49,19 @@ class LocalAiTest {
         assertNull(ai.bot(LocalAi.ASSISTANT));
         assertFalse(ai.status().enabled());
         assertTrue(Files.isRegularFile(missing));
+    }
+
+    @Test
+    void theCloudKeyMovesTheBotsToTheCloudServiceAndItsAbsenceLeavesThemLocal() {
+        AIManager manager = new AIManager();
+        manager.makeNewService("LMStudio", "http://localhost:1234", "N/A", "local-model");
+        manager.makeNewService(LocalAi.CLOUD, "https://api.groq.com/openai", "N/A", "cloud-model");
+        LocalAi.useCloud(manager, java.util.Map.of());
+        assertEquals("http://localhost:1234", manager.getDefaultService().getBaseUrl());
+        LocalAi.useCloud(manager, java.util.Map.of(LocalAi.CLOUD_KEY, "gsk_test"));
+        assertEquals("https://api.groq.com/openai", manager.getDefaultService().getBaseUrl());
+        assertEquals("cloud-model", manager.getDefaultService().getModel());
+        assertEquals("gsk_test", manager.getDefaultService().getApiKey());
+        assertTrue(LocalAi.reachable(manager.getDefaultService()));
     }
 }

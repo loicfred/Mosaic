@@ -44,9 +44,9 @@ class FormatterTest {
 
     @Test
     void currencyIsLabelledAndGrouped() {
-        assertEquals("BRL 863,390", fmt.brl(863389.9666666667));
-        assertEquals("−BRL 2,248", fmt.brl(-2247.81));
-        assertEquals("BRL 0", fmt.brl(-0.4));
+        assertEquals("BRL 863,390 (≈ USD 253,938)", fmt.brl(863389.9666666667));
+        assertEquals("−BRL 2,248 (≈ −USD 661)", fmt.brl(-2247.81));
+        assertEquals("BRL 0 (≈ USD 0)", fmt.brl(-0.4));
     }
 
     @Test

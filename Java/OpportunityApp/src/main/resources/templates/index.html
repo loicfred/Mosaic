@@ -9,15 +9,10 @@
 
 <main class="mod-page mx-auto">
     <section class="mod-hero position-relative overflow-hidden">
-        <h1 class="statement m-0">Where are sales heading, and where could you invest?</h1>
-        <p class="lede mt-3 mb-0" th:if="${opportunities != null and opportunities.trend.change_pct != null}">
-            Over the next <th:block th:text="${opportunities.trend.forecast_months}">3</th:block> months the model expects average monthly sales to move
-            <span class="v" th:classappend="${opportunities.trend.increasing} ? '' : 'bad'" th:text="${@format.pct(opportunities.trend.change_pct)}">+3.9%</span>
-            against the last <th:block th:text="${opportunities.trend.recent_months}">3</th:block>. A forecast, not a promise.
-        </p>
+        <h1 class="statement m-0">Where are sales heading?</h1>
+        <div th:replace="~{/fragments/items/notice :: error(${historyError})}"></div>
     </section>
     <section th:replace="~{/fragments/index/sales :: sales}"></section>
-    <section th:replace="~{/fragments/index/invest :: invest}"></section>
 </main>
 
 <footer th:replace="~{/fragments/footer :: mainFooter}" id="master-footer"></footer>

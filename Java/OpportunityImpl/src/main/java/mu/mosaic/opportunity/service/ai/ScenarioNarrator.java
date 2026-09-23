@@ -41,7 +41,7 @@ public class ScenarioNarrator {
         String text;
         String evidencePrompt;
         try {
-            if (!service.isAvailable()) return new Narrative(fallback, "template", null, "llm_unreachable");
+            if (!LocalAi.reachable(service)) return new Narrative(fallback, "template", null, "llm_unreachable");
             evidencePrompt = prompt(scenario);
             text = bot.prompt(evidencePrompt);
         } catch (RuntimeException e) {

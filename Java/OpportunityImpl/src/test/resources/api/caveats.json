@@ -1,0 +1,114 @@
+{
+  "checks": [
+    {
+      "id": "categories_falling_behind",
+      "triggered": true,
+      "title": "Some categories are falling well behind the business",
+      "evidence": {
+        "flagged": 18,
+        "categories": 74,
+        "total_change_pct": -12.715884824323046,
+        "sales_lost_by_flagged": -461021.61,
+        "worst": [
+          {
+            "category": "computers_accessories",
+            "change_pct": -36.98156701958782,
+            "change_abs": -72679.6
+          },
+          {
+            "category": "sports_leisure",
+            "change_pct": -28.21126108855308,
+            "change_abs": -59695.01999999999
+          },
+          {
+            "category": "baby",
+            "change_pct": -40.413527300328326,
+            "change_abs": -50688.020000000004
+          }
+        ]
+      }
+    },
+    {
+      "id": "late_rate_rising",
+      "triggered": false,
+      "title": "Late deliveries are becoming more common",
+      "evidence": {
+        "recent": {
+          "count": 672,
+          "total": 18603,
+          "rate": 0.03612320593452669
+        },
+        "previous": {
+          "count": 2077,
+          "total": 20550,
+          "rate": 0.1010705596107056
+        },
+        "change_pp": -6.49473536761789,
+        "recent_months": [
+          "2018-06",
+          "2018-07",
+          "2018-08"
+        ],
+        "previous_months": [
+          "2018-03",
+          "2018-04",
+          "2018-05"
+        ],
+        "threshold_pp": 1.0
+      }
+    },
+    {
+      "id": "low_reviews_rising",
+      "triggered": false,
+      "title": "Low reviews are becoming more common",
+      "evidence": {
+        "recent": {
+          "count": 2065,
+          "total": 18873,
+          "rate": 0.10941556721241986
+        },
+        "previous": {
+          "count": 3337,
+          "total": 20870,
+          "rate": 0.15989458552946814
+        },
+        "change_pp": -5.047901831704828,
+        "recent_months": [
+          "2018-06",
+          "2018-07",
+          "2018-08"
+        ],
+        "previous_months": [
+          "2018-03",
+          "2018-04",
+          "2018-05"
+        ],
+        "threshold_pp": 1.0
+      }
+    },
+    {
+      "id": "late_orders_get_low_reviews",
+      "triggered": true,
+      "title": "Late orders are far more likely to get a 1 or 2 star review",
+      "evidence": {
+        "late": {
+          "reviewed": 6378,
+          "low": 3981,
+          "low_rate": 0.6241768579492004
+        },
+        "on_time": {
+          "reviewed": 89182,
+          "low": 8247,
+          "low_rate": 0.0924738175865085
+        },
+        "ratio": 6.749768466791026,
+        "threshold_ratio": 2.0
+      }
+    }
+  ],
+  "triggered": 2,
+  "limitations": [
+    "A caveat says where to look, not why it happened; things that move together are not proof of cause.",
+    "The most recent months can still have orders on their way, so their delivery and review rates may change."
+  ]
+}

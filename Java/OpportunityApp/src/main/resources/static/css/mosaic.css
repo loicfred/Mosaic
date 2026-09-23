@@ -131,3 +131,6 @@ button.avatar-btn:hover, button.avatar-btn[aria-expanded="true"] { background: v
 .avatar-popup-action:hover { background: var(--row-hover); }
 .login-icon { color: var(--text-soft); }
 .login-icon:hover { color: var(--accent-soft); }
+
+/* ---- overview answer panels: the fixed rules write one caveat per line ---- */
+.panel-text { white-space: pre-line; }

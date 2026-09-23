@@ -37,19 +37,16 @@ class PagesRenderTest {
     private static ApiResult ok(String name) { return ApiResult.ok(fixture(name)); }
 
     @Test
-    void overviewShowsTheForecastAndWhereToInvest() throws Exception {
+    void overviewShowsTheForecastWithItsEvidenceBehindAButton() throws Exception {
         when(api.salesHistory()).thenReturn(ok("history"));
         when(api.salesForecast(anyInt())).thenReturn(ok("forecast"));
-        when(api.salesOpportunities(anyInt())).thenReturn(ok("opportunities"));
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("+3.9%"),
-                containsString("scored better than the model"),
-                containsString("Where to invest if sales rise"),
-                containsString("Health beauty"),
-                containsString("In line with the business"),
-                containsString("<td>Strong</td>"),
-                containsString("The strongest place to look is health beauty"),
-                not(containsString("data-advice-url")))));
+                containsString("sales-chart"),
+                containsString(">Show evidence</button>"),
+                containsString(">Suggest investment</button>"),
+                containsString(">View possible caveats</button>"),
+                containsString("data-url=\"/api/overview/caveats\""),
+                matchesRegex("(?s).*<div id=\"evidence-panel\" class=\"mt-3\" hidden>.*scored better than the model.*not counted as sales.*"))));
     }
 
     @Test
@@ -57,7 +54,6 @@ class PagesRenderTest {
         ApiResult down = ApiResult.failed(DOWN);
         when(api.salesHistory()).thenReturn(down);
         when(api.salesForecast(anyInt())).thenReturn(down);
-        when(api.salesOpportunities(anyInt())).thenReturn(down);
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(containsString(DOWN)));
     }
 
@@ -66,7 +62,6 @@ class PagesRenderTest {
         ApiResult untrained = ApiResult.failed("No trained sales_forecast model found.");
         when(api.salesHistory()).thenReturn(ok("history"));
         when(api.salesForecast(anyInt())).thenReturn(untrained);
-        when(api.salesOpportunities(anyInt())).thenReturn(untrained);
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(allOf(
                 containsString("No trained sales_forecast model found."), containsString("sales-chart"))));
     }

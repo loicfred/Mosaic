@@ -51,7 +51,7 @@ public class Assistant {
         Chatbot assistant = bot();
         if (assistant == null) return new Reply("The assistant is switched off: no language model is configured.", false, null, "llm_disabled");
         IAIService service = assistant.getService();
-        if (!reachable(service)) return new Reply(OFFLINE, false, service.getModel(), "llm_unreachable");
+        if (!LocalAi.reachable(service)) return new Reply(OFFLINE, false, service.getModel(), "llm_unreachable");
         // a generated id, not the visitor key: the id heads every log line and a session id must not end up there
         Conversation c = conversations.get(visitor, k -> assistant.startConversation());
         synchronized (c) {
@@ -77,14 +77,6 @@ public class Assistant {
         ChatMessage last = conversation.getLastMessage();
         if (last != null && last.getRole().isAssistant()) last.setText(WITHHELD);
         return new Reply("I left that answer out because it used figures I could not find in the data (" + String.join(", ", invented) + "). Ask about a category, deliveries or a scenario and I will quote the data directly.", false, model, "unsupported_numbers: " + String.join(", ", invented));
-    }
-
-    private static boolean reachable(IAIService service) {
-        try {
-            return service.isAvailable();
-        } catch (RuntimeException e) {
-            return false;
-        }
     }
 
     /** Starts the visitor's next question on a clean transcript. */

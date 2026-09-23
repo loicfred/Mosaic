@@ -7,6 +7,14 @@
       "model": "google/gemma-4-e4b",
       "timeoutSeconds": 120,
       "requestsPerMinute": 0
+    },
+    {
+      "name": "Groq",
+      "baseUrl": "https://api.groq.com/openai",
+      "apiKey": "N/A",
+      "model": "openai/gpt-oss-120b",
+      "timeoutSeconds": 60,
+      "requestsPerMinute": 0
     }
   ],
   "chatbots": [
@@ -90,6 +98,33 @@
       "maxSteps": 1,
       "attributes": [
         "description:Suggests where to invest on the overview when the sales forecast rises. Its reply is discarded for the template if it uses a figure not in the evidence."
+      ]
+    },
+    {
+      "name": "CaveatWriter",
+      "serviceName": "LMStudio",
+      "systemPrompt": "You are warning a small-business owner whose sales forecast looks good about the problems hiding behind it. You are given checks already calculated from their data, some found and some clear.\nWrite two short paragraphs:\n1. The problems found and why they matter to the business.\n2. The single most useful thing to investigate first.\nRules:\n- Use only the numbers given in the checks. Do not calculate, estimate or invent any other number.\n- Things that move together are an association, not a proven cause. Write \"could\", never \"will\".\n- Mention a clear check only if it reassures; do not invent problems.\n- Plain language, no bullet points, no headings, under 140 words.\n- Answer directly. Keep any thinking brief.",
+      "options": {
+        "maxOutputTokens": 1500,
+        "temperature": 0.2,
+        "topP": 0.6,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": false
+      },
+      "agentOptions": {
+        "maxOutputTokens": 1500,
+        "temperature": 0.2,
+        "topP": 0.6,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": false
+      },
+      "maxSteps": 1,
+      "attributes": [
+        "description:Explains the hidden problems behind the sales result on the overview. Its reply is discarded for the fixed list if it uses a figure not in the checks."
       ]
     }
   ]

@@ -6,17 +6,22 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * Display formatting for templates, as {@code ${@format.brl(x)}}. Formatting only: the one conversion is a rate
- * (0.0361) shown as a percentage (3.61%). A missing value shows as a dash, never as zero.
+ * Display formatting for templates, as {@code ${@format.brl(x)}}. Formatting only: a rate (0.0361) is shown as a
+ * percentage (3.61%), and an amount in reais also shows its approximate value in US dollars. A missing value shows as
+ * a dash, never as zero.
  */
 @Component("format")
 public class Formatter {
     public static final String MISSING = "—";
+    /** Reais per US dollar: a rough average over the data's range (January 2017 to August 2018), for scale only. */
+    public static final double BRL_PER_USD = 3.4;
 
     public String brl(Object value) {
         if (!(value instanceof Number number)) return MISSING;
         String magnitude = String.format(Locale.US, "%,.0f", Math.abs(number.doubleValue()));
-        return (number.doubleValue() < 0 && !magnitude.equals("0") ? "−" : "") + "BRL " + magnitude;
+        String usd = String.format(Locale.US, "%,.0f", Math.abs(number.doubleValue()) / BRL_PER_USD);
+        String sign = number.doubleValue() < 0 && !magnitude.equals("0") ? "−" : "";
+        return sign + "BRL " + magnitude + " (≈ " + (usd.equals("0") ? "" : sign) + "USD " + usd + ")";
     }
 
     public String num(Object value, int digits) {

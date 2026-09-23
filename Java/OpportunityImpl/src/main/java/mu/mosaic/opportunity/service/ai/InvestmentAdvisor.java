@@ -1,10 +1,6 @@
 package mu.mosaic.opportunity.service.ai;
 
 import mu.mosaic.opportunity.service.ai.ScenarioNarrator.Narrative;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.solarframework.ai.Chatbot;
-import org.solarframework.ai.IAIService;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,11 +14,10 @@ import static mu.mosaic.opportunity.obj.ApiData.recordList;
  * When the sales forecast rises, says where the data points for investment, from the API's growing categories and
  * their delivery and review checks.
  * <p>As {@link ScenarioNarrator}: the model only rewrites figures it was given, every number in its reply is checked,
- * and the fixed template is kept otherwise. What to write is the {@code InvestmentAdvisor} chatbot's system prompt.
+ * and the fixed template is kept otherwise ({@link CheckedWriter}). What to write is the {@code InvestmentAdvisor} chatbot's system prompt.
  */
 @Component
 public class InvestmentAdvisor {
-    private static final Logger log = LoggerFactory.getLogger(InvestmentAdvisor.class);
     private final LocalAi ai;
 
     public InvestmentAdvisor(LocalAi ai) { this.ai = ai; }
@@ -31,24 +26,7 @@ public class InvestmentAdvisor {
         String fallback = template(opportunities);
         if (!Boolean.TRUE.equals(nestedObject(opportunities, "trend").get("increasing")) || recordList(opportunities, "candidates").isEmpty())
             return new Narrative(fallback, "template", null, "nothing_to_advise");
-        Chatbot.Builder configured = ai.bot(LocalAi.ADVISOR);
-        if (configured == null) return new Narrative(fallback, "template", null, "llm_disabled");
-        Chatbot bot = configured.build();
-        IAIService service = bot.getService();
-        String evidence = prompt(opportunities), text;
-        try {
-            if (!service.isAvailable()) return new Narrative(fallback, "template", null, "llm_unreachable");
-            text = bot.prompt(evidence);
-        } catch (RuntimeException e) {
-            log.warn("Investment advice fell back to the template: {}", e.getMessage());
-            return new Narrative(fallback, "template", null, "llm_unreachable: " + e.getClass().getSimpleName());
-        }
-        if (text == null || text.isBlank()) return new Narrative(fallback, "template", service.getModel(), "llm_empty_response");
-        var allowed = NumberCheck.allowedFromText(evidence);
-        allowed.addAll(NumberCheck.allowedFromText(bot.getSystemPrompt()));
-        List<String> invented = NumberCheck.unsupported(text, allowed);
-        if (!invented.isEmpty()) return new Narrative(fallback, "template", service.getModel(), "unsupported_numbers: " + String.join(", ", invented));
-        return new Narrative(text.strip(), "llm", service.getModel(), null);
+        return CheckedWriter.write(ai, LocalAi.ADVISOR, prompt(opportunities), fallback);
     }
 
     /** Rounded aggregates only, so the figures the model may quote are the ones the page shows. */

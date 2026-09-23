@@ -16,6 +16,7 @@ from app.api import (
     get_sales_history,
     get_sales_impact,
     get_sales_opportunities,
+    get_sales_caveats,
 )
 
 router = APIRouter()
@@ -33,5 +34,6 @@ for endpoint in (
     get_unreviewed_orders,
     get_sales_impact,
     get_sales_opportunities,
+    get_sales_caveats,
 ):
     router.include_router(endpoint.router)
