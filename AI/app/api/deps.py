@@ -5,9 +5,15 @@ from pathlib import Path
 import joblib
 from fastapi import HTTPException, Request
 
+from app.models import LATE_MODEL, MODEL_NAMES, REVIEW_MODEL, SALES_MODEL
+
+SALES_TRAIN_COMMAND = "python -m app.forecast.train"
+RISK_TRAIN_COMMAND = "python -m app.models.train_risk"
+
 
 def load_artifact(models_dir: Path, name: str) -> tuple[object | None, dict | None]:
-    artifact, metadata = models_dir / f"{name}.joblib", models_dir / f"{name}.json"
+    artifact = models_dir / f"{name}.joblib"
+    metadata = models_dir / f"{name}.json"
     if not artifact.exists() or not metadata.exists():
         return None, None
     return joblib.load(artifact), json.loads(metadata.read_text(encoding="utf-8"))
@@ -21,5 +27,26 @@ def require_model(request: Request, name: str, train_command: str) -> tuple[obje
     current = request.app.state.dataset_hashes
     trained_on = metadata["dataset_hashes"]
     if any(current.get(file) != digest for file, digest in trained_on.items()):
-        raise HTTPException(409, f"Dataset files changed since '{name}' was trained; retrain first: {train_command}")
+        raise HTTPException(
+            409,
+            f"Dataset files changed since '{name}' was trained; retrain first: {train_command}",
+        )
     return model, metadata
+
+
+def model_summary(request: Request, name: str) -> dict | None:
+    """Evaluation block for summary pages; None when the model is not trained."""
+    _, metadata = request.app.state.models.get(name, (None, None))
+    if metadata is None:
+        return None
+    keys = (
+        "model_version",
+        "trained_at",
+        "prediction_time",
+        "split_date",
+        "test_end",
+        "evaluation",
+        "importances",
+        "limitations",
+    )
+    return {key: metadata[key] for key in keys}

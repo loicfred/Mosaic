@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{/fragments/head :: pageHead(${title})}"></th:block>
+</head>
+<body>
+
+<header th:replace="~{/fragments/header :: mainHeader}" id="master-header"></header>
+
+<main class="mod-page mx-auto">
+    <section class="mod-hero position-relative overflow-hidden">
+        <h1 class="statement m-0" th:text="${@format.label(name)}">Category</h1>
+        <p class="lede mt-2 mb-0" th:if="${category != null}"
+           th:text="|${@format.pct(category.change_pct)} over the last ${category.recent_months} months, against ${@format.pct(category.total_change_pct)} for the whole business.|"></p>
+    </section>
+    <div th:replace="~{/fragments/items/notice :: error(${categoryError})}"></div>
+
+    <th:block th:if="${category != null}">
+        <section th:replace="~{/fragments/category/summary :: summary(${category})}"></section>
+        <section th:replace="~{/fragments/category/evidence :: evidence(${category})}"></section>
+        <section th:replace="~{/fragments/category/series :: series(${category})}"></section>
+    </th:block>
+</main>
+
+<footer th:replace="~{/fragments/footer :: mainFooter}" id="master-footer"></footer>
+</body>
+</html>

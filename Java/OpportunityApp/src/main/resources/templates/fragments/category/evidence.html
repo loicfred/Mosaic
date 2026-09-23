@@ -1,0 +1,35 @@
+<!-- Why a category is flagged: each rule with its inputs and threshold, in words rather than as JSON. -->
+<section th:fragment="evidence(c)" th:with="under=${c.evidence.underperforming_total}, anomaly=${c.evidence.latest_month_anomaly}">
+    <h2 class="mod-section-title fw-semibold fs-5">Why is this flagged?</h2>
+    <div class="mod-grid two evidence">
+        <article class="mod-card obs" th:if="${under != null}">
+            <h3>Falling behind the business</h3>
+            <p class="verdict mb-3" th:classappend="${c.flags.underperforming_total} ? 'on'"
+               th:text="${c.flags.underperforming_total} ? 'Flagged: this category trails the business by more than the rule allows.' : 'Not flagged.'"></p>
+            <dl>
+                <dt>This category's change</dt><dd th:text="${@format.pct(under.change_pct)}"></dd>
+                <dt>Whole business's change</dt><dd th:text="${@format.pct(under.total_change_pct)}"></dd>
+                <dt>Gap between the two</dt><dd th:text="${@format.pp(under.gap_pp)}"></dd>
+                <dt>Rule</dt><dd th:text="|Flag when the gap is ${@format.pp(under.threshold_pp)} or lower|"></dd>
+                <dt>Sales behind the comparison</dt><dd th:text="|${@format.brl(under.support_sales)} across both periods (at least ${@format.brl(under.min_support_sales)} needed)|"></dd>
+            </dl>
+        </article>
+        <article class="mod-card obs" th:if="${anomaly != null and anomaly.containsKey('expected')}">
+            <h3>Unusual latest month</h3>
+            <p class="verdict mb-3" th:classappend="${c.flags.latest_month_anomaly} ? 'on'"
+               th:text="${c.flags.latest_month_anomaly} ? 'Flagged: the latest month is far from recent months.' : 'Not flagged: the latest month is within its usual swing.'"></p>
+            <dl>
+                <dt>Latest month's sales</dt><dd th:text="${@format.brl(anomaly.latest)}"></dd>
+                <dt>Average of the 3 months before</dt><dd th:text="${@format.brl(anomaly.expected)}"></dd>
+                <dt>Difference</dt><dd th:text="${@format.brl(anomaly.deviation)}"></dd>
+                <dt>Usual month-to-month swing</dt><dd th:text="${@format.brl(anomaly.noise_std)}"></dd>
+                <dt>Rule</dt><dd th:text="|Flag when the difference is larger than ${@format.num(anomaly.sigma, 0)} × the usual swing (${@format.brl(anomaly.threshold)})|"></dd>
+            </dl>
+        </article>
+        <article class="mod-card obs" th:if="${anomaly != null and !anomaly.containsKey('expected')}">
+            <h3>Unusual latest month</h3>
+            <p class="mb-0" th:text="|Not checked: only ${anomaly.months_available} earlier months of sales, too few to know this category's usual swing.|"></p>
+        </article>
+    </div>
+    <p class="muted-note mt-3 mb-0">A flag says where to look, not why it happened. Sales falling alongside another change does not mean one caused the other.</p>
+</section>

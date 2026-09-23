@@ -1,0 +1,175 @@
+{
+ "model_version": "sales-ridge-v1",
+ "trained_at": "2026-09-22T10:13:12+00:00",
+ "unit": "BRL",
+ "measure": "gross_item_sales",
+ "horizon": 3,
+ "forecast": [
+  {
+   "month": "2018-09",
+   "sales": 892715.5331952448,
+   "lower": 737185.4254771175,
+   "upper": 1048245.6409133722
+  },
+  {
+   "month": "2018-10",
+   "sales": 889934.818798867,
+   "lower": 734404.7110807397,
+   "upper": 1045464.9265169944
+  },
+  {
+   "month": "2018-11",
+   "sales": 909482.2161033116,
+   "lower": 753952.1083851843,
+   "upper": 1065012.323821439
+  }
+ ],
+ "baselines": {
+  "naive_last": [
+   {
+    "month": "2018-09",
+    "sales": 848860.1
+   },
+   {
+    "month": "2018-10",
+    "sales": 848860.1
+   },
+   {
+    "month": "2018-11",
+    "sales": 848860.1
+   }
+  ],
+  "mean_last_3": [
+   {
+    "month": "2018-09",
+    "sales": 863389.9666666667
+   },
+   {
+    "month": "2018-10",
+    "sales": 863389.9666666667
+   },
+   {
+    "month": "2018-11",
+    "sales": 863389.9666666667
+   }
+  ]
+ },
+ "evaluation": {
+  "model": {
+   "mae": 92044.61814336477,
+   "mape": 10.412307198255691,
+   "skipped_zero_actuals": 0,
+   "points": [
+    {
+     "month": "2018-03",
+     "actual": 981051.06,
+     "predicted": 995926.4428571488
+    },
+    {
+     "month": "2018-04",
+     "actual": 993592.98,
+     "predicted": 983489.9702052125
+    },
+    {
+     "month": "2018-05",
+     "actual": 992871.75,
+     "predicted": 1058637.9094489801
+    },
+    {
+     "month": "2018-06",
+     "actual": 863265.53,
+     "predicted": 1082804.2623220847
+    },
+    {
+     "month": "2018-07",
+     "actual": 878044.27,
+     "predicted": 1036706.8692114674
+    },
+    {
+     "month": "2018-08",
+     "actual": 848860.1,
+     "predicted": 932181.92522572
+    }
+   ]
+  },
+  "naive_last": {
+   "mae": 54997.984999999986,
+   "mape": 6.0102758911963035,
+   "skipped_zero_actuals": 0,
+   "points": [
+    {
+     "month": "2018-03",
+     "actual": 981051.06,
+     "predicted": 837895.43
+    },
+    {
+     "month": "2018-04",
+     "actual": 993592.98,
+     "predicted": 981051.06
+    },
+    {
+     "month": "2018-05",
+     "actual": 992871.75,
+     "predicted": 993592.98
+    },
+    {
+     "month": "2018-06",
+     "actual": 863265.53,
+     "predicted": 992871.75
+    },
+    {
+     "month": "2018-07",
+     "actual": 878044.27,
+     "predicted": 863265.53
+    },
+    {
+     "month": "2018-08",
+     "actual": 848860.1,
+     "predicted": 878044.27
+    }
+   ]
+  },
+  "mean_last_3": {
+   "mae": 87832.6394444444,
+   "mape": 9.526760821849818,
+   "skipped_zero_actuals": 0,
+   "points": [
+    {
+     "month": "2018-03",
+     "actual": 981051.06,
+     "predicted": 841845.17
+    },
+    {
+     "month": "2018-04",
+     "actual": 993592.98,
+     "predicted": 921467.5933333334
+    },
+    {
+     "month": "2018-05",
+     "actual": 992871.75,
+     "predicted": 937513.1566666667
+    },
+    {
+     "month": "2018-06",
+     "actual": 863265.53,
+     "predicted": 989171.93
+    },
+    {
+     "month": "2018-07",
+     "actual": 878044.27,
+     "predicted": 949910.0866666666
+    },
+    {
+     "month": "2018-08",
+     "actual": 848860.1,
+     "predicted": 911393.85
+    }
+   ]
+  }
+ },
+ "limitations": [
+  "Trained on about 20 monthly observations; treat the forecast as a trend indicator, not a guarantee.",
+  "No seasonal term: the single November 2017 peak cannot be learned as a recurring pattern.",
+  "Sales are gross item prices booked by purchase month, not profit and not cash received."
+ ]
+}

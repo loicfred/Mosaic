@@ -10,6 +10,13 @@ Keep guidance, requirements and history separate:
 - Put product or implementation documentation in `docs/` when that directory exists. Do not invent files, paths, endpoints or completed features in documentation; verify each referenced artefact first.
 - Git history records completed changes. The final response records what changed, what was verified and any remaining limitations. Do not leave essential handoff information only in chat when it belongs in project documentation.
 
+**Three files, three jobs, as in SolarERP. Nothing belongs in two of them, and nothing may end only in the chat.**
+
+- **This file — the guidelines.** How to work on the code. No status, no history, no requirements.
+- **`docs/requirements.md` — the requirements and the open list.** Actors, scope, the FR/NFR tables and `## Outstanding work`. Add an open item the moment it appears and remove it the moment it is done, in the same pass as the job. Whatever is still open when a session stops is written there before answering.
+- **`docs/worklog/` — what is finished, with dates.** One file per session, named `YYYY-MM-DD<letter>-<kebab-title>.md`, opening with the dated `#` heading and then `Author: Codex` or `Author: Claude`; `docs/worklog.md` holds only this convention. **Write an entry at the end of every session.** Never read the whole log: `ls docs/worklog/`, then `grep` for the session.
+- **Every class, method, file and path named in these files must exist.** Check before writing it down, and re-check the nearby ones after a rename.
+
 ## Purpose and scope
 
 This file carries the project context into new Codex and Claude sessions. It is the project's development guide and brief, not a claim that the application has already been implemented.

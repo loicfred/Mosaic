@@ -1,0 +1,51 @@
+<!-- Both lists are read from the running apps - Spring's own mappings and FastAPI's openapi.json - so they never drift from the code. -->
+<section data-pane="endpoints" hidden th:fragment="endpointsContent">
+    <div class="doc-intro doc-page">
+        <h2>Every address both apps serve</h2>
+        <p>Read from the running apps each time this page opens, so the lists match the code. The website renders the
+            pages; the analytics API computes every figure on them.</p>
+    </div>
+
+    <article class="doc-page" id="endpoints-website">
+        <h2>Website</h2>
+        <p class="doc-lead">The pages, and the JSON their scripts call. Served by this site on port 8080.</p>
+        <div class="ref-scroll">
+            <table class="ref-table">
+                <thead><tr><th>Method</th><th>Path</th><th>Kind</th><th>Handled by</th></tr></thead>
+                <tbody>
+                <tr th:each="r : ${routes}">
+                    <td><span class="help-method" th:classappend="${#strings.toLowerCase(r.method())}" th:text="${r.method()}">GET</span></td>
+                    <td><code th:text="${r.path()}">/</code></td>
+                    <td th:text="${r.kind()}">Page</td>
+                    <td class="c-type" th:text="${r.handler()}">Controller.method</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="doc-page" id="endpoints-api">
+        <h2>Analytics API</h2>
+        <p class="doc-lead">The Python API that computes every figure, on port 8000. Its interactive docs are at
+            <code>/docs</code> on that port.</p>
+        <div th:replace="~{/fragments/items/notice :: error(${openapiError})}"></div>
+        <div class="ref-scroll" th:if="${openapi != null}">
+            <table class="ref-table">
+                <thead><tr><th>Method</th><th>Path</th><th>What it does</th><th>Parameters</th></tr></thead>
+                <tbody>
+                <th:block th:each="p : ${openapi.paths}">
+                    <tr th:each="op : ${p.value}">
+                        <td><span class="help-method" th:classappend="${op.key}" th:text="${#strings.toUpperCase(op.key)}">GET</span></td>
+                        <td><code th:text="${p.key}">/api/health</code></td>
+                        <td th:text="${op.value['summary']}">Health</td>
+                        <td>
+                            <span th:each="q : ${op.value['parameters'] ?: {}}" class="mod-chip" th:text="${q['name']}">limit</span>
+                            <span th:if="${op.value['requestBody'] != null}" class="mod-chip">JSON body</span>
+                        </td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>

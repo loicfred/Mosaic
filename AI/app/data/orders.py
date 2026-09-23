@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 from app.data.geo import haversine_km, zip_centroids
+from app.data.category_names import with_category_name
 from app.data.loaders import (
     load_category_translation, load_customers, load_geolocation, load_items_full,
     load_orders_full, load_products, load_reviews, load_sellers,
@@ -58,8 +59,7 @@ def build_order_features(datasets_dir: Path) -> OrderFeatures:
 
 
 def _aggregate_items(items, products, translation, sellers) -> pd.DataFrame:
-    products = products.merge(translation, on="product_category_name", how="left")
-    products["category"] = products["product_category_name_english"].fillna(products["product_category_name"])
+    products = with_category_name(products, translation)
     products["volume_cm3"] = (
         products["product_length_cm"] * products["product_height_cm"] * products["product_width_cm"]
     )

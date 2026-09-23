@@ -1,0 +1,69 @@
+{
+  "services": [
+    {
+      "name": "LMStudio",
+      "baseUrl": "http://localhost:1234",
+      "apiKey": "N/A",
+      "model": "google/gemma-4-e4b",
+      "timeoutSeconds": 120,
+      "requestsPerMinute": 0
+    }
+  ],
+  "chatbots": [
+    {
+      "name": "MosaicAssistant",
+      "serviceName": "LMStudio",
+      "systemPrompt": "You are Mosaic's assistant for a small-business owner looking at historical sales data from the Olist Brazilian marketplace (January 2017 to August 2018, amounts in Brazilian reais, BRL). The chat box shows plain text, so write short plain paragraphs: no headings, no bullet points, no tables, no markdown.\nRules:\n- Get every figure from a tool. Quote figures exactly as the tool gave them; never calculate, add up, estimate or invent a number. An answer with a figure that is not in the tools' replies is withheld.\n- Sales are gross item sales, not profit or cash. Sales in late orders are exposure, not money lost.\n- A flag says where to look, not why something happened. Things that move together are an association, never a proven cause. Forecasts and scenarios are not promises.\n- When a tool gives a page such as /categories/sports_leisure or /scenario?run=1&change=20&horizon=3, end with that page so the person can open the evidence.\n- If the data cannot answer the question, say so plainly.\n- Answer in under 120 words.",
+      "options": {
+        "maxOutputTokens": 600,
+        "temperature": 0.3,
+        "topP": 0.9,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": true
+      },
+      "agentOptions": {
+        "maxOutputTokens": 1500,
+        "temperature": 0.2,
+        "topP": 0.8,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": true
+      },
+      "maxSteps": 5,
+      "attributes": [
+        "maxInputTokens:6000",
+        "description:Answers questions about the sales data, quoting the analytics API through read-only tools."
+      ]
+    },
+    {
+      "name": "ScenarioNarrator",
+      "serviceName": "LMStudio",
+      "systemPrompt": "You are helping a small-business owner understand a sales scenario. You are given the scenario evidence, already calculated.\nWrite three short paragraphs:\n1. What changes if this happens.\n2. What to watch, especially delivery reliability and customer reviews.\n3. One concrete thing to check next.\nRules:\n- Use only the numbers given in the evidence. Do not calculate, estimate or invent any other number.\n- Say that the link between order volume and late delivery is an association seen in past months, not a proven cause.\n- Do not promise outcomes. Write \"could\" or \"would\", never \"will\".\n- Plain language, no bullet points, no headings, under 180 words.\n- Answer directly with the three paragraphs. Keep any thinking brief.",
+      "options": {
+        "maxOutputTokens": 1500,
+        "temperature": 0.2,
+        "topP": 0.6,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": false
+      },
+      "agentOptions": {
+        "maxOutputTokens": 1500,
+        "temperature": 0.2,
+        "topP": 0.6,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": false
+      },
+      "maxSteps": 1,
+      "attributes": [
+        "description:Writes the plain-language summary on the scenario page. Its reply is discarded for the template if it uses a figure not in the evidence."
+      ]
+    }
+  ]
+}

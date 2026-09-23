@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 
 from app.config import DATA_RANGE, EXCLUDED_STATUSES
+from app.data.category_names import with_category_name
 from app.data.loaders import load_category_translation, load_items_full, load_products
 from app.data.olist import load_orders
 
@@ -22,14 +23,8 @@ def build_category_monthly(
     start, end = data_range
     orders = orders[orders["month"].between(start, end)][["order_id", "month"]]
 
-    products = load_products(datasets_dir).merge(
-        load_category_translation(datasets_dir), on="product_category_name", how="left"
-    )
-    products["category"] = (
-        products["product_category_name_english"]
-        .fillna(products["product_category_name"])
-        .fillna(UNKNOWN_CATEGORY)
-    )
+    products = with_category_name(load_products(datasets_dir), load_category_translation(datasets_dir))
+    products["category"] = products["category"].fillna(UNKNOWN_CATEGORY)
     items = load_items_full(datasets_dir)[["order_id", "product_id", "price"]]
     items = items.merge(products[["product_id", "category"]], on="product_id", how="left")
     items["category"] = items["category"].fillna(UNKNOWN_CATEGORY)

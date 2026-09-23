@@ -1,0 +1,8 @@
+<section th:fragment="summary(c)" aria-label="Summary">
+    <div class="mod-tiles mb-0">
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.brl(c.recent)}"></b><small th:text="|Sales, last ${c.recent_months} months|"></small></div>
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.brl(c.previous)}"></b><small th:text="|Sales, ${c.recent_months} months before|"></small></div>
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.pct(c.change_pct)}"></b><small th:text="|Change (business: ${@format.pct(c.total_change_pct)})|"></small></div>
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.pp(c.share_change_pp)}"></b><small>Change in share of all sales</small></div>
+    </div>
+</section>

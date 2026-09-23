@@ -1,0 +1,563 @@
+/* The Help page, built on SolarERP's Help: a reference column on the left that the reader can widen, a tab strip,
+   and pages that read like entries. Colours are Mosaic's own, from the variables in main.css. */
+
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+    scroll-behavior: smooth;
+}
+
+.mod-chevron {
+    width: 10px;
+    height: 10px;
+    transition: transform .15s;
+}
+
+/* Two-tone: the column runs the whole left edge, and its own padding - not a gutter - holds the text off that edge. */
+.doc-side {
+    width: 300px;
+    background: var(--bg-shell);
+    border-right: 1px solid var(--line);
+}
+
+.doc-side-inner {
+    top: 0;
+    max-height: 100vh;
+    padding: 24px 18px 40px;
+}
+
+.doc-side h4 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-color);
+}
+
+.doc-side .mod-note {
+    color: var(--muted);
+    font-size: .82rem;
+}
+
+.doc-side .form-control {
+    background: var(--bg-field);
+    border-color: var(--line-strong);
+    color: var(--text-color);
+}
+
+.doc-side .form-control::placeholder {
+    color: var(--muted);
+}
+
+.doc-side .form-control:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 .2rem var(--accent-tint);
+}
+
+/* The rule between the list and the page is the handle that moves it. */
+.doc-drag {
+    width: 5px;
+    cursor: col-resize;
+    background: var(--line);
+    transition: background .12s;
+}
+
+.doc-drag:hover, body.dragging .doc-drag {
+    background: var(--accent);
+}
+
+body.dragging {
+    user-select: none;
+    cursor: col-resize;
+}
+
+.doc-main {
+    min-width: 0;
+    padding-bottom: 80px;
+    color: var(--text-color);
+}
+
+.doc-main-inner {
+    max-width: 980px;
+    padding: 0 40px;
+}
+
+.doc-main .mod-tabs, .doc-main .mod-tabs .nav-link {
+    border-radius: 0;
+}
+
+.doc-main .mod-tabs {
+    background: transparent;
+    margin-bottom: 40px;
+    padding: 0 28px;
+    border-bottom: 1px solid var(--line);
+}
+
+.doc-main .mod-tabs .nav-link {
+    color: var(--muted);
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    padding: 14px 16px 11px;
+    font-weight: 500;
+}
+
+.doc-main .mod-tabs .nav-link:hover {
+    color: var(--text-color);
+}
+
+/* The active bar is the brand gradient main.css gives every tab strip; only the background is taken away here. */
+.doc-main .mod-tabs .nav-link.active {
+    color: var(--text-color);
+    background: transparent;
+}
+
+/* Each tab's links fold under a heading, so the column is read as its handful of topics first. */
+.doc-chapter-title {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin: 18px 0 4px;
+    padding: 0 10px;
+    gap: 7px;
+    transition: color .12s;
+}
+
+.doc-chapter-title:hover {
+    color: var(--text-color);
+}
+
+.doc-tree-group.collapsed > .doc-tree-children {
+    display: none;
+}
+
+.doc-tree-group:not(.collapsed) > .doc-tree-toggle .mod-chevron {
+    transform: rotate(90deg);
+}
+
+#doc-nav.searching .doc-tree-children {
+    display: block;
+}
+
+#doc-nav a {
+    display: block;
+    padding: 6px 12px 6px 28px;
+    border-radius: 6px;
+    font-size: .86rem;
+    color: var(--text-soft);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: background .12s, color .12s;
+}
+
+#doc-nav a:hover {
+    background: var(--row-hover);
+    color: var(--text-color);
+}
+
+#doc-nav a.active {
+    background: var(--accent-tint);
+    color: var(--text-color);
+    font-weight: 500;
+    box-shadow: inset 2px 0 0 var(--accent);
+}
+
+/* Bootstrap's .nav wraps, and a wrapping column sizes its line to the longest link rather than to the column. */
+#doc-nav {
+    flex-wrap: nowrap;
+    background: none; /* main.css paints every <nav> as the header */
+}
+
+/* A file name is one token: cut with an ellipsis (its title holds the whole name), never broken mid-word. */
+#doc-nav a.doc-sub {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-left: 40px;
+    font-family: var(--bs-font-monospace);
+    font-size: .74rem;
+    color: var(--muted);
+}
+
+/* A page reads like one entry: large title, lead line, then the body. */
+.doc-page {
+    scroll-margin-top: 20px;
+}
+
+.doc-page + .doc-page {
+    margin-top: 48px;
+}
+
+.doc-page h2 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 10px;
+}
+
+.doc-page h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 30px 0 10px;
+}
+
+.doc-lead {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-soft);
+    margin-bottom: 20px;
+}
+
+.doc-page p, .doc-page li {
+    max-width: 76ch;
+    font-size: .95rem;
+    line-height: 1.75;
+    color: var(--text-color);
+}
+
+.doc-page a:not(.doc-screen) {
+    color: var(--accent-soft);
+}
+
+.doc-page ol, .doc-page ul {
+    padding-left: 20px;
+    margin: 14px 0;
+}
+
+.doc-page li {
+    margin-bottom: 6px;
+    padding-left: 4px;
+}
+
+.doc-page li::marker {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.doc-page code {
+    font-size: .86em;
+    color: var(--code);
+    background: var(--bg-deep);
+    border-radius: 4px;
+    padding: 1px 5px;
+}
+
+/* The three marks, side by side, as the header shows them. */
+.doc-marks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.doc-marks .mod-tile {
+    margin: 0;
+}
+
+/* The screens are chosen between, so they are cards to click rather than a list to read. */
+.doc-screens {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.doc-screen {
+    display: block;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--bg-card);
+    text-decoration: none;
+    transition: border-color .12s, background .12s;
+}
+
+.doc-screen:hover {
+    border-color: var(--accent);
+    background: var(--bg-card-alt);
+}
+
+.doc-screen b {
+    display: block;
+    color: var(--accent-soft);
+    margin-bottom: 4px;
+}
+
+.doc-screen span {
+    display: block;
+    font-size: .86rem;
+    line-height: 1.55;
+    color: var(--text-soft);
+}
+
+/* Questions sit apart from the instructions above them, and open one at a time. */
+.doc-faq {
+    margin-top: 28px;
+}
+
+.doc-ask {
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 14px;
+    margin-bottom: 8px;
+    font-size: .93rem;
+    color: var(--text-color);
+    transition: background .12s, border-color .12s;
+}
+
+.doc-ask:hover {
+    background: var(--accent-tint);
+    border-color: var(--accent);
+}
+
+.doc-ask .mod-chevron {
+    color: var(--accent-soft);
+}
+
+.doc-ask[aria-expanded="true"] .mod-chevron {
+    transform: rotate(90deg);
+}
+
+.doc-answer {
+    padding: 0 14px 14px 32px;
+    margin: -2px 0 10px;
+    color: var(--text-soft) !important;
+}
+
+/* The opening note of a reference tab: what the tab lists and how to read it. */
+.doc-intro {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-tint);
+    border-radius: 0 10px 10px 0;
+    padding: 20px 24px;
+    margin-bottom: 44px;
+}
+
+.doc-intro h2 {
+    font-size: 1.35rem;
+    margin-bottom: 8px;
+}
+
+.doc-intro p {
+    max-width: none;
+}
+
+.doc-intro p:last-child {
+    margin-bottom: 0;
+}
+
+/* Reference entries carry a fact strip and a table rather than prose: a reference is scanned, not read. */
+.doc-facts {
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.doc-fact {
+    font-size: .74rem;
+    font-family: var(--bs-font-monospace);
+    color: var(--text-soft);
+    background: var(--bg-card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 9px;
+}
+
+.doc-fact b {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+.doc-file {
+    scroll-margin-top: 20px;
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+}
+
+.doc-file h3 {
+    margin: 0 0 8px;
+    font-family: var(--bs-font-monospace);
+    font-size: .98rem;
+    color: var(--accent-soft);
+}
+
+.doc-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ref-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 8px;
+}
+
+.ref-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: .84rem;
+}
+
+.ref-table th {
+    font-family: var(--bs-font-monospace);
+    font-size: .68rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    background: var(--bg-card-alt);
+    padding: 9px 12px;
+    white-space: nowrap;
+}
+
+.ref-table td {
+    padding: 9px 12px;
+    color: var(--text-soft);
+    border-top: 1px solid var(--line);
+    vertical-align: top;
+}
+
+.ref-table tr:hover td {
+    background: var(--row-hover);
+}
+
+.ref-table code {
+    color: var(--code);
+    background: none;
+    padding: 0;
+    white-space: nowrap;
+}
+
+.ref-table .c-type {
+    font-family: var(--bs-font-monospace);
+    font-size: .78rem;
+    color: var(--muted);
+}
+
+.ref-table .mod-chip {
+    margin: 0 4px 4px 0;
+}
+
+.help-method {
+    display: inline-block;
+    min-width: 50px;
+    text-align: center;
+    font-family: var(--bs-font-monospace);
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    border-radius: 4px;
+    padding: 2px 6px;
+    color: var(--text-soft);
+    background: var(--line);
+}
+
+.help-method.get {
+    color: var(--better);
+    background: color-mix(in srgb, var(--better) 16%, transparent);
+}
+
+.help-method.post, .help-method.put, .help-method.delete {
+    color: var(--hypo);
+    background: color-mix(in srgb, var(--hypo) 16%, transparent);
+}
+
+/* A model or a chatbot is either ready or not: a band down the left edge says which before the words do. */
+.doc-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.doc-row {
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--row-band);
+    background: var(--bg-card);
+}
+
+.doc-row.is-on {
+    --row-band: var(--better);
+}
+
+.doc-row.is-off {
+    --row-band: var(--muted);
+}
+
+.doc-row-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.doc-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--row-band);
+    flex-shrink: 0;
+}
+
+.doc-row-name {
+    font-family: var(--bs-font-monospace);
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.doc-standing {
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: var(--row-band);
+}
+
+.doc-row p {
+    margin: 4px 0 0;
+    font-size: .84rem;
+    color: var(--text-soft);
+}
+
+@media (max-width: 767px) {
+    .doc-layout {
+        flex-direction: column;
+    }
+
+    .doc-side {
+        width: auto !important;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .doc-side-inner {
+        position: static !important;
+        max-height: 40vh;
+        padding: 16px;
+    }
+
+    .doc-side .mod-note {
+        display: none;
+    }
+
+    .doc-main .mod-tabs {
+        padding: 0 8px;
+        margin-bottom: 28px;
+    }
+
+    .doc-main .mod-tabs .nav-link {
+        padding: 12px 10px 9px;
+    }
+
+    .doc-main-inner {
+        padding: 0 16px;
+    }
+
+    .doc-page h2 {
+        font-size: 1.5rem;
+    }
+}

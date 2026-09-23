@@ -1,0 +1,64 @@
+# Mosaic — Requirements & Plan
+
+Hackathon project for Challenge 3, *Turning Financial Data into Opportunity*: help a small-business owner spot
+when an apparently positive result hides deterioration elsewhere, inspect the evidence, and explore the next
+step. Guidelines for working on the code are in `.claude/CLAUDE.md` (shared with Codex as `AGENTS.md`); the
+session history is in `docs/worklog/`.
+
+## Actors
+
+| Actor | Role |
+| --- | --- |
+| Business owner | Reads the findings, opens the evidence, tries a scenario, asks the assistant. The only user of the site. |
+| Analytics API (`AI/`, Python FastAPI) | Loads the Olist dataset, computes every figure, trains and serves the forecast and risk models. |
+| Website (`Java/OpportunityApp`, Spring Boot) | Shows the figures, writes the scenario summary and runs the assistant through the local model. |
+| Local language model (LM Studio) | Writes prose from figures it is given. Never a source of numbers. |
+
+## Scope
+
+- One dataset: Olist Brazilian e-commerce, January 2017 to August 2018, amounts in BRL (gross item sales).
+- One local, single-user demo. No accounts, no payments, no bank or ERP integration, no autonomous actions.
+- Out of scope: other datasets merged with Olist, personal finance, chat-to-SQL, training a language model.
+
+## Functional Requirements
+
+| Code | Requirement | Where |
+| --- | --- | --- |
+| FR-1 | Show monthly sales and orders for the analysed range, with the records left out and why. | `AI/app/api/get_sales_history.py`; `Java/OpportunityApp/.../templates/fragments/index/sales.html` |
+| FR-2 | Forecast the next months of sales with a range, and compare the model honestly against simple rules. | `AI/app/forecast/`; `fragments/index/sales.html` |
+| FR-3 | Flag categories falling well behind the whole business, and categories whose latest month is unusual. | `AI/app/analysis/categories.py`; `categories.html` |
+| FR-4 | For a flagged category, show the rule, its inputs, its threshold and the monthly series. | `category.html`, `fragments/category/evidence.html` |
+| FR-5 | Show late-delivery and low-review rates, how they go together, the riskiest open orders and the least reliable sellers. | `AI/app/api/get_delivery_summary.py` and the other `get_delivery_*`/`get_review*`/`get_unreviewed_orders.py` routes; `risk.html` |
+| FR-6 | Run a hypothetical sales change and show its effect on orders, late deliveries, low reviews and seller capacity, with its assumptions and limitations. | `AI/app/analysis/impact.py`; `scenario.html` |
+| FR-7 | Summarise a scenario in plain language; fall back to a fixed template when the model is off, fails, or uses a figure not in the evidence. | `service/ai/ScenarioNarrator.java` |
+| FR-8 | Answer questions about the data in a chat box on every page, using only read-only tools, and withhold an answer that uses a figure not in the tools' replies. | `service/ai/Assistant.java`, `service/ai/MosaicToolbox.java` |
+| FR-9 | Start the analytics API with the website and stop it with it. | `service/PythonApiLauncher.java` |
+| FR-10 | Keep the Olist records in the website's own database and compute every API figure from that database's CSV export. | `Java/OpportunityApp/.../data/BusinessDatabase.java`, `entity/` |
+
+## Non-Functional Requirements
+
+| Code | Requirement |
+| --- | --- |
+| NFR-1 | The Python API is the only source of figures; the website formats them and never recomputes them. |
+| NFR-2 | Every page renders when the API, a model or the language model is unavailable, saying what is missing and how to fix it. |
+| NFR-3 | Observed data, model predictions and hypothetical scenarios are visually distinct on every page. |
+| NFR-4 | No claim of causation, profit, cash or guaranteed outcome anywhere in the product. |
+| NFR-5 | Only aggregated figures reach the language model for the summary; the assistant's tools reach only the API. |
+| NFR-6 | One LLM client: every model call uses the Java AI manager configured in `Java/OpportunityApp/config/ai/agents.json`. |
+| NFR-7 | The demo needs no internet: Bootstrap and Chart.js are served from WebJars, the model is local. |
+
+## Outstanding work
+
+The running list of what is left. **Update it in the same pass as the job it covers** — add an item the
+moment it appears, strike it the moment it is done. Finished items move to `docs/worklog` and are removed
+from here, never left standing as done.
+
+### Website
+- Decide whether first-start import from `mosaic.data.source-dir` remains part of `BusinessDatabase`, or the website should assume an already populated database. The import currently fills empty Olist tables from the original CSVs.
+- Add the Python archive through the Claude `Stop` hook and run a packaged JAR outside the repository with a configured Python interpreter and installed packages. Extraction has unit coverage, but the archive is not present yet, so packaged startup and automatic model training on the database export remain untested.
+- One more Chrome pass over every page (desktop and phone width) after the module split and the business database, with the site restarted on the database export: the Mosaic palette and Help page were checked in Chrome on 23 Sep 2026 before the split. Both Java suites and the Help page render test pass after the split.
+- Walk the assistant and the scenario's AI summary live against LM Studio: a question per tool, a withheld answer, "New" to start over, the summary replacing the template, and both with LM Studio stopped. Only the scripted tests (`AssistantTest`, `MosaicToolboxTest`, `ScenarioNarratorTest`) have run; no real model has answered yet.
+- Check the sidebar opening and the chat box on a real phone-width browser; the headless screenshots could not click.
+
+### Team setup
+- Commit the artifactId rename in this repository's Java modules.

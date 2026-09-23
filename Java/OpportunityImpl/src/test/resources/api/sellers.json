@@ -1,0 +1,38 @@
+{
+ "min_orders": 30,
+ "sellers": [
+  {
+   "seller_id": "ad781527c93d00d89a11eecd9dcad7c1",
+   "orders": 36,
+   "late": 12,
+   "handover_known": 36,
+   "handover_late": 19,
+   "late_rate": 0.3333333333333333,
+   "handover_late_rate": 0.5277777777777778,
+   "recent_late_rate": null,
+   "earlier_late_rate": 0.3333333333333333
+  },
+  {
+   "seller_id": "ede0c03645598cdfc63ca8237acbe73d",
+   "orders": 43,
+   "late": 14,
+   "handover_known": 43,
+   "handover_late": 8,
+   "late_rate": 0.32558139534883723,
+   "handover_late_rate": 0.18604651162790697,
+   "recent_late_rate": null,
+   "earlier_late_rate": 0.32558139534883723
+  },
+  {
+   "seller_id": "54965bbe3e4f07ae045b90b0b8541f52",
+   "orders": 73,
+   "late": 22,
+   "handover_known": 73,
+   "handover_late": 39,
+   "late_rate": 0.3013698630136986,
+   "handover_late_rate": 0.5342465753424658,
+   "recent_late_rate": 0.0,
+   "earlier_late_rate": 0.41509433962264153
+  }
+ ]
+}

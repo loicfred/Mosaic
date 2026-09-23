@@ -1,0 +1,11 @@
+<!-- Kept on the page, not in a tooltip: the scenario is only as good as these. -->
+<section th:fragment="assumptions(s)" class="mod-grid two">
+    <div class="mod-card">
+        <h3>Assumptions</h3>
+        <ul class="plain mt-2"><li th:each="a : ${s.assumptions}" th:text="${a}"></li></ul>
+    </div>
+    <div class="mod-card">
+        <h3>Limitations</h3>
+        <ul class="plain mt-2"><li th:each="l : ${s.limitations}" th:text="${l}"></li></ul>
+    </div>
+</section>

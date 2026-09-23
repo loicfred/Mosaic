@@ -1,5 +1,7 @@
 # Frontend brief — Mosaic
 
+Historical brief for the React prototype in `front-end/`. The active website is `Java/OpportunityApp/`; see its README for current setup and routes. The API examples below are illustrative and should be checked against the running FastAPI docs.
+
 You are building the React UI. The Python backend in `AI/` is finished and is the single
 source of truth for every number. **Do not compute, re-derive, round-trip or invent any
 metric in the frontend.** Display what the API returns, formatted.
@@ -83,7 +85,7 @@ Four screens, in this order of importance.
 ### 4. Scenario — "what if sales grow?"
 
 `POST /api/scenarios/sales-impact` with
-`{"horizon": 1-6, "sales_change_pct": -50..100, "explain": true}`.
+`{"horizon": 1-6, "sales_change_pct": -50..100}`.
 
 - A slider for `sales_change_pct` (default +20) and `horizon` (default 3). Debounce; each
   change is one POST. **Mark everything on this screen as hypothetical** — different visual
@@ -100,14 +102,11 @@ Four screens, in this order of importance.
   `projected_monthly_orders`, `historical_peak`, `over_peak_pct`).
 - Render `assumptions[]` and `limitations[]` as visible list items on the screen, not hidden
   in a tooltip.
-- `narrative`: show `text` in a panel clearly labelled as generated. If
-  `narrative.source === "template"`, do not call it AI; label it "summary". If
-  `source === "llm"`, label it "AI explanation (<model>)". The narrative is **commentary
-  only** — every number must also appear in the cards above it.
+- The active Java website gets its optional generated summary separately from
+  `GET /api/scenario/summary?change=<percent>&horizon=<months>`. The Python scenario route returns figures only.
 - `consequences` can be `null` with `reason: "no_baseline_activity"` — handle it.
 
-Optional: `GET /api/ai/health` → a small indicator ("local AI: connected / offline"). When
-`reachable` is false the scenario still works and returns the template narrative.
+The scenario works without a language model; the Java website keeps a template summary in that case.
 
 ## Rules
 
@@ -185,7 +184,7 @@ Optional: `GET /api/ai/health` → a small indicator ("local AI: connected / off
   "orders": [{"order_id","purchase_ts","order_delivered_customer_date","seller_id",
     "seller_state","customer_state","category","total_price","delivery_days","days_late","risk"}] }
 
-// POST /api/scenarios/sales-impact  {"horizon":3,"sales_change_pct":20,"explain":true}
+// POST /api/scenarios/sales-impact  {"horizon":3,"sales_change_pct":20}
 { "scenario": {"horizon": 3, "sales_change_pct": 20.0, "recent_months": 3},
   "baseline": {"months": ["2018-06","2018-07","2018-08"],
                "monthly_sales": 863390.0, "monthly_orders": 6266.3},
@@ -206,13 +205,7 @@ Optional: `GET /api/ai/health` → a small indicator ("local AI: connected / off
   "evidence": {"aov": 137.78, "recent_late_rate": 0.0361, "recent_late_orders",
     "recent_delivered_orders", "p_low_given_late": 0.624, "p_low_given_on_time": 0.092,
     "volume_late_fit": {...}, "baseline_months": [...]},
-  "assumptions": ["..."], "limitations": ["..."],
-  "narrative": {"text": "...", "source": "llm"|"template", "model": null|"google/gemma-4-e4b",
-                "reason": null|"llm_disabled"|"llm_unreachable: ..."|"unsupported_numbers: ..."} }
-
-// GET /api/ai/health
-{ "enabled": true, "base_url": "http://localhost:1234", "configured_model": null,
-  "reachable": true, "models": ["google/gemma-4-e4b", "..."] }
+  "assumptions": ["..."], "limitations": ["..."] }
 ```
 
 ## Order of work

@@ -1,0 +1,21 @@
+<section th:fragment="sellers">
+    <h2 class="mod-section-title fw-semibold fs-5">Sellers delivering late most often</h2>
+    <p class="muted-note">Sellers with at least <th:block th:text="${sellers?.min_orders ?: 30}">30</th:block> delivered orders. “Late” means delivered after the date the customer was given; “handed over late” means the order reached the carrier after the seller's shipping limit date.</p>
+    <div th:replace="~{/fragments/items/notice :: error(${sellersError})}"></div>
+    <div class="mod-table table-responsive" th:if="${sellers != null}">
+        <table class="table mb-0">
+            <thead><tr><th>Seller</th><th class="n">Orders</th><th class="n">Late</th><th class="n">Handed over late</th><th class="n">Last 3 months</th><th class="n">Before that</th></tr></thead>
+            <tbody>
+            <tr th:each="s : ${sellers.sellers}">
+                <td class="id" th:text="${s.seller_id}"></td>
+                <td class="n" th:text="${s.orders}"></td>
+                <td class="n" th:text="${@format.rate(s.late_rate, 1)}"></td>
+                <td class="n" th:text="${@format.rate(s.handover_late_rate, 1)}"></td>
+                <td class="n" th:classappend="${s.recent_late_rate != null and s.recent_late_rate > s.earlier_late_rate} ? 'down' : (${s.recent_late_rate != null and s.recent_late_rate < s.earlier_late_rate} ? 'up')"
+                    th:text="${s.recent_late_rate == null} ? 'no recent orders' : (${s.recent_late_rate > s.earlier_late_rate} ? '▲ ' : (${s.recent_late_rate < s.earlier_late_rate} ? '▼ ' : '')) + ${@format.rate(s.recent_late_rate, 1)}"></td>
+                <td class="n" th:text="${@format.rate(s.earlier_late_rate, 1)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>

@@ -1,0 +1,45 @@
+{
+ "model_version": "late_delivery-hgb-v1",
+ "prediction_time": "at_purchase",
+ "orders": [
+  {
+   "order_id": "38b1f1d241fb8a17915d58514c912418",
+   "order_status": "shipped",
+   "purchase_ts": "2018-03-08T21:43:11",
+   "order_estimated_delivery_date": "2018-03-29T00:00:00",
+   "seller_id": "1835b56ce799e6a4dc4eddc053f04066",
+   "seller_state": "SP",
+   "customer_state": "RJ",
+   "category": "bed_bath_table",
+   "total_price": 34.99,
+   "days_since_purchase": 223,
+   "risk": 0.924769586445364
+  },
+  {
+   "order_id": "4a35349fd1d8617da52d19a95fcd95e8",
+   "order_status": "shipped",
+   "purchase_ts": "2018-03-07T18:53:08",
+   "order_estimated_delivery_date": "2018-03-29T00:00:00",
+   "seller_id": "ea8482cd71df3c1969d7b9473ff13abc",
+   "seller_state": "SP",
+   "customer_state": "CE",
+   "category": "telephony",
+   "total_price": 44.99,
+   "days_since_purchase": 224,
+   "risk": 0.913416160443016
+  },
+  {
+   "order_id": "b37b51d9ce106d9676b4757abb719d91",
+   "order_status": "shipped",
+   "purchase_ts": "2018-03-04T22:55:43",
+   "order_estimated_delivery_date": "2018-03-26T00:00:00",
+   "seller_id": "821fb029fc6e495ca4f08a35d51e53a5",
+   "seller_state": "SP",
+   "customer_state": "BA",
+   "category": "sports_leisure",
+   "total_price": 389.0,
+   "days_since_purchase": 227,
+   "risk": 0.912949348336311
+  }
+ ]
+}

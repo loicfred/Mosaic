@@ -1,0 +1,21 @@
+<header class="position-relative" th:fragment="mainHeader" style="z-index: 100;">
+    <nav class="top-nav navbar navbar-dark d-flex align-items-center justify-content-center p-1">
+        <div class="container d-flex align-items-center flex-nowrap gap-2">
+            <button class="hamburger-btn border-0 bg-transparent text-white fs-4" id="hamburgerBtn"
+                    aria-label="Open menu" aria-controls="sidebar">☰
+            </button>
+            <a class="navbar-brand me-auto d-flex align-items-center gap-2" th:href="@{/}">
+                <img class="rounded-2" th:src="@{/img/logo.jpg}" draggable="false" height="48" width="48" alt="">
+                <span class="fw-bold">Mosaic</span>
+            </a>
+
+            <div th:replace="~{/fragments/items/sidebar :: sidebar}"></div>
+
+            <div th:replace="~{/fragments/items/statekey :: stateKey}"></div>
+
+            <div th:replace="~{/fragments/items/assistant :: assistant}"></div>
+        </div>
+    </nav>
+
+    <div th:replace="~{/fragments/items/breadcrumb :: breadcrumbBar}"></div>
+</header>

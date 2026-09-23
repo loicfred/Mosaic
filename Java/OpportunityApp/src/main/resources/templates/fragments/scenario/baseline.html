@@ -1,0 +1,10 @@
+<!-- What the scenario starts from: observed figures for the recent months. -->
+<section th:fragment="baseline(s)">
+    <h2 class="mod-section-title fw-semibold fs-5">Starting point</h2>
+    <div class="mod-tiles mb-0">
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.brl(s.baseline.monthly_sales)}"></b><small th:text="|Average monthly sales, ${#strings.listJoin(s.baseline.months, ', ')}|"></small></div>
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.num(s.baseline.monthly_orders, 0)}"></b><small>Average monthly orders</small></div>
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.rate(s.evidence.recent_late_rate, 2)}"></b><small th:text="|Delivered late (${@format.num(s.evidence.recent_late_orders, 0)} of ${@format.num(s.evidence.recent_delivered_orders, 0)})|"></small></div>
+        <div class="mod-tile obs"><b class="mod-tile-num d-block" th:text="${@format.brl(s.evidence.aov)}"></b><small>Average order value</small></div>
+    </div>
+</section>

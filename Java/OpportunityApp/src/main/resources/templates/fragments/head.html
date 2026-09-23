@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Everything every page's <head> holds in common, as in SolarERP: the title is the one parameter.
+         Chart.js is here too, deferred, so a page part that draws a chart only has to call MosaicCharts on DOMContentLoaded. -->
+    <th:block th:fragment="pageHead(title)">
+        <meta charset="UTF-8">
+        <title th:text="'Mosaic - ' + ${title}">Mosaic</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="theme-color" content="#0e0f12">
+        <link rel="icon" th:href="@{/img/mosaic.svg}" type="image/svg+xml">
+        <link rel="stylesheet" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
+        <link rel="stylesheet" th:href="@{/css/main.css}">
+        <link rel="stylesheet" th:href="@{/css/mosaic.css}">
+        <script th:src="@{/webjars/bootstrap/dist/js/bootstrap.bundle.min.js}" defer></script>
+        <script th:src="@{/webjars/chart.js/dist/chart.umd.min.js}" defer></script>
+        <script th:src="@{/js/charts.js}" defer></script>
+        <script th:src="@{/js/app.js}" defer></script>
+        <script th:src="@{/js/assistant.js}" defer></script>
+    </th:block>
+</head>
+</html>

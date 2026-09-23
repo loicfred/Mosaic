@@ -1,0 +1,45 @@
+{
+ "model_version": "low_review-hgb-v1",
+ "prediction_time": "after_delivery",
+ "orders": [
+  {
+   "order_id": "cd002226356c8056b3e5d2ab6098543f",
+   "purchase_ts": "2018-03-27T18:21:43",
+   "order_delivered_customer_date": "2018-05-09T11:05:39",
+   "seller_id": "0b35c634521043bf4b47e21547b99ab5",
+   "seller_state": "PR",
+   "customer_state": "RJ",
+   "category": "construction_tools_construction",
+   "total_price": 298.0,
+   "delivery_days": 43.0,
+   "days_late": 13.0,
+   "risk": 0.9613072686942254
+  },
+  {
+   "order_id": "6ffcafc5934324a01c7758dde8a28513",
+   "purchase_ts": "2018-04-11T21:13:25",
+   "order_delivered_customer_date": "2018-05-21T20:14:48",
+   "seller_id": "6860153b69cc696d5dcfe1cdaaafcf62",
+   "seller_state": "SP",
+   "customer_state": "RJ",
+   "category": "construction_tools_construction",
+   "total_price": 41.99,
+   "delivery_days": 40.0,
+   "days_late": 13.0,
+   "risk": 0.9609226019496521
+  },
+  {
+   "order_id": "7fb6586ab530ed69383ddde20ef388f9",
+   "purchase_ts": "2018-03-02T10:22:22",
+   "order_delivered_customer_date": "2018-04-16T20:22:03",
+   "seller_id": "e82de6494d91d3c4c54450f59b227a94",
+   "seller_state": "SP",
+   "customer_state": "RJ",
+   "category": "watches_gifts",
+   "total_price": 38.0,
+   "delivery_days": 45.0,
+   "days_late": 21.0,
+   "risk": 0.9603237202510215
+  }
+ ]
+}

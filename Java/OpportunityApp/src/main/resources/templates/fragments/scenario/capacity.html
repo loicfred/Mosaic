@@ -1,0 +1,18 @@
+<section th:fragment="capacity(s)" th:with="cap=${s.consequences.sellers_at_capacity}">
+    <h2 class="mod-section-title fw-semibold fs-5">Sellers pushed past their busiest month</h2>
+    <p th:text="|${@format.num(cap.count, 0)} of ${@format.num(cap.active_sellers, 0)} active sellers would handle more orders in a month than they ever have, assuming every seller's orders change by the same ${@format.pct(s.scenario.sales_change_pct)}.|"></p>
+    <div class="mod-table table-responsive" th:unless="${#lists.isEmpty(cap.top)}">
+        <table class="table mb-0">
+            <thead><tr><th>Seller</th><th class="n">Orders a month now</th><th class="n">In this scenario</th><th class="n">Busiest month so far</th><th class="n">Above that</th></tr></thead>
+            <tbody>
+            <tr th:each="t : ${cap.top}">
+                <td class="id" th:text="${t.seller_id}"></td>
+                <td class="n" th:text="${@format.num(t.recent_monthly_orders, 1)}"></td>
+                <td class="n" th:text="${@format.num(t.projected_monthly_orders, 1)}"></td>
+                <td class="n" th:text="${@format.num(t.historical_peak, 0)}"></td>
+                <td class="n" th:text="${@format.pct(t.over_peak_pct)}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>

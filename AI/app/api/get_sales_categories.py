@@ -1,7 +1,8 @@
-"""Category health routes (deterministic analysis computed at startup)."""
+"""Category health summaries with optional flag filtering."""
+
 from typing import Literal
 
-from fastapi import APIRouter, HTTPException, Query, Request
+from fastapi import APIRouter, Query, Request
 
 from app.analysis.categories import RECENT_MONTHS
 
@@ -18,23 +19,15 @@ def list_categories(
 ):
     categories = request.app.state.categories
     if flag is not None:
-        categories = [c for c in categories if c["flags"][flag]]
+        categories = [category for category in categories if category["flags"][flag]]
     total_change = categories[0]["total_change_pct"] if categories else None
     return {
         "recent_months": RECENT_MONTHS,
         "total_change_pct": total_change,
         "count": len(categories),
-        "categories": [_without_series(c) for c in categories[:limit]],
+        "categories": [_without_series(category) for category in categories[:limit]],
     }
 
 
-@router.get("/{category}")
-def category_detail(request: Request, category: str):
-    for entry in request.app.state.categories:
-        if entry["category"] == category:
-            return {"recent_months": RECENT_MONTHS, **entry}
-    raise HTTPException(404, f"Unknown category '{category}'")
-
-
 def _without_series(entry: dict) -> dict:
-    return {k: v for k, v in entry.items() if k != "series"}
+    return {key: value for key, value in entry.items() if key != "series"}

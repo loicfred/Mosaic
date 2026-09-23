@@ -1,0 +1,22 @@
+<!-- The chat box, hung off the header as SolarERP hangs its assistant, so every page has it.
+     data-context tells the assistant what the person is looking at, so "why is this flagged?" has a subject. -->
+<div th:fragment="assistant" id="assistant"
+     th:attr="data-context=${name != null} ? 'category ' + ${name} : (${page == 'scenario'} ? |scenario, sales change ${change}% for ${horizon} months| : ${page})">
+    <button id="assistant-open" type="button" class="assistant-fab btn fw-semibold" aria-controls="assistant-panel" aria-expanded="false">💬 Ask Mosaic</button>
+    <section id="assistant-panel" class="assistant-panel" aria-label="Ask Mosaic" hidden>
+        <div class="assistant-head d-flex align-items-center gap-2">
+            <b class="me-auto">Ask Mosaic</b>
+            <small id="assistant-status" class="assistant-status">Checking the local model…</small>
+            <button id="assistant-reset" type="button" class="btn btn-sm btn-outline-light" title="Start a new conversation">New</button>
+            <button id="assistant-close" type="button" class="btn btn-sm btn-outline-light" aria-label="Close">✕</button>
+        </div>
+        <div id="assistant-log" class="assistant-log" aria-live="polite">
+            <p class="assistant-hint">Ask about sales, a category, late deliveries or a what-if. Answers quote the data and link to the evidence; an answer with a figure that is not in the data is withheld.</p>
+        </div>
+        <form id="assistant-form" class="d-flex gap-2 mod-form">
+            <input id="assistant-input" class="form-control" maxlength="1000" autocomplete="off" aria-label="Your question"
+                   placeholder="e.g. Why is sports leisure flagged?">
+            <button type="submit" class="btn btn-outline-light">Ask</button>
+        </form>
+    </section>
+</div>

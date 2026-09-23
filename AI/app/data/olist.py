@@ -4,12 +4,11 @@ Sales here means gross item sales (sum of item ``price``), booked by purchase mo
 It excludes freight, payments, costs and any notion of settlement or profit.
 """
 import hashlib
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
 import pandas as pd
-
-from collections.abc import Iterable
 
 from app.config import DATA_RANGE, EXCLUDED_STATUSES, ITEMS_FILE, ORDERS_FILE
 
@@ -81,6 +80,10 @@ def build_monthly_sales(
     )
 
 
+def dataset_hashes(datasets_dir: Path, files: Iterable[str] = (ORDERS_FILE, ITEMS_FILE)) -> dict[str, str]:
+    return {name: _sha256(datasets_dir / name) for name in files}
+
+
 def _fill_missing_months(monthly: pd.DataFrame) -> pd.DataFrame:
     """Return one row per calendar month between the first and last observed month."""
     if monthly.empty:
@@ -95,10 +98,6 @@ def _fill_missing_months(monthly: pd.DataFrame) -> pd.DataFrame:
         .reset_index()
     )
     return filled.astype({"orders": int, "sales": float, "freight": float})[MONTH_COLUMNS]
-
-
-def dataset_hashes(datasets_dir: Path, files: Iterable[str] = (ORDERS_FILE, ITEMS_FILE)) -> dict[str, str]:
-    return {name: _sha256(datasets_dir / name) for name in files}
 
 
 def _sha256(path: Path) -> str:

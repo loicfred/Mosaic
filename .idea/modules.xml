@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AI/AI.iml" filepath="$PROJECT_DIR$/AI/AI.iml" />
       <module fileurl="file://$PROJECT_DIR$/Hackathon-Mosaic.iml" filepath="$PROJECT_DIR$/Hackathon-Mosaic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Java/OpportunityApp/OpportunityApp.iml" filepath="$PROJECT_DIR$/Java/OpportunityApp/OpportunityApp.iml" />
       <module fileurl="file://$PROJECT_DIR$/front-end/front-end.iml" filepath="$PROJECT_DIR$/front-end/front-end.iml" />
     </modules>
   </component>

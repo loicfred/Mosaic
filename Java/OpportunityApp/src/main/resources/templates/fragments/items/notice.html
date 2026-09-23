@@ -1,0 +1,5 @@
+<!-- Why a part of the page is missing. Renders nothing when message is null, so callers include it unconditionally. -->
+<div th:fragment="error(message)" th:if="${message != null}" class="notice" role="alert">
+    <strong class="d-block">This part could not be loaded.</strong>
+    <span th:text="${message}">reason</span>
+</div>

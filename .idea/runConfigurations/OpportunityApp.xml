@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="OpportunityApp" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="OpportunityApp" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="mu.mosaic.opportunity.OpportunityApp" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Java/OpportunityApp" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

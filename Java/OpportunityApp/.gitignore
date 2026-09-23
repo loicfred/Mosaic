@@ -1,0 +1,4 @@
+target/
+# The business database and what is written from it: rebuilt from AI/datasets on start
+config/*.db
+data/

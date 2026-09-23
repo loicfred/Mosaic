@@ -19,12 +19,15 @@ pip install -r requirements.txt       # exact versions used: requirements.lock
 
 ## Train
 
+The running API trains missing or stale models at startup from the dataset folder it reads.
+Training can take about 50 seconds on the full export. These commands remain available for manual retraining:
+
 ```powershell
 python -m app.forecast.train          # sales forecast      -> models/sales_forecast.*
 python -m app.models.train_risk       # late-delivery + low-review classifiers (~30 s)
 ```
 
-`models/` is gitignored: retrain after cloning or whenever the CSVs change. Every model
+`models/` is gitignored. Every model
 stores the SHA-256 of the CSVs it was trained on; an endpoint refuses to serve a model whose
 data changed (HTTP 409) or that was never trained (HTTP 503). Observed statistics keep
 working without any model.
@@ -35,14 +38,14 @@ working without any model.
 uvicorn app.main:app --reload --port 8000
 ```
 
-Startup builds all series and the order feature table once (a few seconds). Interactive docs
+Startup builds all series and the order feature table once, then trains missing or stale models. Interactive docs
 at http://127.0.0.1:8000/docs. CORS allows `http://localhost:5173` (Vite) by default;
 override with `MOSAIC_CORS_ORIGINS`. `MOSAIC_DATASETS_DIR` / `MOSAIC_MODELS_DIR` override paths.
 
 ## Test
 
 ```powershell
-python -m pytest -q        # 95 tests on a small synthetic fixture (tests/conftest.py)
+python -m pytest tests -q  # active suite, using a small synthetic fixture
 ```
 
 ## Endpoints
@@ -59,15 +62,14 @@ python -m pytest -q        # 95 tests on a small synthetic fixture (tests/confte
 | `GET /api/risk/delivery/sellers?min_orders=30&limit=50` | per seller: late and handover-late rates, recent (last 3 months) vs earlier | – |
 | `GET /api/risk/reviews/summary` | observed low-review rate by month and late vs on-time + model evaluation | – |
 | `GET /api/risk/reviews/unreviewed?limit=50` | delivered orders with no review yet, ranked by low-review risk score | low_review |
-| `POST /api/scenarios/sales-impact` | what a sales change would do to orders, late deliveries, low reviews, seller capacity and sales exposed to late delivery, plus a plain-language narrative | – |
-| `GET /api/ai/health` | whether the local LLM is reachable and which models it lists | – |
+| `POST /api/scenarios/sales-impact` | what a sales change would do to orders, late deliveries, low reviews, seller capacity and sales exposed to late delivery | – |
 
 Errors: `422` invalid query, `503` model not trained, `409` model trained on different data.
 
 ## Scenario: what a sales change would do
 
-`POST /api/scenarios/sales-impact` with `{"horizon": 1-6, "sales_change_pct": -50..100,
-"explain": true}`. It needs no trained model — everything comes from observed history.
+`POST /api/scenarios/sales-impact` with `{"horizon": 1-6, "sales_change_pct": -50..100}`.
+It needs no trained model — everything comes from observed history.
 
 Worked example, +20% over 3 months (real data):
 
@@ -84,36 +86,17 @@ Both late-delivery variants are always returned. The fitted one is an **associat
 months with R² = 0.26**, never a cause, and the response carries `assumptions` and
 `limitations` saying so.
 
-## Plain-language explanation (local LLM)
+## Plain-language explanation (Java)
 
-The narrative is written by a pretrained model served locally by **LM Studio** (no key, no
-cost, nothing leaves the machine). Only aggregated figures are sent — no order, customer or
-seller identifiers.
+The Python API returns calculated figures only. Scenario narration and the contextual
+assistant live in `Java/OpportunityImpl/src/main/java/mu/mosaic/opportunity/service/ai/`.
+They use SolarFramework's configured chatbots through `LocalAi`; the model configuration
+is in `Java/OpportunityApp/config/ai/agents.json`.
 
-1. In LM Studio open **Developer → Start Server** (default `http://localhost:1234`).
-2. Load a chat model; check with `GET /api/ai/health`.
-3. Call the scenario endpoint with `"explain": true`.
-
-Env vars: `MOSAIC_LLM_BASE_URL`, `MOSAIC_LLM_MODEL` (empty = whatever is loaded),
-`MOSAIC_LLM_TIMEOUT_SECONDS` (default 120), `MOSAIC_LLM_MAX_TOKENS` (default 1500),
-`MOSAIC_LLM_ENABLED=false` to switch the LLM off entirely.
-
-**The model never supplies numbers.** Every number in its reply is checked against the computed
-evidence; if it invents one, the reply is discarded and a deterministic template is returned
-instead. The response reports which was used:
-
-```json
-"narrative": {"text": "...", "source": "llm" | "template", "model": "...", "reason": null}
-```
-
-`source: "template"` with a `reason` means the model was off (`llm_disabled`), unreachable
-(`llm_unreachable: ...`), silent (`llm_empty_response`), or caught inventing figures
-(`unsupported_numbers: ...`). The endpoint always answers.
-
-Practical notes from testing on this machine: a 12B model on CPU took over 3 minutes and timed
-out; prefer a small model. Reasoning models (e.g. Gemma 4 e4b) spend part of the token budget
-on hidden reasoning before any visible text — that is why `MOSAIC_LLM_MAX_TOKENS` defaults to
-1500 rather than a few hundred.
+The scenario page asks `ScenarioNarrator` for the explanation. It checks numbers in the
+model's reply against the evidence and falls back to a deterministic template when the
+model is unavailable or supplies unsupported figures. Python analytics work independently
+of that service. The former Python LLM implementation is archived in `old/`.
 
 ## Definitions
 
@@ -170,21 +153,27 @@ app/data/loaders.py        CSV loaders (only the columns used)
 app/data/olist.py          monthly business sales series, dataset hashes
 app/data/categories.py     monthly category sales series
 app/data/orders.py         order-grain feature table and labels
+app/data/category_names.py shared category translation
 app/data/geo.py            zip centroids, haversine distance
 app/data/records.py        DataFrame -> JSON-safe records
 app/forecast/sales.py      ridge forecast, baselines, backtest (pure functions)
 app/forecast/train.py      sales forecast training CLI
 app/models/risk.py         classifier specs, temporal split, fit/evaluate/predict
 app/models/train_risk.py   risk model training CLI
+app/models/prepare.py      startup training when models are missing or stale
 app/analysis/categories.py category change, flags, evidence, short forecasts
 app/analysis/delivery.py   observed late rates, seller table, open-order scoring
 app/analysis/reviews.py    observed low-review rates, unreviewed-order scoring
 app/analysis/impact.py     sales-change consequences (orders, lateness, reviews, capacity)
-app/ai/client.py           OpenAI-compatible local LLM client (LM Studio)
-app/ai/explain.py          prompt, numeric guard, deterministic template fallback
-app/api/deps.py            artifact loading, 503/409 guards
-app/api/{sales,categories,risk,scenarios}.py   routers: validate, delegate, serialise
+app/analysis/populations.py shared date and known-outcome filtering
+app/api/deps.py            artifact loading, 503/409 guards, model summaries
+app/api/get_*.py           one endpoint per file: validate, delegate, serialise
+app/api/__init__.py        explicit route registration
 app/main.py                app assembly and startup cache
 tests/                     pytest suite with a synthetic fixture dataset
 datasets/external/         downloaded candidate datasets (gitignored; see its README)
 ```
+
+See [code organisation](../docs/code-organisation.md) for the endpoint-to-file mapping
+and the Python/Java responsibility boundary. `old/` holds the archived Python LLM code;
+the active LLM integration is in the Java application.

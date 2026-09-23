@@ -1,34 +1,45 @@
 """Observed late-delivery statistics and risk scoring of in-flight orders."""
 import pandas as pd
 
+from app.analysis.populations import labelled_orders_in_range
 from app.config import DATA_RANGE, OPEN_STATUSES
 from app.data.records import records
 from app.models import risk
 
-ORDER_ID_FIELDS = ["order_id", "order_status", "purchase_ts", "order_estimated_delivery_date",
-                   "seller_id", "seller_state", "customer_state", "category", "total_price"]
-
-
-def _labelled_in_range(frame: pd.DataFrame, data_range: tuple[str, str]) -> pd.DataFrame:
-    month = frame["purchase_ts"].dt.strftime("%Y-%m")
-    start, end = data_range
-    return frame[frame["late"].notna() & month.between(start, end)].assign(month=month)
+ORDER_ID_FIELDS = [
+    "order_id",
+    "order_status",
+    "purchase_ts",
+    "order_estimated_delivery_date",
+    "seller_id",
+    "seller_state",
+    "customer_state",
+    "category",
+    "total_price",
+]
 
 
 def monthly_late_rate(frame: pd.DataFrame, data_range: tuple[str, str] = DATA_RANGE) -> list[dict]:
-    labelled = _labelled_in_range(frame, data_range)
-    monthly = labelled.groupby("month").agg(delivered=("late", "size"), late=("late", "sum")).reset_index()
+    labelled = labelled_orders_in_range(frame, "late", data_range)
+    monthly = (
+        labelled.groupby("month")
+        .agg(delivered=("late", "size"), late=("late", "sum"))
+        .reset_index()
+    )
     monthly["late"] = monthly["late"].astype(int)
     monthly["late_rate"] = monthly["late"] / monthly["delivered"]
     return records(monthly)
 
 
 def seller_table(
-    frame: pd.DataFrame, min_orders: int, limit: int, recent_months: int = 3,
+    frame: pd.DataFrame,
+    min_orders: int,
+    limit: int,
+    recent_months: int = 3,
     data_range: tuple[str, str] = DATA_RANGE,
 ) -> list[dict]:
     """Observed rates per seller (seller of the priciest item), recent window versus earlier."""
-    labelled = _labelled_in_range(frame, data_range)
+    labelled = labelled_orders_in_range(frame, "late", data_range)
     labelled = labelled[labelled["seller_id"].notna()]
     months = sorted(labelled["month"].unique())
     recent = set(months[-recent_months:])

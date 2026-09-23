@@ -1,0 +1,151 @@
+{
+ "recent_months": 3,
+ "total_change_pct": -12.715884824323046,
+ "count": 18,
+ "categories": [
+  {
+   "category": "sports_leisure",
+   "recent": 151904.95,
+   "previous": 211599.97,
+   "change_abs": -59695.01999999999,
+   "change_pct": -28.21126108855308,
+   "share_recent": 0.058646712711780034,
+   "share_previous": 0.07130542344982771,
+   "share_change_pp": -1.2658710738047676,
+   "total_change_pct": -12.715884824323046,
+   "flags": {
+    "underperforming_total": true,
+    "latest_month_anomaly": false
+   },
+   "evidence": {
+    "underperforming_total": {
+     "change_pct": -28.21126108855308,
+     "total_change_pct": -12.715884824323046,
+     "gap_pp": -15.495376264230034,
+     "threshold_pp": -10.0,
+     "support_sales": 363504.92000000004,
+     "min_support_sales": 10000.0
+    },
+    "latest_month_anomaly": {
+     "latest": 51190.16,
+     "expected": 53437.97,
+     "deviation": -2247.8099999999977,
+     "noise_std": 11841.547955105176,
+     "threshold": 23683.09591021035,
+     "sigma": 2.0
+    }
+   },
+   "forecast": [
+    {
+     "month": "2018-09",
+     "sales": 61847.529198015436
+    },
+    {
+     "month": "2018-10",
+     "sales": 62325.59653351041
+    },
+    {
+     "month": "2018-11",
+     "sales": 70162.90328570816
+    }
+   ],
+   "forecast_reason": null
+  },
+  {
+   "category": "computers_accessories",
+   "recent": 123849.66,
+   "previous": 196529.26,
+   "change_abs": -72679.6,
+   "change_pct": -36.98156701958782,
+   "share_recent": 0.047815264936867656,
+   "share_previous": 0.06622686243566711,
+   "share_change_pp": -1.8411597498799455,
+   "total_change_pct": -12.715884824323046,
+   "flags": {
+    "underperforming_total": true,
+    "latest_month_anomaly": false
+   },
+   "evidence": {
+    "underperforming_total": {
+     "change_pct": -36.98156701958782,
+     "total_change_pct": -12.715884824323046,
+     "gap_pp": -24.265682195264773,
+     "threshold_pp": -10.0,
+     "support_sales": 320378.92000000004,
+     "min_support_sales": 10000.0
+    },
+    "latest_month_anomaly": {
+     "latest": 40268.93,
+     "expected": 44973.82000000001,
+     "deviation": -4704.890000000007,
+     "noise_std": 19093.281220484696,
+     "threshold": 38186.56244096939,
+     "sigma": 2.0
+    }
+   },
+   "forecast": [
+    {
+     "month": "2018-09",
+     "sales": 47757.430014699465
+    },
+    {
+     "month": "2018-10",
+     "sales": 51582.0954899124
+    },
+    {
+     "month": "2018-11",
+     "sales": 54241.24242041129
+    }
+   ],
+   "forecast_reason": null
+  },
+  {
+   "category": "baby",
+   "recent": 74735.38,
+   "previous": 125423.40000000001,
+   "change_abs": -50688.020000000004,
+   "change_pct": -40.413527300328326,
+   "share_recent": 0.028853466330529133,
+   "share_previous": 0.042265453286770886,
+   "share_change_pp": -1.3411986956241753,
+   "total_change_pct": -12.715884824323046,
+   "flags": {
+    "underperforming_total": true,
+    "latest_month_anomaly": false
+   },
+   "evidence": {
+    "underperforming_total": {
+     "change_pct": -40.413527300328326,
+     "total_change_pct": -12.715884824323046,
+     "gap_pp": -27.697642476005278,
+     "threshold_pp": -10.0,
+     "support_sales": 200158.78000000003,
+     "min_support_sales": 10000.0
+    },
+    "latest_month_anomaly": {
+     "latest": 21956.25,
+     "expected": 28880.91333333333,
+     "deviation": -6924.66333333333,
+     "noise_std": 7463.884445113675,
+     "threshold": 14927.76889022735,
+     "sigma": 2.0
+    }
+   },
+   "forecast": [
+    {
+     "month": "2018-09",
+     "sales": 29062.656674186634
+    },
+    {
+     "month": "2018-10",
+     "sales": 36684.33355333042
+    },
+    {
+     "month": "2018-11",
+     "sales": 42450.15524626931
+    }
+   ],
+   "forecast_reason": null
+  }
+ ]
+}

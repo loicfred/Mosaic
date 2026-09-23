@@ -22,6 +22,13 @@ def test_health_reports_model_not_loaded_before_training(datasets_dir, models_di
     assert body["models"] == {"sales_forecast": False, "late_delivery": False, "low_review": False}
 
 
+def test_datasets_list_every_file_read_with_its_columns(datasets_dir, models_dir):
+    with client_for(datasets_dir, models_dir) as client:
+        files = {f["file"]: f["columns"] for f in client.get("/api/datasets").json()["files"]}
+    assert "order_purchase_timestamp" in files["olist_orders_dataset.csv"]
+    assert "price" in files["olist_order_items_dataset.csv"]
+
+
 def test_history_returns_monthly_series_and_exclusions(datasets_dir, models_dir):
     with client_for(datasets_dir, models_dir) as client:
         body = client.get("/api/sales/history").json()

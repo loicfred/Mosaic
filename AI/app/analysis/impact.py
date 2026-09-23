@@ -7,6 +7,7 @@ cause, and both a "rate holds" and a "rate rises with volume" variant are always
 import numpy as np
 import pandas as pd
 
+from app.analysis.populations import labelled_orders_in_range
 from app.config import DATA_RANGE
 
 RECENT_MONTHS = 3
@@ -65,13 +66,14 @@ def seller_capacity_strain(
 
     table = pd.DataFrame({"recent_monthly_orders": recent_mean, "historical_peak": peak.reindex(recent_mean.index)})
     table["projected_monthly_orders"] = table["recent_monthly_orders"] * growth_factor
-    strained = table[table["projected_monthly_orders"] > table["historical_peak"]].copy()
+    above_peak = table["projected_monthly_orders"] > table["historical_peak"]
+    strained = table[above_peak].copy()
     strained["over_peak_pct"] = (
         (strained["projected_monthly_orders"] / strained["historical_peak"] - 1) * 100
     )
     strained = strained.sort_values("projected_monthly_orders", ascending=False).head(top)
     return {
-        "count": int((table["projected_monthly_orders"] > table["historical_peak"]).sum()),
+        "count": int(above_peak.sum()),
         "active_sellers": int(len(table)),
         "growth_factor": growth_factor,
         "top": [
@@ -102,7 +104,7 @@ def compute_sales_impact(
             "limitations": LIMITATIONS,
         }
 
-    evidence = _observed_rates(orders_frame, recent, baseline_sales, baseline_orders, recent_months, data_range)
+    evidence = _observed_rates(orders_frame, recent, data_range)
     growth_factor = 1 + sales_change_pct / 100
     projected_sales = baseline_sales * growth_factor
     projected_orders = projected_sales / evidence["aov"]
@@ -135,7 +137,7 @@ def _seller_month_counts(orders_frame: pd.DataFrame, data_range: tuple[str, str]
     return frame.groupby(["seller_id", "month"], as_index=False).size().rename(columns={"size": "orders"})
 
 
-def _observed_rates(orders_frame, recent, baseline_sales, baseline_orders, recent_months, data_range) -> dict:
+def _observed_rates(orders_frame, recent, data_range) -> dict:
     labelled = _labelled_orders(orders_frame, data_range)
     recent_month_labels = set(recent["month"])
     recent_labelled = labelled[labelled["month"].isin(recent_month_labels)]
@@ -157,10 +159,7 @@ def _observed_rates(orders_frame, recent, baseline_sales, baseline_orders, recen
 def _labelled_orders(orders_frame: pd.DataFrame, data_range: tuple[str, str]) -> pd.DataFrame:
     if orders_frame.empty:
         return pd.DataFrame(columns=["month", "late", "low_review"])
-    frame = orders_frame[orders_frame["late"].notna()].copy()
-    frame["month"] = frame["purchase_ts"].dt.strftime("%Y-%m")
-    start, end = data_range
-    return frame[frame["month"].between(start, end)]
+    return labelled_orders_in_range(orders_frame, "late", data_range)
 
 
 def _conditional_low_review(reviewed: pd.DataFrame, late: int) -> float:
