@@ -34,7 +34,7 @@ session history is in `docs/worklog/`.
 | FR-8 | Answer questions about the data in a chat box on every page, using only read-only tools, and withhold an answer that uses a figure not in the tools' replies. | `service/ai/Assistant.java`, `service/ai/MosaicToolbox.java` |
 | FR-9 | Start the analytics API with the website and stop it with it. | `service/PythonApiLauncher.java` |
 | FR-10 | Keep the Olist records in the website's own database and compute every API figure from that database's CSV export. | `Java/OpportunityApp/.../data/BusinessDatabase.java`, `entity/` |
-| FR-11 | When the sales forecast rises, list categories growing at least as fast as the business, label their growth, size, late-delivery and low-review levels by explicit thresholds, and suggest where to invest; the suggestion falls back to a fixed template when the model is off, slow, or uses a figure not in the evidence. | `AI/app/analysis/opportunities.py`, `AI/app/api/get_sales_opportunities.py`; `service/ai/InvestmentAdvisor.java`; `fragments/index/invest.html` |
+| FR-11 | Under the sales forecast, three buttons: show the forecast's evidence; suggest where to invest when the forecast rises (growing categories labelled by growth, size, late-delivery and low-review levels against explicit thresholds); and list the hidden problems behind the result from deterministic checks. Both written answers fall back to fixed text when the model is off, slow, or uses a figure not in the evidence. | `AI/app/analysis/opportunities.py`, `AI/app/analysis/caveats.py`; `service/ai/InvestmentAdvisor.java`, `CaveatWriter.java`, `CheckedWriter.java`; `controller/api/OverviewAiController.java`; `fragments/index/sales.html` |
 
 ## Non-Functional Requirements
 
@@ -62,6 +62,7 @@ from here, never left standing as done.
 - AI provider for the demo: Groq (`GROQ_API_KEY`) answers in seconds, but its free tier allows 8,000 tokens a minute on `openai/gpt-oss-120b`, about four chat questions. Decide whether to try a model with a larger allowance, and rehearse at a pace that stays under the limit. LM Studio remains the fallback without the variable. Still unchecked live: the assistant's withheld answer, "New" and the provider stopped.
 - The assistant sometimes ends with a page link named after a tool (`/investmentOpportunities`, `/salesOverview`); the tools' "Page: /" hint should name the real page.
 - Check the 3.4 reais-per-dollar rate in `Formatter.BRL_PER_USD` against a published 2017–2018 average before the pitch, and decide whether the chart axes should also show dollars.
+- Open the simplified overview in Chrome after restarting the site: the three buttons, their loading state, a Groq-written advice and caveat text, and phone width.
 - Rotate the Groq key after the hackathon; it was pasted into a chat session.
 - Check the sidebar opening and the chat box on a real phone-width browser; the headless screenshots could not click.
 

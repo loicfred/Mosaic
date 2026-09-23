@@ -64,6 +64,22 @@ New or retrained model:
 - Do not overwrite an existing artefact with a worse or untested model. Compare the held-out evaluation with the current `.json` before replacing it.
 - Do not change the input features of an existing model without retraining it and updating every place that builds those features.
 
+### Training a model on a new dataset `.csv`
+
+Follow these steps in order. The existing trainers are the templates: `app/forecast/train.py` (single model) and `app/models/train_risk.py` (several models, temporal split).
+
+1. **Inspect the file before writing code.** Record its source URL, licence, download date, row count, columns, types, date range, currency and grain (what one row is). Confirm the target column exists and is known at the moment of prediction. Check for duplicates, missing values and one-to-many keys. Write this into `docs/` (dataset dictionary) and state the decision the model supports. If no decision needs it, do not train it.
+2. **Place the file.** Put it in `AI/datasets/` (or `MOSAIC_DATASETS_DIR`), unchanged. Never commit it; large or restricted raw data stays out of Git. A small permitted fixture for tests may go in `AI/tests/`.
+3. **Register the file name** as a constant in `app/config.py`, next to the Olist `*_FILE` constants. Do **not** add it to `ALL_DATASET_FILES` unless it is guaranteed present: startup hashes every file there with `_sha256` in `app/data/olist.py`, and a missing file crashes the API. Instead, hash an optional file only when it exists and merge it into `app.state.dataset_hashes` in `app/main.py`. Otherwise `require_model` sees no current hash and always returns 409.
+4. **Write a loader** in `app/data/<dataset>.py` (one module per dataset, not inside `olist.py`). It should read only the needed `usecols` with explicit dtypes, parse dates, and count excluded rows instead of silently dropping them. Do not join it to Olist as if it were the same business. Keep it a separate profile.
+5. **Put the model code** (features, split, fit, predict, baseline) in `app/models/<name>.py` or `app/forecast/<name>.py`, and the training script in `train_<name>.py` with `train(datasets_dir, models_dir) -> dict` and `main()`, runnable as `python -m app.<package>.train_<name>`.
+6. **Evaluate honestly.** Use a temporal split when rows have dates (as in `SPLIT_DATE`/`TEST_END_DATE`). Exclude post-outcome and leaking fields. Always compare against a simple baseline (naive/majority/mean) and report both. If the model does not beat the baseline, say so and do not wire it into the product.
+7. **Save the artefact** as `AI/models/<name>.joblib` plus `<name>.json`. The metadata must contain the keys `model_summary` in `app/api/deps.py` reads (`model_version`, `trained_at`, `prediction_time`, `split_date`, `test_end`, `evaluation`, `importances`, `limitations`) plus `dataset_hashes` for the new file only, `feature_names`, `data_range` and exclusion counts. Use `None` for keys that do not apply rather than omitting them.
+8. **Register the model.** Add a `<NAME>_MODEL` constant and put it in `MODEL_NAMES` in `app/models/__init__.py`, and add a `<NAME>_TRAIN_COMMAND` in `app/api/deps.py`. Add it to `prepare_models` in `app/models/prepare.py` only if it trains in seconds, wrapped in `try/except` with `log.exception`, and skipped when the dataset file is absent.
+9. **Serve it** through a new `app/api/get_<thing>.py` route using `require_model(request, NAME, TRAIN_COMMAND)`, following the endpoint rules above.
+10. **Test it** in `AI/tests/test_<name>.py`: the loader on a small fixture (missing values, bad dates, empty file), the baseline comparison, and the API route for success, missing model (503), changed data (409) and missing dataset file (the API still starts).
+11. **Document it.** Add the dataset and model to `docs/requirements.md` and write the session's worklog entry. Include the evaluation numbers and limitations exactly as saved in the `.json`.
+
 Before handing off, all of these must pass. Report any that fail; do not hide them:
 
 1. `python -m pytest tests -q` from `AI/`.
