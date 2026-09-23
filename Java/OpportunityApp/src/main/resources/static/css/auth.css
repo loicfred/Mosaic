@@ -1,0 +1,37 @@
+/* The login and sign-up pages: SolarERP's split layout (brand side, form card) in the palette of main.css. */
+body.auth-page { min-height: 100vh; margin: 0; background: var(--bg-page); color: var(--text-color); }
+.auth-shell { display: flex; min-height: 100vh; }
+.auth-brand {
+    flex: 1 1 45%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    padding: 3rem clamp(1.5rem, 5vw, 5rem); background: var(--bg-shell);
+    border-right: 2px solid transparent; border-image: var(--brand-gradient) 1;
+}
+.auth-brand h1 { font-weight: 700; margin: 1rem 0 .5rem; }
+.auth-logo { border-radius: 14px; }
+.auth-tagline { color: var(--text-soft); font-size: 1.1rem; max-width: 34ch; }
+.auth-form-side { flex: 1 1 55%; display: flex; align-items: center; justify-content: center; padding: 2rem 1rem; }
+.auth-card { width: 100%; max-width: 420px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 14px; padding: 2rem; }
+.auth-card h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: .25rem; }
+.auth-subtitle { color: var(--muted); margin-bottom: 1.5rem; }
+.auth-card .form-label { color: var(--text-soft); font-size: .9rem; }
+.auth-card .form-control { background: var(--bg-field); border-color: var(--line-strong); color: var(--text-color); }
+.auth-card .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 .2rem var(--accent-tint); }
+.btn-auth { background: var(--accent); border-color: var(--accent); color: #06121a; font-weight: 600; }
+.btn-auth:hover, .btn-auth:focus { background: var(--accent-soft); border-color: var(--accent-soft); color: #06121a; }
+.btn-auth-outline { border: 1px solid var(--accent); color: var(--accent-soft); font-weight: 600; }
+.btn-auth-outline:hover { background: var(--accent-tint); color: var(--accent-soft); }
+.auth-links { color: var(--muted); }
+.auth-links a { color: var(--accent-soft); font-weight: 600; }
+
+/* on a phone the brand side shrinks to a strip above the form */
+@media (max-width: 767.98px) {
+    .auth-shell { flex-direction: column; }
+    .auth-brand { flex: 0 0 auto; padding: 1.5rem 1rem; border-right: 0; border-bottom: 2px solid transparent; }
+    .auth-brand h1 { font-size: 1.6rem; }
+    .auth-logo { width: 56px; height: 56px; }
+}
+
+.auth-divider { display: flex; align-items: center; gap: .75rem; color: var(--muted); margin: 1.25rem 0; font-size: .85rem; }
+.auth-divider::before, .auth-divider::after { content: ""; flex: 1; border-top: 1px solid var(--line-strong); }
+.btn-google { display: flex; align-items: center; justify-content: center; gap: .6rem; background: #fff; color: #1f1f1f; font-weight: 600; border: 1px solid #dadce0; }
+.btn-google:hover { background: #f1f3f4; color: #1f1f1f; }

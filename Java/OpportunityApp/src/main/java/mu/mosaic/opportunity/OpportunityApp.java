@@ -2,6 +2,7 @@ package mu.mosaic.opportunity;
 
 import org.solarframework.ai.spring.AIConfig;
 import org.solarframework.db.spring.DatabaseConfig;
+import org.solarframework.mail.spring.MailConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
@@ -12,7 +13,7 @@ import java.util.TimeZone;
 
 // SolarFramework's DatabaseConfig builds the only DataSource; Boot's own would be a second one.
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, HibernateJpaAutoConfiguration.class})
-@Import({AIConfig.class, DatabaseConfig.class}) // the AI manager (LocalAi fills it from config/ai/agents.json) and the business database
+@Import({AIConfig.class, DatabaseConfig.class, MailConfig.class}) // the AI manager (LocalAi fills it from config/ai/agents.json), the business database, and the mailbox for password resets
 public class OpportunityApp {
 
     static void main(String[] args) {

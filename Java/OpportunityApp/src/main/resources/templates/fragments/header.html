@@ -14,6 +14,11 @@
             <div th:replace="~{/fragments/items/statekey :: stateKey}"></div>
 
             <div th:replace="~{/fragments/items/assistant :: assistant}"></div>
+
+            <form th:if="${currentUser != null}" class="user-menu d-flex align-items-center gap-2 m-0" th:action="@{/logout}" method="post">
+                <span class="d-none d-lg-inline" th:text="${currentUser.displayName}">Name</span>
+                <button type="submit" class="btn btn-sm">Log out</button>
+            </form>
         </div>
     </nav>
 

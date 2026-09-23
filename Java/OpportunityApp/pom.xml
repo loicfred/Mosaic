@@ -78,6 +78,19 @@
             <groupId>org.webjars</groupId>
             <artifactId>webjars-locator-lite</artifactId>
         </dependency>
+        <!-- Sign-in as in SolarERP: form login, remember-me, Google, and password-reset emails through SolarFramework's mailer -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.solarframework.mu</groupId>
+            <artifactId>mailer-impl</artifactId>
+        </dependency>
         <!-- OpportunityImpl's trimmed API responses (Fixtures, src/test/resources/api) for the page tests -->
         <dependency>
             <groupId>mu.mosaic</groupId>
@@ -94,6 +107,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -110,3 +110,8 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: .3rem; max-width
 .mod-form .form-control:focus, .mod-form .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 .2rem var(--accent-tint); }
 .form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
 :focus-visible { outline-color: var(--accent); }
+
+/* the header's account menu on every signed-in page */
+.user-menu { font-size: .9rem; color: var(--text-soft); white-space: nowrap; }
+.user-menu .btn { color: var(--accent-soft); border: 1px solid var(--line-strong); }
+.user-menu .btn:hover { background: var(--accent-tint); }

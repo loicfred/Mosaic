@@ -44,6 +44,32 @@ Inspect the repository, existing instructions, dependency manifests and current 
 - Never claim a command passed unless it was run in the current workspace and its result was checked. Report commands that could not run and the exact blocker.
 - After implementation, review the diff for unrelated edits, duplicated logic, unsupported claims, leaked secrets and generated artefacts before handing off.
 
+## Adding endpoints or models without breaking the app
+
+The running application is the demo. Adding things must never take down what already works. The Spring site (`Java/OpportunityImpl/.../service/MosaicApi.java`) calls the Python API on port 8000, and the Help page reads `/openapi.json` live.
+
+New endpoint (`AI/app/api/`):
+
+- One module per route, named `get_<thing>.py`, exposing `router`. Register it in the tuple in `AI/app/api/__init__.py`, or it will not exist.
+- Keep the handler thin: calculations go in `app/analysis/`, loading in `app/data/`, model code in `app/models/` or `app/forecast/`.
+- Give the route a `summary=` (the Help page shows it) and a Pydantic-typed or clearly documented response.
+- Never rename, remove or change the response shape of an existing route unless you also update every caller in `MosaicApi.java` and its templates, in the same change. Prefer adding a new field or a new route.
+- Model-backed routes must use `require_model` from `app/api/deps.py`, so a missing model returns 503 and a stale one 409. Never let them return 500.
+- Add a test in `AI/tests/` for the success path and for the missing-model or empty-data case.
+
+New or retrained model:
+
+- Add a training module with a `main()` runnable as `python -m app.<package>.<module>`. Save `<name>.joblib` plus `<name>.json` metadata to `AI/models/`, including `dataset_hashes`, the evaluation and its limitations, as the existing trainers do.
+- Add the name to `MODEL_NAMES` in `app/models/__init__.py`, and add it to `prepare_models` in `app/models/prepare.py` only if it trains quickly. Training failures must be logged and skipped. They must never stop the API from starting.
+- Do not overwrite an existing artefact with a worse or untested model. Compare the held-out evaluation with the current `.json` before replacing it.
+- Do not change the input features of an existing model without retraining it and updating every place that builds those features.
+
+Before handing off, all of these must pass. Report any that fail; do not hide them:
+
+1. `python -m pytest tests -q` from `AI/`.
+2. The API starts: `python -m app.main`, then `GET /api/health` and `GET /openapi.json` return 200.
+3. If Java callers were touched, `PagesRenderTest` passes and the affected page renders.
+
 ## Team and constraints
 
 - Five BSc Software Engineering students participating in a 72-hour FinTech hackathon in Mauritius.

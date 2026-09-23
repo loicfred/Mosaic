@@ -69,6 +69,28 @@
 
     <build>
         <plugins>
+            <!-- Every build re-zips ../../AI/app into mosaic-python.zip, so the jar always carries the current Python code;
+                 PythonApiLauncher unpacks it into SolarHome/config/py/mosaic on start. Same content as .claude/hooks/package-python.ps1. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>package-python</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <zip destfile="${project.basedir}/src/main/resources/mosaic-python.zip" basedir="${project.basedir}/../../AI"
+                                     includes="app/**/*.py" excludes="**/__pycache__/**" whenempty="fail"/>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- The trimmed API responses in src/test/resources/api are shared with OpportunityApp's page tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

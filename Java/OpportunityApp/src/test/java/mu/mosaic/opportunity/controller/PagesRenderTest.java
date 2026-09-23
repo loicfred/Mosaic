@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -24,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /** Renders every page from real API responses (trimmed, in test resources) and with the API failing. */
 @SpringBootTest(properties = "mosaic.python.autostart=false")
 @AutoConfigureMockMvc
+@WithMockUser // every page sits behind the sign-in
 class PagesRenderTest {
     private static final String DOWN = "The analytics API is not answering at test.";
     @Autowired MockMvc mvc;

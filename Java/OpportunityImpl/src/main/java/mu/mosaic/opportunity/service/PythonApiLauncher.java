@@ -42,8 +42,8 @@ public class PythonApiLauncher implements SmartLifecycle {
     public void start() {
         running = true;
         if (!autostart) return;
+        Path dir = preparePythonDirectory(); // unpacked even when an API is already running, so its next start runs this build's code
         if (checkIfAlreadyRunning()) return;
-        Path dir = preparePythonDirectory();
         if (dir == null) {
             log.warn("Analytics API not started: no app/main.py in SolarHome/config/py/mosaic. Package mosaic-python.zip.");
             return;

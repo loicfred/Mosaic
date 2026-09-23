@@ -1,0 +1,10 @@
+# 2026-09-23 — Sign-in as in SolarERP
+
+Author: Claude
+
+- Every page of `Java/OpportunityApp` now needs a sign-in, following SolarERP's `SecurityConfig`/`AuthController`: form login at `/auth/v1/login`, sign-up, remember-me for 14 days (`persistent_logins`), logout to `/auth/v1/login?logout`, Google sign-in (`service/auth/OAuth2Service`) and password reset by email (`/auth/v1/resetpassword`, `/auth/v1/newpassword`, `Account_PasswordReset`, 24 h, one use).
+- Accounts are `obj/entity/Account_User` in the business database. SolarFramework's old `AuthenticationImpl` (which had `Account_User` and these pages) was removed from SolarFramework in commit `ec90873` (17 Jul 2026); only a stale local jar remains and it depends on the old artifact names, so it was not used.
+- Differences from SolarERP: no email verification at sign-up (a demo account works at once), password rule is 8 to 72 characters, `/api/**` needs the session and answers 401 instead of being public.
+- Secrets: `spring.config.import=optional:file:.env[.properties]`, `Java/OpportunityApp/.env.example`; `.env` holds the MauDonate mail and Google keys copied from SolarERP. `.env`, `config/mail/` and `config/py/` are git-ignored. Google and the reset link are only shown when their keys are present.
+- `mosaic-python.zip` is now also built by Maven in OpportunityImpl, and `PythonApiLauncher` unpacks it before checking for an already-running API.
+- Verified: `./mvnw test` in OpportunityApp (all pass, page tests run with `@WithMockUser`); a live run on port 8081 walked signed-out redirect, `/api` 401, sign-up, log-in with remember-me cookie, name and Log out in the header, logout, wrong password, and the redirect to Google. Not verified: a finished Google sign-in and a real reset email.

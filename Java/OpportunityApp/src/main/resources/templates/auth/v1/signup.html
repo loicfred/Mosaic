@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Mosaic - Sign up</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" th:href="@{/img/mosaic.svg}" type="image/svg+xml">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+</head>
+<body class="auth-page">
+<div class="auth-shell">
+    <div class="auth-brand">
+        <img class="auth-logo" th:src="@{/img/logo.jpg}" alt="Mosaic" width="96" height="96">
+        <h1>Mosaic</h1>
+        <p class="auth-tagline">One account for this Mosaic site. It is stored only in its local database.</p>
+    </div>
+    <div class="auth-form-side">
+        <div class="auth-card">
+            <h2>Create an account</h2>
+            <p class="auth-subtitle">A few details and you're in</p>
+
+            <div th:if="${param.bademail}" class="alert alert-danger">Enter a valid email address.</div>
+            <div th:if="${param.badpassword}" class="alert alert-danger">The password needs 8 to 72 characters.</div>
+            <div th:if="${param.mismatch}" class="alert alert-danger">The two passwords do not match.</div>
+            <div th:if="${param.taken}" class="alert alert-danger">This email already has an account.</div>
+
+            <form th:action="@{/auth/v1/signup}" method="post">
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label for="firstName" class="form-label">First name</label>
+                        <input type="text" id="firstName" name="firstName" maxlength="64" class="form-control" autocomplete="given-name">
+                    </div>
+                    <div class="col-6">
+                        <label for="lastName" class="form-label">Last name</label>
+                        <input type="text" id="lastName" name="lastName" maxlength="64" class="form-control" autocomplete="family-name">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" id="email" name="email" maxlength="128" class="form-control" autocomplete="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password (at least 8 characters)</label>
+                    <input type="password" id="password" name="password" minlength="8" maxlength="72" class="form-control" autocomplete="new-password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirm" class="form-label">Confirm password</label>
+                    <input type="password" id="confirm" name="confirm" minlength="8" maxlength="72" class="form-control" autocomplete="new-password" required>
+                </div>
+                <button type="submit" class="btn btn-auth w-100">Sign up</button>
+            </form>
+            <p class="auth-links mt-3 mb-0">Already have an account? <a th:href="@{/auth/v1/login}">Log in</a></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
