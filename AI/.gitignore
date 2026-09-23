@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 datasets/external/*
 !datasets/external/README.md
+datasets/small_business_cashflow.csv

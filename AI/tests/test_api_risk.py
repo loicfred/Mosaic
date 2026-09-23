@@ -42,7 +42,9 @@ def test_open_orders_are_scored_after_training(datasets_dir, models_dir):
         health = client.get("/api/health").json()
         body = client.get("/api/risk/delivery/open-orders?limit=10").json()
         assert client.get("/api/risk/delivery/open-orders?limit=0").status_code == 422
-    assert health["models"] == {"sales_forecast": False, "late_delivery": True, "low_review": True}
+    assert health["models"] == {
+        "sales_forecast": False, "late_delivery": True, "low_review": True, "cashflow_stress": False,
+    }
     assert body["prediction_time"] == "at_purchase"
     assert len(body["orders"]) == 1
     order = body["orders"][0]

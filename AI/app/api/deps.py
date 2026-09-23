@@ -5,10 +5,11 @@ from pathlib import Path
 import joblib
 from fastapi import HTTPException, Request
 
-from app.models import LATE_MODEL, MODEL_NAMES, REVIEW_MODEL, SALES_MODEL
+from app.models import CASHFLOW_MODEL, LATE_MODEL, MODEL_NAMES, REVIEW_MODEL, SALES_MODEL
 
 SALES_TRAIN_COMMAND = "python -m app.forecast.train"
 RISK_TRAIN_COMMAND = "python -m app.models.train_risk"
+CASHFLOW_TRAIN_COMMAND = "python -m app.models.train_cashflow"
 
 
 def load_artifact(models_dir: Path, name: str) -> tuple[object | None, dict | None]:

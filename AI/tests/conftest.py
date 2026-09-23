@@ -11,9 +11,16 @@ from pathlib import Path
 import pytest
 
 from app.config import (
-    CUSTOMERS_FILE, GEOLOCATION_FILE, ITEMS_FILE, ORDERS_FILE, PRODUCTS_FILE,
+    CASHFLOW_FILE, CUSTOMERS_FILE, GEOLOCATION_FILE, ITEMS_FILE, ORDERS_FILE, PRODUCTS_FILE,
     REVIEWS_FILE, SELLERS_FILE, TRANSLATION_FILE,
 )
+
+# Cash-flow fixture: 6 months, 4 rows each (2 healthy, 2 stressed) plus one zero-revenue row,
+# unrelated to the Olist fixture above and not joined with it.
+CASHFLOW_MONTHS = [f"2024-{m:02d}" for m in range(1, 7)]
+CASHFLOW_SPLIT_MONTH = "2024-06"  # test = June only
+CASHFLOW_TEST_END = "2024-07"
+CASHFLOW_ZERO_REVENUE_ID = "F-zero"
 
 FIXTURE_MONTHS = [f"2017-{m:02d}" for m in range(1, 13)]
 FIXTURE_MONTHLY_SALES = 350.0
@@ -119,7 +126,7 @@ def _review(review_id, order_id, score, answered):
     }
 
 
-def write_fixture_csvs(directory: Path, drop_month: str | None = None) -> None:
+def write_fixture_csvs(directory: Path, drop_month: str | None = None, include_cashflow: bool = True) -> None:
     orders, items, customers, reviews = [], [], [], []
     for month in FIXTURE_MONTHS:
         if month == drop_month:
@@ -168,6 +175,41 @@ def write_fixture_csvs(directory: Path, drop_month: str | None = None) -> None:
             writer.writeheader()
             for row in rows:
                 writer.writerow({col: row.get(col, "") for col in COLUMNS[name]})
+
+    if include_cashflow:
+        write_cashflow_fixture_csv(directory)
+
+
+def _cashflow_row(record_id: str, month: str, stressed: bool) -> dict:
+    if stressed:
+        revenue, opex, ar_days, inv_days, loan, injections = 20000.0, 26000.0, 60, 70, 40000.0, 0.0
+    else:
+        revenue, opex, ar_days, inv_days, loan, injections = 50000.0, 30000.0, 20, 15, 10000.0, 2000.0
+    return {
+        "record_id": record_id, "sector": "Retail", "employees": 20, "month": month,
+        "revenue_usd": revenue, "opex_usd": opex, "accounts_receivable_days": ar_days,
+        "inventory_days": inv_days, "loan_balance_usd": loan, "owner_injections_usd": injections,
+        "cashflow_stress_next_month": int(stressed),
+    }
+
+
+def write_cashflow_fixture_csv(directory: Path) -> None:
+    rows = []
+    counter = 0
+    for month in CASHFLOW_MONTHS:
+        for stressed in (False, False, True, True):
+            counter += 1
+            rows.append(_cashflow_row(f"F{counter:03d}", month, stressed))
+    rows.append({
+        "record_id": CASHFLOW_ZERO_REVENUE_ID, "sector": "IT Services", "employees": 5,
+        "month": CASHFLOW_MONTHS[0], "revenue_usd": 0.0, "opex_usd": 500.0,
+        "accounts_receivable_days": 0, "inventory_days": 0, "loan_balance_usd": 0.0,
+        "owner_injections_usd": 0.0, "cashflow_stress_next_month": 1,
+    })
+    with open(directory / CASHFLOW_FILE, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        writer.writeheader()
+        writer.writerows(rows)
 
 
 @pytest.fixture

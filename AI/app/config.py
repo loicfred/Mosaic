@@ -35,3 +35,11 @@ OPEN_STATUSES = frozenset({"shipped", "processing", "invoiced", "approved", "cre
 # Purchases from SPLIT_DATE up to (excluding) TEST_END_DATE form the held-out test period.
 SPLIT_DATE = "2018-06-01"
 TEST_END_DATE = "2018-09-01"
+
+# Small-business cash-flow stress dataset: independent business-month snapshots, unrelated to
+# Olist and never merged with it (see datasets/external/README.md for the same rule applied to
+# other candidate datasets). Not real transactional data — a synthetic practice dataset supplied
+# for this hackathon (no provenance/licence attached).
+CASHFLOW_FILE = "small_business_cashflow.csv"
+# Last 4 of 20 months (2025-05..2025-08) held out, in chronological order like the risk split.
+CASHFLOW_SPLIT_MONTH = "2025-05"

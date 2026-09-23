@@ -3,6 +3,8 @@
 from fastapi import APIRouter
 
 from app.api import (
+    get_cashflow_risk,
+    get_cashflow_summary,
     get_category_detail,
     get_datasets,
     get_delivery_open_orders,
@@ -35,5 +37,7 @@ for endpoint in (
     get_sales_impact,
     get_sales_opportunities,
     get_sales_caveats,
+    get_cashflow_summary,
+    get_cashflow_risk,
 ):
     router.include_router(endpoint.router)

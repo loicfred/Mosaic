@@ -19,7 +19,9 @@ def test_health_reports_model_not_loaded_before_training(datasets_dir, models_di
     with client_for(datasets_dir, models_dir) as client:
         body = client.get("/api/health").json()
     assert body["status"] == "ok" and body["model_loaded"] is False
-    assert body["models"] == {"sales_forecast": False, "late_delivery": False, "low_review": False}
+    assert body["models"] == {
+        "sales_forecast": False, "late_delivery": False, "low_review": False, "cashflow_stress": False,
+    }
 
 
 def test_datasets_list_every_file_read_with_its_columns(datasets_dir, models_dir):

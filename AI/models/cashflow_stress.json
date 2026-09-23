@@ -1,0 +1,44 @@
+{
+  "model_version": "cashflow-hgb-v1",
+  "trained_at": "2026-09-23T07:15:57+00:00",
+  "prediction_time": "at_snapshot",
+  "split_date": "2025-05",
+  "test_end": "2025-09",
+  "dataset_hashes": {
+    "small_business_cashflow.csv": "d6e39ea1f4f6c9486ca70fcdc2bf7df3f876e6eb64391616757ff18ba7e8873c"
+  },
+  "feature_names": [
+    "sector",
+    "employees",
+    "revenue_usd",
+    "opex_usd",
+    "operating_margin",
+    "accounts_receivable_days",
+    "inventory_days",
+    "loan_balance_usd",
+    "owner_injections_usd",
+    "calendar_month"
+  ],
+  "n_rows": 1600,
+  "evaluation": {
+    "n_train": 1288,
+    "n_test": 312,
+    "n_positive_test": 49,
+    "base_rate": 0.15705128205128205,
+    "roc_auc": 0.5299914642663149,
+    "average_precision": 0.1708343314096363,
+    "top_10pct": {
+      "threshold": 0.5499652244762607,
+      "flagged": 32,
+      "precision": 0.25,
+      "recall": 0.16326530612244897
+    }
+  },
+  "importances": [],
+  "limitations": [
+    "Synthetic practice data supplied for this hackathon, not real transactional or bank data; treat scores as a demonstration of the method, not a live risk assessment.",
+    "Each row is an independent business-month snapshot; the same business cannot be tracked across months, so the model cannot learn a business's own trend.",
+    "Evaluated on the last few months only, held out chronologically; a longer or more varied period could score differently.",
+    "Scores are a ranking signal, not a calibrated probability of cash-flow stress."
+  ]
+}
