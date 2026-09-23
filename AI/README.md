@@ -1,7 +1,7 @@
 # AI backend — analytics and prediction API
 
 Python backend for the Mosaic hackathon app. It turns the Olist CSVs in `datasets/` into
-monthly series and an order-level feature table, trains three small models, and serves
+monthly series and an order-level feature table, trains four small models, and serves
 observed statistics, forecasts and risk scores over a FastAPI JSON API.
 
 Designs: `../docs/superpowers/specs/2026-09-22-sales-forecast-design.md` and
@@ -11,6 +11,11 @@ Designs: `../docs/superpowers/specs/2026-09-22-sales-forecast-design.md` and
 
 Requires Python 3.13 and the Olist CSVs in `datasets/`.
 
+`datasets/small_business_cashflow.csv` (a separate, synthetic small-business practice dataset,
+unrelated to Olist) is optional: put it in `datasets/` to train and serve the cash-flow-stress
+model, or leave it out — the API still starts and every other endpoint works, `cashflow_stress`
+just stays untrained. It is gitignored; see "Cash-flow stress" under Models and honest evaluation, below, for provenance.
+
 ```powershell
 cd AI
 .\.venv\Scripts\Activate.ps1          # or: python -m venv .venv
@@ -19,18 +24,18 @@ pip install -r requirements.txt       # exact versions used: requirements.lock
 
 ## Train
 
-The running API trains missing or stale models at startup from the dataset folder it reads.
-Training can take about 50 seconds on the full export. These commands remain available for manual retraining:
+Train once, then only use: the API never trains at startup or per request (`create_app` defaults to
+`auto_train=False`). Run each trainer by hand, once, after placing its dataset file:
 
 ```powershell
 python -m app.forecast.train          # sales forecast      -> models/sales_forecast.*
 python -m app.models.train_risk       # late-delivery + low-review classifiers (~30 s)
+python -m app.models.train_cashflow   # cash-flow-stress classifier (~1 s, needs the CSV above)
 ```
 
-`models/` is gitignored. Every model
-stores the SHA-256 of the CSVs it was trained on; an endpoint refuses to serve a model whose
-data changed (HTTP 409) or that was never trained (HTTP 503). Observed statistics keep
-working without any model.
+Every model stores the SHA-256 of the CSV(s) it was trained on; an endpoint refuses to serve a model
+whose data changed since (HTTP 409) or that was never trained (HTTP 503). Observed statistics keep
+working without any model. Retrain only when the dataset file changes or the model code/features change.
 
 ## Run
 
@@ -38,8 +43,8 @@ working without any model.
 uvicorn app.main:app --reload --port 8000
 ```
 
-Startup builds all series and the order feature table once, then trains missing or stale models. Interactive docs
-at http://127.0.0.1:8000/docs. CORS allows `http://localhost:5173` (Vite) by default;
+Startup builds all series and the order feature table once and loads whatever models were already
+trained (see Train, above); it does not train anything itself. Interactive docs at http://127.0.0.1:8000/docs. CORS allows `http://localhost:5173` (Vite) by default;
 override with `MOSAIC_CORS_ORIGINS`. `MOSAIC_DATASETS_DIR` / `MOSAIC_MODELS_DIR` override paths.
 
 ## Test
@@ -62,6 +67,8 @@ python -m pytest tests -q  # active suite, using a small synthetic fixture
 | `GET /api/risk/delivery/sellers?min_orders=30&limit=50` | per seller: late and handover-late rates, recent (last 3 months) vs earlier | – |
 | `GET /api/risk/reviews/summary` | observed low-review rate by month and late vs on-time + model evaluation | – |
 | `GET /api/risk/reviews/unreviewed?limit=50` | delivered orders with no review yet, ranked by low-review risk score | low_review |
+| `GET /api/risk/cashflow/summary` | observed stress rate by sector and month from the practice cash-flow dataset + model evaluation (`available: false` if the CSV isn't present) | – |
+| `GET /api/risk/cashflow/records?limit=50` | business-month snapshots ranked by predicted next-month stress risk | cashflow_stress |
 | `POST /api/scenarios/sales-impact` | what a sales change would do to orders, late deliveries, low reviews, seller capacity and sales exposed to late delivery | – |
 
 Errors: `422` invalid query, `503` model not trained, `409` model trained on different data.
@@ -139,6 +146,22 @@ then the seller's past late rate). Low-review risk is a strong one (4× lift; dr
 calibrated probabilities**. The test window has an unusually low late rate, and late orders
 purchased in August 2018 may still be undelivered in the data.
 
+**Cash-flow stress** (separate profile, not Olist) — `HistGradientBoostingClassifier`
+(class-balanced) on `datasets/small_business_cashflow.csv`, a synthetic practice dataset for
+this hackathon (1,600 business-month rows, 6 sectors, Jan 2024–Aug 2025, no provenance/licence
+attached — treat it as a method demonstration, not real data). Each row is independent (no
+business id links rows across months), so the split is chronological: trained on Jan 2024–Apr
+2025, evaluated on the last 4 months held out:
+
+| Test n | Base rate | ROC-AUC | Avg precision | Top-10% precision / recall |
+| --- | --- | --- | --- | --- |
+| 312 | 15.7% | 0.53 | 0.17 | 25.0% / 16.3% |
+
+An ROC-AUC of 0.53 is barely above the 0.50 a coin flip would score — this dataset carries
+very little learnable signal for this label, and the model should be read as a demonstration
+of the method (loader → temporal split → classifier → honest evaluation → API), not as a
+usable risk score. Per-feature importances are not computed for this model (empty list).
+
 **Category health** is deterministic: `underperforming_total` fires when a category's
 recent-3-months change is ≥10 pp worse than the whole business (with ≥ BRL 10k support);
 `latest_month_anomaly` fires when the latest month deviates more than 2σ of the category's
@@ -160,7 +183,10 @@ app/forecast/sales.py      ridge forecast, baselines, backtest (pure functions)
 app/forecast/train.py      sales forecast training CLI
 app/models/risk.py         classifier specs, temporal split, fit/evaluate/predict
 app/models/train_risk.py   risk model training CLI
-app/models/prepare.py      startup training when models are missing or stale
+app/data/cashflow.py       cash-flow snapshot loader (separate profile, not Olist)
+app/models/cashflow.py     cash-flow split, fit/evaluate/predict
+app/models/train_cashflow.py cash-flow model training CLI
+app/models/prepare.py      startup training when models are missing or stale (skips cashflow if its CSV is absent)
 app/analysis/categories.py category change, flags, evidence, short forecasts
 app/analysis/delivery.py   observed late rates, seller table, open-order scoring
 app/analysis/reviews.py    observed low-review rates, unreviewed-order scoring

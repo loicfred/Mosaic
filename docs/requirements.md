@@ -19,6 +19,11 @@ session history is in `docs/worklog/`.
 - One dataset: Olist Brazilian e-commerce, January 2017 to August 2018, amounts in BRL (gross item sales).
 - One local, single-user demo. No accounts, no payments, no bank or ERP integration, no autonomous actions.
 - Out of scope: other datasets merged with Olist, personal finance, chat-to-SQL, training a language model.
+- One exception, kept as a separate profile and never joined with Olist: a synthetic small-business
+  cash-flow snapshot dataset (`AI/datasets/small_business_cashflow.csv`, gitignored, supplied for this
+  hackathon, no real-world provenance) trains one extra classifier, `cashflow_stress` — see FR-12. Its
+  ROC-AUC (0.53) is barely above chance; it is documented and shipped as an honest demonstration of the
+  method, not as a usable risk score.
 
 ## Functional Requirements
 
@@ -35,6 +40,7 @@ session history is in `docs/worklog/`.
 | FR-9 | Start the analytics API with the website and stop it with it. | `service/PythonApiLauncher.java` |
 | FR-10 | Keep the Olist records in the website's own database and compute every API figure from that database's CSV export. | `Java/OpportunityApp/.../data/BusinessDatabase.java`, `entity/` |
 | FR-11 | Under the sales forecast, three buttons: show the forecast's evidence; suggest where to invest when the forecast rises (growing categories labelled by growth, size, late-delivery and low-review levels against explicit thresholds); and list the hidden problems behind the result from deterministic checks. Both written answers fall back to fixed text when the model is off, slow, or uses a figure not in the evidence. | `AI/app/analysis/opportunities.py`, `AI/app/analysis/caveats.py`; `service/ai/InvestmentAdvisor.java`, `CaveatWriter.java`, `CheckedWriter.java`; `controller/api/OverviewAiController.java`; `fragments/index/sales.html` |
+| FR-12 | Show observed cash-flow-stress rate by sector and month from the separate small-business practice dataset, and rank its snapshots by a trained classifier's risk score; degrade to `available: false` / HTTP 503 (never 500) when that dataset or model is absent. Not yet wired into the website (Python API only). | `AI/app/api/get_cashflow_summary.py`, `get_cashflow_risk.py`; `AI/app/analysis/cashflow.py`; `AI/app/models/cashflow.py`, `train_cashflow.py` |
 
 ## Non-Functional Requirements
 
@@ -65,6 +71,13 @@ from here, never left standing as done.
 - Open the simplified overview in Chrome after restarting the site: the three buttons, their loading state, a Groq-written advice and caveat text, and phone width.
 - Rotate the Groq key after the hackathon; it was pasted into a chat session.
 - Check the sidebar opening and the chat box on a real phone-width browser; the headless screenshots could not click.
+
+### AI backend
+- FR-12 (cash-flow-stress model) is Python-API only: no `risk.html`-style page, fragment or `MosaicApi.java`
+  caller reads `/api/risk/cashflow/*` yet. Decide whether it gets a website page or stays a backend-only
+  demonstration before the pitch.
+- Per the "train once, then only use" rule, `cashflow_stress` is not in `prepare_models`; run
+  `python -m app.models.train_cashflow` by hand after placing the CSV (same as the other three models).
 
 ### Team setup
 - Commit the artifactId rename in this repository's Java modules.

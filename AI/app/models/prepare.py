@@ -4,10 +4,8 @@ import json
 import logging
 from pathlib import Path
 
-from app.config import CASHFLOW_FILE
-from app.models import CASHFLOW_MODEL, LATE_MODEL, REVIEW_MODEL, SALES_MODEL
+from app.models import LATE_MODEL, REVIEW_MODEL, SALES_MODEL
 from app.forecast.train import train as train_sales
-from app.models.train_cashflow import train as train_cashflow
 from app.models.train_risk import train_all as train_risk
 
 log = logging.getLogger(__name__)
@@ -37,9 +35,3 @@ def prepare_models(datasets_dir: Path, models_dir: Path, hashes: dict[str, str])
             train_risk(datasets_dir, models_dir)
         except Exception:
             log.exception("Risk model training failed; analytics will continue without those models")
-
-    if (datasets_dir / CASHFLOW_FILE).exists() and not _current(models_dir, CASHFLOW_MODEL, hashes):
-        try:
-            train_cashflow(datasets_dir, models_dir)
-        except Exception:
-            log.exception("Cash-flow model training failed; analytics will continue without that model")
