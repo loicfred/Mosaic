@@ -62,7 +62,7 @@ from here, never left standing as done.
 
 ### Website
 - Decide whether first-start import from `mosaic.data.source-dir` remains part of `BusinessDatabase`, or the website should assume an already populated database. The import currently fills empty Olist tables from the original CSVs.
-- Run a packaged JAR outside the repository with a configured Python interpreter and installed packages. `mosaic-python.zip` is now rebuilt from `AI/app` on every OpportunityImpl Maven build (antrun, `generate-resources`) as well as by the Claude `Stop` hook, but packaged startup and automatic model training on the database export remain untested. A `.py` file deleted from `AI/app` stays in the zip until another file changes.
+- Run a packaged JAR outside the repository with a configured Python interpreter and installed packages. `mosaic-python.zip` is now rebuilt from `AI/app` on every OpportunityImpl Maven build (antrun, `generate-resources`) as well as by the Claude `Stop` hook, but packaged startup remains untested, and the export's models must be trained by hand once (the API no longer trains at startup; commands in `Java/OpportunityApp/README.md`). A `.py` file deleted from `AI/app` stays in the zip until another file changes.
 - Sign-in: finish a real Google sign-in in a browser on port 8080 (only the redirect to Google was checked), and send one real password-reset email; the link and new-password form were checked without the email.
 - One more Chrome pass over every page (desktop and phone width) after the module split and the business database, with the site restarted on the database export: the Mosaic palette and Help page were checked in Chrome on 23 Sep 2026 before the split. Both Java suites and the Help page render test pass after the split.
 - AI provider for the demo: Groq (`GROQ_API_KEY`) answers in seconds, but its free tier allows 8,000 tokens a minute on `openai/gpt-oss-120b`, about four chat questions. Decide whether to try a model with a larger allowance, and rehearse at a pace that stays under the limit. LM Studio remains the fallback without the variable. Still unchecked live: the assistant's withheld answer, "New" and the provider stopped.
@@ -76,8 +76,10 @@ from here, never left standing as done.
 - FR-12 (cash-flow-stress model) is Python-API only: no `risk.html`-style page, fragment or `MosaicApi.java`
   caller reads `/api/risk/cashflow/*` yet. Decide whether it gets a website page or stays a backend-only
   demonstration before the pitch.
-- Per the "train once, then only use" rule, `cashflow_stress` is not in `prepare_models`; run
-  `python -m app.models.train_cashflow` by hand after placing the CSV (same as the other three models).
+- `cashflow_stress` scores ROC-AUC 0.53, below the 0.6 gate, so `/api/risk/cashflow/records` answers 503. Improve it (features, label) or present only the observed stress rates.
+- Decide whether `AI/datasets/small_business_cashflow.csv` stays in Git (committed in `2e7ad9f`, no licence recorded) or goes back into `AI/.gitignore`.
+- `sales_forecast` loses its own backtest to the naive last-month baseline (MAE 92,045 vs 54,998). Improve it, or have the forecast page say so and show the baseline.
+- Agree one canonical copy of the Olist CSVs across the team; a copy with different SHA-256 hashes makes every committed model answer 409.
 
 ### Team setup
 - Commit the artifactId rename in this repository's Java modules.

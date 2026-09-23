@@ -95,6 +95,10 @@ From IntelliJ: the project lists `Java/OpportunityImpl/pom.xml` and `Java/Opport
 **OpportunityApp** run configuration (`.idea/runConfigurations/`). If IntelliJ was open while these were
 added, reload the Maven projects once.
 
+Any working directory works: `ModuleHome.pin()` in `OpportunityApp.main` points SolarHome, `.env` and
+`mosaic.data.source-dir` at `Java/OpportunityApp` (found from the compiled classes in its `target/`), unless
+`-Dsolar.home`, `SOLAR_HOME` or those system properties are already set.
+
 From a terminal:
 
 ```powershell

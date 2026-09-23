@@ -19,6 +19,7 @@ public class OpportunityApp {
     static void main(String[] args) {
         // SQLite keeps a timestamp as epoch millis in the JVM's zone; UTC has no daylight-saving gaps to shift one.
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        ModuleHome.pin();
         SpringApplication.run(OpportunityApp.class, args);
     }
 }
