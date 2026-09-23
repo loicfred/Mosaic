@@ -1,0 +1,6 @@
+record_id,sector,employees,month,revenue_usd,opex_usd,accounts_receivable_days,inventory_days,loan_balance_usd,owner_injections_usd,cashflow_stress_next_month
+R00001,Manufacturing,93,2024-08,71329.95,74665.07,28,46,31244.94,6505.34,0
+R00002,Hospitality,96,2025-08,94136.2,93902.74,62,33,62612.22,0,0
+R00003,Retail,45,2024-06,45418.88,40867.88,31,18,44559.65,5861.23,0
+R00004,Retail,107,2024-04,79558.65,60416.72,31,48,58377.79,0,1
+R00005,Healthcare,11,2024-06,11932.76,8338.71,41,34,64482.94,0,0
