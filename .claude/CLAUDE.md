@@ -60,7 +60,8 @@ New endpoint (`AI/app/api/`):
 New or retrained model:
 
 - Add a training module with a `main()` runnable as `python -m app.<package>.<module>`. Save `<name>.joblib` plus `<name>.json` metadata to `AI/models/`, including `dataset_hashes`, the evaluation and its limitations, as the existing trainers do.
-- Add the name to `MODEL_NAMES` in `app/models/__init__.py`, and add it to `prepare_models` in `app/models/prepare.py` only if it trains quickly. Training failures must be logged and skipped. They must never stop the API from starting.
+- Add the name to `MODEL_NAMES` in `app/models/__init__.py`.
+- **Train once, then only use.** Training and serving are separate: the trainer script runs once, by hand, and saves the artefact. The API (`python -m app.main`) only loads saved artefacts and must never train at startup or per request (`create_app` defaults to `auto_train=False`; keep it that way). Retrain only when the dataset file changes (the API then returns 409) or the model code or features change. Do not put a new model in `prepare_models` in `app/models/prepare.py`; that helper exists only for tests that call `create_app(auto_train=True)`.
 - Do not overwrite an existing artefact with a worse or untested model. Compare the held-out evaluation with the current `.json` before replacing it.
 - Do not change the input features of an existing model without retraining it and updating every place that builds those features.
 
@@ -75,10 +76,11 @@ Follow these steps in order. The existing trainers are the templates: `app/forec
 5. **Put the model code** (features, split, fit, predict, baseline) in `app/models/<name>.py` or `app/forecast/<name>.py`, and the training script in `train_<name>.py` with `train(datasets_dir, models_dir) -> dict` and `main()`, runnable as `python -m app.<package>.train_<name>`.
 6. **Evaluate honestly.** Use a temporal split when rows have dates (as in `SPLIT_DATE`/`TEST_END_DATE`). Exclude post-outcome and leaking fields. Always compare against a simple baseline (naive/majority/mean) and report both. If the model does not beat the baseline, say so and do not wire it into the product.
 7. **Save the artefact** as `AI/models/<name>.joblib` plus `<name>.json`. The metadata must contain the keys `model_summary` in `app/api/deps.py` reads (`model_version`, `trained_at`, `prediction_time`, `split_date`, `test_end`, `evaluation`, `importances`, `limitations`) plus `dataset_hashes` for the new file only, `feature_names`, `data_range` and exclusion counts. Use `None` for keys that do not apply rather than omitting them.
-8. **Register the model.** Add a `<NAME>_MODEL` constant and put it in `MODEL_NAMES` in `app/models/__init__.py`, and add a `<NAME>_TRAIN_COMMAND` in `app/api/deps.py`. Add it to `prepare_models` in `app/models/prepare.py` only if it trains in seconds, wrapped in `try/except` with `log.exception`, and skipped when the dataset file is absent.
-9. **Serve it** through a new `app/api/get_<thing>.py` route using `require_model(request, NAME, TRAIN_COMMAND)`, following the endpoint rules above.
-10. **Test it** in `AI/tests/test_<name>.py`: the loader on a small fixture (missing values, bad dates, empty file), the baseline comparison, and the API route for success, missing model (503), changed data (409) and missing dataset file (the API still starts).
-11. **Document it.** Add the dataset and model to `docs/requirements.md` and write the session's worklog entry. Include the evaluation numbers and limitations exactly as saved in the `.json`.
+8. **Register the model.** Add a `<NAME>_MODEL` constant and put it in `MODEL_NAMES` in `app/models/__init__.py`, and add a `<NAME>_TRAIN_COMMAND` in `app/api/deps.py`.
+9. **Train it once** with `python -m app.<package>.train_<name>`, check the printed evaluation, then leave it. Starting the API must not retrain it.
+10. **Serve it** through a new `app/api/get_<thing>.py` route using `require_model(request, NAME, TRAIN_COMMAND)`, following the endpoint rules above.
+11. **Test it** in `AI/tests/test_<name>.py`: the loader on a small fixture (missing values, bad dates, empty file), the baseline comparison, and the API route for success, missing model (503), changed data (409) and missing dataset file (the API still starts).
+12. **Document it.** Add the dataset and model to `docs/requirements.md` and write the session's worklog entry. Include the evaluation numbers and limitations exactly as saved in the `.json`.
 
 Before handing off, all of these must pass. Report any that fail; do not hide them:
 

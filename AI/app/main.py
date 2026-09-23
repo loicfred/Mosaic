@@ -36,7 +36,7 @@ def create_app(datasets_dir: Path = DATASETS_DIR, models_dir: Path = MODELS_DIR,
     return app
 
 
-app = create_app(auto_train=True)
+app = create_app()
 
 
 if __name__ == "__main__":
