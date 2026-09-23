@@ -1,5 +1,5 @@
 <div th:fragment="sidebar">
-    <!-- SolarERP's sidebar, keeping only what this site has: no account, and the four screens instead of planets. -->
+    <!-- SolarERP's sidebar, keeping only what this site has: the account block, and the four screens instead of planets. -->
     <style>
         #sidebar {
             position: fixed;
@@ -73,6 +73,39 @@
             color: var(--muted);
         }
 
+        .sidebar-user {
+            padding: 1rem;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .sidebar-user-name {
+            font-size: 0.95rem;
+        }
+
+        .sidebar-user-email {
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        #sidebar .sidebar-login-btn, .sidebar-logout-btn {
+            display: block;
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: var(--accent);
+            color: #06121a;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: left;
+            border: none;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        #sidebar .sidebar-login-btn:hover, .sidebar-logout-btn:hover {
+            background: var(--accent-soft);
+            padding-left: 0.75rem;
+        }
+
         #sidebar-overlay {
             position: fixed;
             inset: 0;
@@ -92,6 +125,24 @@
     <nav id="sidebar" aria-label="Screens">
         <div class="sidebar-header">
             <h5 class="m-0 fw-bold text-uppercase">Navigation</h5>
+        </div>
+
+        <div class="sidebar-user" th:if="${currentUser != null}">
+            <div class="d-flex align-items-center gap-2">
+                <span class="avatar-btn rounded-circle flex-shrink-0" aria-hidden="true"
+                      th:text="${#strings.toUpperCase(#strings.substring(currentUser.displayName, 0, 1))}">M</span>
+                <div class="flex-grow-1 overflow-hidden">
+                    <p class="sidebar-user-name m-0 fw-semibold text-truncate" th:text="${currentUser.displayName}">Name</p>
+                    <p class="sidebar-user-email m-0 text-truncate" th:text="${currentUser.email}">name@example.com</p>
+                </div>
+            </div>
+            <form th:action="@{/logout}" method="post" class="m-0 mt-2">
+                <button type="submit" class="sidebar-logout-btn">Sign Out</button>
+            </form>
+        </div>
+
+        <div class="sidebar-section" th:if="${currentUser == null}">
+            <a th:href="@{/auth/v1/login}" class="sidebar-login-btn">Sign In</a>
         </div>
 
         <div class="sidebar-section">
