@@ -61,30 +61,18 @@ SolarFramework's `DatabaseImpl`, and every figure the Python API returns is comp
 2. On start, a table that is still empty is filled from `../../AI/datasets` (`mosaic.data.source-dir`), one
    transaction per table, IDs in file order. The first start takes about 25 s for the 1.55 million rows, of which
    9 s is the million geolocation rows; later starts skip it.
-3. If a table's file is missing from SolarHome's `config/py/mosaic/datasets/`, the whole database is written there with
-   `IDatabaseService.exportCsv` (about 35 s). Delete the folder to write it again.
-4. `PythonApiLauncher` starts the extracted package from SolarHome's `config/py/mosaic/`. Python reads
-   `datasets/` and `models/` beside its `app/` package.
+3. SolarHome's `config/py/mosaic/` is an exact mirror of `AI/`: `app/`, `datasets/` (the original CSVs, including
+   `small_business_cashflow.csv`) and `models/`. Only its `.venv` is its own. `.claude/hooks/mirror-python.ps1`
+   keeps it in step after each Claude turn; run it by hand after changing `AI/` yourself:
+   `powershell -File .claude\hooks\mirror-python.ps1`. Never edit, train or add data inside the mirror.
+4. `PythonApiLauncher` starts the package from SolarHome's `config/py/mosaic/`. Python reads `datasets/` and
+   `models/` beside its `app/` package, so the site serves the same files and models as `AI/`.
 
-The export's columns come out in the database's order (`ID`, `CreatedAt`, `DeletedAt`, `UpdatedAt`, then the
-file's columns alphabetically), and it also holds SolarFramework's two AI tables (`ai_chat_message.csv`,
-`ai_conversation.csv`). The API reads columns by name and ignores extra files, so no figure changes; only
-`/api/datasets` lists the extra columns. Prices lose trailing zeros (`58.90` becomes `58.9`), which parse to the
-same number.
+`BusinessDatabase` still writes the database into `config/py/mosaic/datasets/` with `IDatabaseService.exportCsv`
+when a table's file is missing there. With the mirror in place every file is present, so it does not export; if it
+ever does, the next mirror run puts the originals back.
 
-The API refuses a model trained on other files, so the models in `AI/models` (trained on the originals) do not
-serve the export. The Python API never trains at startup; it only loads saved models. Train the export's models
-once, after the first export or whenever the export changes (model pages then report the model as stale). Training
-takes about 50 s. Until then, observed analytics remain available and model-backed pages report that the model is
-unavailable:
-
-```powershell
-cd AI
-$env:MOSAIC_DATASETS_DIR = "..\Java\OpportunityApp\config\py\mosaic\datasets"
-$env:MOSAIC_MODELS_DIR = "..\Java\OpportunityApp\config\py\mosaic\models"
-.\.venv\Scripts\python.exe -m app.forecast.train
-.\.venv\Scripts\python.exe -m app.models.train_risk
-```
+The Python API never trains at startup; it only loads saved models. Train in `AI/` (see `AI/README.md`), then mirror.
 
 An API already answering on port 8000 is reused as
 it is, so stop one started on `AI/datasets` before starting the site.

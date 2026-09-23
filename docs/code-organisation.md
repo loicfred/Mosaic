@@ -55,10 +55,9 @@ become a SolarERP module:
   `AI/datasets` through `data/CsvImport.java` (JDBC batches, one transaction per table) and, when SolarHome's
   `config/py/mosaic/datasets/` lacks a table's file, writes the database there with SolarFramework's `IDatabaseService.exportCsv`.
 
-Data flow: `AI/datasets/*.csv` → `Java/OpportunityApp/config/Default.db` (SQLite) → `Java/OpportunityApp/config/py/mosaic/datasets/*.csv`
-→ the Python API, with models trained on that export in `Java/OpportunityApp/config/py/mosaic/models/`
-(`Java/OpportunityApp/README.md` has the training command). The export matches the originals figure for figure;
-it adds SolarFramework's record columns (`ID`, `CreatedAt`, `UpdatedAt`, `DeletedAt`), which the loaders ignore.
+Data flow: `AI/datasets/*.csv` → `Java/OpportunityApp/config/Default.db` (SQLite, for the site's own entities). The Python API the
+site starts reads `Java/OpportunityApp/config/py/mosaic/`, an exact mirror of `AI/` (`app`, `datasets`, `models`)
+kept by `.claude/hooks/mirror-python.ps1`, so it serves the original CSVs and the models trained in `AI/models`.
 
 Shared helpers remove repeated logic without requiring unrelated endpoints or services
 to inherit from a common base class. API response fields and template formatting method
