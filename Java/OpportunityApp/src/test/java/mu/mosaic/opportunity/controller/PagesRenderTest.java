@@ -37,19 +37,19 @@ class PagesRenderTest {
     private static ApiResult ok(String name) { return ApiResult.ok(fixture(name)); }
 
     @Test
-    void overviewShowsTheHiddenProblemAndTheHonestForecastComparison() throws Exception {
+    void overviewShowsTheForecastAndWhereToInvest() throws Exception {
         when(api.salesHistory()).thenReturn(ok("history"));
         when(api.salesForecast(anyInt())).thenReturn(ok("forecast"));
-        when(api.deliverySummary()).thenReturn(ok("delivery-summary"));
-        when(api.reviewSummary()).thenReturn(ok("review-summary"));
-        when(api.categories(isNull())).thenReturn(ok("categories"));
-        when(api.categories(eq(CategoryController.FLAG_BEHIND))).thenReturn(ok("categories-behind"));
+        when(api.salesOpportunities(anyInt())).thenReturn(ok("opportunities"));
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("−12.7%"),
-                containsString("18 of 74"),
-                containsString("BRL 848,860"),
+                containsString("+3.9%"),
                 containsString("scored better than the model"),
-                containsString("not counted as sales"))));
+                containsString("Where to invest if sales rise"),
+                containsString("Health beauty"),
+                containsString("In line with the business"),
+                containsString("<td>Strong</td>"),
+                containsString("The strongest place to look is health beauty"),
+                not(containsString("data-advice-url")))));
     }
 
     @Test
@@ -57,19 +57,16 @@ class PagesRenderTest {
         ApiResult down = ApiResult.failed(DOWN);
         when(api.salesHistory()).thenReturn(down);
         when(api.salesForecast(anyInt())).thenReturn(down);
-        when(api.deliverySummary()).thenReturn(down);
-        when(api.reviewSummary()).thenReturn(down);
-        when(api.categories(any())).thenReturn(down);
+        when(api.salesOpportunities(anyInt())).thenReturn(down);
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(containsString(DOWN)));
     }
 
     @Test
     void untrainedForecastIsReportedAndHistoryStillShows() throws Exception {
+        ApiResult untrained = ApiResult.failed("No trained sales_forecast model found.");
         when(api.salesHistory()).thenReturn(ok("history"));
-        when(api.salesForecast(anyInt())).thenReturn(ApiResult.failed("No trained sales_forecast model found."));
-        when(api.deliverySummary()).thenReturn(ok("delivery-summary"));
-        when(api.reviewSummary()).thenReturn(ok("review-summary"));
-        when(api.categories(any())).thenReturn(ok("categories"));
+        when(api.salesForecast(anyInt())).thenReturn(untrained);
+        when(api.salesOpportunities(anyInt())).thenReturn(untrained);
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(allOf(
                 containsString("No trained sales_forecast model found."), containsString("sales-chart"))));
     }

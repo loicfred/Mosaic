@@ -77,6 +77,40 @@ public class MosaicToolbox {
         return out.append("Page: /").toString();
     }
 
+    @AITool(description = "Whether the sales forecast rises and, if it does, the growing categories worth a closer look for investment, each checked against the business's late-delivery and low-review rates. Use for questions about where to invest or grow.")
+    public String investmentOpportunities() {
+        ApiResult result = api.salesOpportunities(3);
+        if (result.data() == null) return unavailable(result);
+        Map<String, Object> trend = nestedObject(result.data(), "trend");
+        StringBuilder out = new StringBuilder("Average forecast month against the last 3 months: " + fmt.pct(trend.get("change_pct")) + ".\n");
+        if (!Boolean.TRUE.equals(trend.get("increasing"))) return out.append("Sales are not forecast to rise, so no category is suggested.").toString();
+        List<Map<String, Object>> candidates = recordList(result.data(), "candidates");
+        if (candidates.isEmpty()) return out.append("No category grew at least as fast as the business with enough sales.").toString();
+        out.append("Growing categories, best candidates first (last 3 months against the 3 before; sales are not profit). Growth is strong, moderate or weak against the business; size is large, medium or small by share of sales:\n");
+        candidates.forEach(c -> {
+            Map<String, Object> checks = nestedObject(c, "checks");
+            out
+                    .append("- ")
+                    .append(c.get("category"))
+                    .append(": ")
+                    .append(fmt.pct(c.get("change_pct")))
+                    .append(", ")
+                    .append(fmt.brl(c.get("change_abs")))
+                    .append(" more sales; ")
+                    .append(c.get("growth_level"))
+                    .append(" growth, ")
+                    .append(c.get("size_level"))
+                    .append(" category; late ")
+                    .append(rateOrUnknown(nestedObject(checks, "late_rate").get("rate")))
+                    .append(", low reviews ")
+                    .append(rateOrUnknown(nestedObject(checks, "low_review_rate").get("rate")))
+                    .append("; ")
+                    .append("ready".equals(c.get("readiness")) ? "in line with the business" : "fix_first".equals(c.get("readiness")) ? "fix delivery first" : "not enough data")
+                    .append('\n');
+        });
+        return out.append("Past growth does not prove investing will pay off. Page: /").toString();
+    }
+
     @AITool(description = "Product categories with their sales in the last 3 months against the 3 before, compared with the whole business. filter is 'all', 'falling_behind' (flagged for falling well behind the business) or 'unusual_month' (latest month far from usual).")
     public String listCategories(String filter) {
         String flag = switch (filter == null ? "" : filter.toLowerCase(Locale.ROOT)) {
@@ -236,6 +270,8 @@ public class MosaicToolbox {
     }
 
     private static String unavailable(ApiResult r) { return "Not available right now: " + r.error(); }
+
+    private String rateOrUnknown(Object rate) { return rate == null ? "too few orders" : fmt.rate(rate, 1); }
 
     private static String flags(Map<String, Object> f) {
         return (Boolean.TRUE.equals(f.get("underperforming_total")) ? ", flagged: falling behind" : "") + (Boolean.TRUE.equals(f.get("latest_month_anomaly")) ? ", flagged: unusual latest month" : "");

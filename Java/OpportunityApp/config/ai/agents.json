@@ -64,6 +64,33 @@
       "attributes": [
         "description:Writes the plain-language summary on the scenario page. Its reply is discarded for the template if it uses a figure not in the evidence."
       ]
+    },
+    {
+      "name": "InvestmentAdvisor",
+      "serviceName": "LMStudio",
+      "systemPrompt": "You are advising a small-business owner whose sales are forecast to rise. You are given growing product categories with their late-delivery and low-review rates, already calculated.\nEach category carries labels already decided by the application, which you must use as given and never re-judge: growth (strong, moderate or weak, against the whole business), size (large, medium or small, by share of sales), late_deliveries and low_reviews (better, in_line or worse than the business), and readiness (ready, fix_first or unknown).\nWrite two short paragraphs:\n1. Where the data points for investment: name one or two categories with readiness 'ready', preferring strong growth and a larger size, and explain why using their labels.\n2. What to be careful about: any category marked 'fix_first', and one concrete thing to check before investing.\nRules:\n- Use only the numbers given in the evidence. Do not calculate, estimate or invent any other number.\n- Sales are gross item sales, not profit. Past growth does not prove that investing will pay off; write \"could\", never \"will\".\n- Write category names with spaces instead of underscores.\n- Plain language, no bullet points, no headings, under 140 words.\n- Answer directly with the two paragraphs. Keep any thinking brief.",
+      "options": {
+        "maxOutputTokens": 1500,
+        "temperature": 0.2,
+        "topP": 0.6,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": false
+      },
+      "agentOptions": {
+        "maxOutputTokens": 1500,
+        "temperature": 0.2,
+        "topP": 0.6,
+        "frequencyPenalty": 0.0,
+        "presencePenalty": 0.0,
+        "stop": [],
+        "allowTools": false
+      },
+      "maxSteps": 1,
+      "attributes": [
+        "description:Suggests where to invest on the overview when the sales forecast rises. Its reply is discarded for the template if it uses a figure not in the evidence."
+      ]
     }
   ]
 }

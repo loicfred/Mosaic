@@ -21,7 +21,15 @@ class MosaicToolboxTest {
 
     @Test
     void theAllowlistIsExactlyTheAnnotatedMethods() {
-        assertEquals(Set.of("salesOverview", "listCategories", "explainCategory", "deliveryAndReviews", "leastReliableSellers", "runSalesScenario"), MosaicToolbox.names());
+        assertEquals(Set.of("salesOverview", "listCategories", "explainCategory", "deliveryAndReviews", "leastReliableSellers", "runSalesScenario", "investmentOpportunities"), MosaicToolbox.names());
+    }
+
+    @Test
+    void investmentOpportunitiesListReadinessAndLimits() {
+        when(api.salesOpportunities(3)).thenReturn(ok("opportunities"));
+        String out = tools.investmentOpportunities();
+        assertTrue(out.contains("+3.9%") && out.contains("health_beauty: +20.3%, BRL 56,328 more sales; strong growth, large category") && out.contains("in line with the business"), out);
+        assertTrue(out.endsWith("Past growth does not prove investing will pay off. Page: /"), out);
     }
 
     @Test

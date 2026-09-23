@@ -34,6 +34,7 @@ session history is in `docs/worklog/`.
 | FR-8 | Answer questions about the data in a chat box on every page, using only read-only tools, and withhold an answer that uses a figure not in the tools' replies. | `service/ai/Assistant.java`, `service/ai/MosaicToolbox.java` |
 | FR-9 | Start the analytics API with the website and stop it with it. | `service/PythonApiLauncher.java` |
 | FR-10 | Keep the Olist records in the website's own database and compute every API figure from that database's CSV export. | `Java/OpportunityApp/.../data/BusinessDatabase.java`, `entity/` |
+| FR-11 | When the sales forecast rises, list categories growing at least as fast as the business, label their growth, size, late-delivery and low-review levels by explicit thresholds, and suggest where to invest; the suggestion falls back to a fixed template when the model is off, slow, or uses a figure not in the evidence. | `AI/app/analysis/opportunities.py`, `AI/app/api/get_sales_opportunities.py`; `service/ai/InvestmentAdvisor.java`; `fragments/index/invest.html` |
 
 ## Non-Functional Requirements
 
@@ -58,7 +59,7 @@ from here, never left standing as done.
 - Run a packaged JAR outside the repository with a configured Python interpreter and installed packages. `mosaic-python.zip` is now rebuilt from `AI/app` on every OpportunityImpl Maven build (antrun, `generate-resources`) as well as by the Claude `Stop` hook, but packaged startup and automatic model training on the database export remain untested. A `.py` file deleted from `AI/app` stays in the zip until another file changes.
 - Sign-in: finish a real Google sign-in in a browser on port 8080 (only the redirect to Google was checked), and send one real password-reset email; the link and new-password form were checked without the email.
 - One more Chrome pass over every page (desktop and phone width) after the module split and the business database, with the site restarted on the database export: the Mosaic palette and Help page were checked in Chrome on 23 Sep 2026 before the split. Both Java suites and the Help page render test pass after the split.
-- Walk the assistant and the scenario's AI summary live against LM Studio: a question per tool, a withheld answer, "New" to start over, the summary replacing the template, and both with LM Studio stopped. Only the scripted tests (`AssistantTest`, `MosaicToolboxTest`, `ScenarioNarratorTest`) have run; no real model has answered yet.
+- Walk the scenario's AI summary live against LM Studio, and the assistant's withheld answer, "New" and LM Studio stopped. On 23 Sep 2026 the assistant answered five of seven tool questions live (gemma-4-e4b) with every figure checked; the sellers question needed a retry, and the overview investment advice hit the 120 s model timeout on both runs, so its model-written version is still unseen. Decide whether to raise `timeoutSeconds` in `config/ai/agents.json` or use a faster model for the demo.
 - Check the sidebar opening and the chat box on a real phone-width browser; the headless screenshots could not click.
 
 ### Team setup

@@ -16,7 +16,7 @@ import java.util.List;
  */
 @Component
 public class LocalAi {
-    public static final String ASSISTANT = "MosaicAssistant", NARRATOR = "ScenarioNarrator";
+    public static final String ASSISTANT = "MosaicAssistant", NARRATOR = "ScenarioNarrator", ADVISOR = "InvestmentAdvisor";
     private final IAIManager manager;
 
     public LocalAi(IAIManager manager) {

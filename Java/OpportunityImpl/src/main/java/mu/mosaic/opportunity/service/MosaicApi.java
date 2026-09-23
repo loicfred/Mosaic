@@ -60,6 +60,10 @@ public class MosaicApi {
         return call(client -> client.get().uri("/api/sales/forecast?horizon={h}", horizon));
     }
 
+    public ApiResult salesOpportunities(int horizon) {
+        return call(client -> client.get().uri("/api/sales/opportunities?horizon={h}", horizon));
+    }
+
     public ApiResult categories(String flag) {
         if (flag == null) return get("/api/sales/categories?limit=100");
         return call(client -> client.get().uri("/api/sales/categories?limit=100&flag={f}", flag));

@@ -1,0 +1,67 @@
+<!-- When the forecast rises: the growing categories, their delivery and review checks, and the advice drawn from them.
+     The advice is the fixed template at once, replaced by the model's version only if every number in it checks out. -->
+<section th:fragment="invest" id="invest"
+         th:with="asking=${opportunities != null and opportunities.trend.increasing and !#lists.isEmpty(opportunities.candidates) and aiStatus != null and aiStatus.reachable()}"
+         th:attr="data-advice-url=${asking} ? @{/api/overview/advice} : null">
+    <h2 class="mod-section-title fw-semibold fs-5">Where to invest if sales rise</h2>
+    <div th:replace="~{/fragments/items/notice :: error(${opportunitiesError})}"></div>
+    <th:block th:if="${opportunities != null}" th:with="t=${opportunities.trend}">
+        <p class="muted-note" th:if="${t.change_pct != null}"
+           th:text="|The forecast averages ${@format.brl(t.forecast_monthly_mean)} a month for the next ${t.forecast_months} months, ${@format.pct(t.change_pct)} against the last ${t.recent_months} months (${@format.brl(t.recent_monthly_mean)} a month).|"></p>
+
+        <div class="mod-card hypo">
+            <h3 id="advice-title">Suggestion</h3>
+            <p id="advice-text" class="narrative" th:text="${advice}"></p>
+            <p id="advice-note" class="muted-note mb-0"
+               th:text="${asking} ? 'Written from a fixed template while the local model reviews the categories below. It can take a couple of minutes.' : 'Written from a fixed template.'"></p>
+        </div>
+        <p class="muted-note mt-2" th:if="${aiStatus != null}"
+           th:text="${aiStatus.reachable()} ? |Local AI: connected (${aiStatus.model()})| : (${aiStatus.enabled()} ? 'Local AI: offline. Start LM Studio to get an AI suggestion.' : 'Local AI: switched off.')"></p>
+
+        <div class="mod-card obs mt-3" th:if="${!#lists.isEmpty(opportunities.candidates)}">
+            <h3>Growing categories, checked against delivery and reviews</h3>
+            <p class="mod-card-sub" th:text="|Sales in the last 3 months against the 3 before, growing at least as fast as the business. Late and low-review rates over the last 3 months; business: ${@format.rate(opportunities.business_rates.late_rate.rate, 1)} late, ${@format.rate(opportunities.business_rates.low_review_rate.rate, 1)} low reviews.|"></p>
+            <div class="mod-table table-responsive">
+                <table class="table mb-0">
+                    <thead><tr><th>Category</th><th class="n">Sales change</th><th class="n">Sales added</th><th>Growth</th><th>Size</th><th class="n">Late</th><th class="n">Low reviews</th><th>Reading</th></tr></thead>
+                    <tbody>
+                    <tr th:each="c : ${opportunities.candidates}">
+                        <td><a th:href="@{/categories/{c}(c=${c.category})}" th:text="${@format.label(c.category)}"></a></td>
+                        <td class="n" th:text="${@format.pct(c.change_pct)}"></td>
+                        <td class="n" th:text="${@format.brl(c.change_abs)}"></td>
+                        <td th:text="${#strings.capitalize(c.growth_level)}"></td>
+                        <td th:text="${#strings.capitalize(c.size_level)}"></td>
+                        <td class="n" th:text="${c.checks.late_rate.rate != null} ? ${@format.rate(c.checks.late_rate.rate, 1)} : 'too few orders'"></td>
+                        <td class="n" th:text="${c.checks.low_review_rate.rate != null} ? ${@format.rate(c.checks.low_review_rate.rate, 1)} : 'too few orders'"></td>
+                        <td th:text="${c.readiness == 'ready'} ? 'In line with the business' : (${c.readiness == 'fix_first'} ? 'Fix delivery first' : 'Not enough data')"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <details class="mod-card mt-3">
+            <summary>How the suggestion is made, and its limits</summary>
+            <ul class="plain">
+                <li th:text="|A category is listed when its ${opportunities.rules.growth}, with at least ${@format.brl(opportunities.rules.min_support_sales)} of sales across both periods.|"></li>
+                <li th:text="|Its late and low-review rates count as in line when they are no more than ${@format.num(opportunities.rules.rate_tolerance_pp, 0)} percentage points above the business, over at least ${opportunities.rules.min_rate_orders} orders.|"></li>
+                <li th:text="|Growth is strong at least ${@format.num(opportunities.rules.growth_levels_pp_above_business.strong, 0)} and moderate at least ${@format.num(opportunities.rules.growth_levels_pp_above_business.moderate, 0)} percentage points above the business, weak below that. Size is large from ${@format.rate(opportunities.rules.size_levels_share_of_sales.large, 0)} and medium from ${@format.rate(opportunities.rules.size_levels_share_of_sales.medium, 0)} of recent sales.|"></li>
+                <li th:each="l : ${opportunities.limitations}" th:text="${l}"></li>
+            </ul>
+        </details>
+    </th:block>
+    <script>
+        (async () => {
+            const url = document.getElementById('invest').dataset.adviceUrl;
+            if (!url) return;
+            const note = document.getElementById('advice-note');
+            try {
+                const res = await fetch(url), n = await res.json();
+                if (!res.ok) { note.textContent = 'Kept the fixed template: ' + (n.error || 'the suggestion could not be written.'); return; }
+                if (n.source !== 'llm') { note.textContent = 'Kept the fixed template (' + n.reason + ').'; return; }
+                document.getElementById('advice-title').textContent = `AI suggestion (${n.model})`;
+                document.getElementById('advice-text').textContent = n.text;
+                note.textContent = 'Written by a local language model from the table below. It is commentary, not advice to act on alone: every number it uses was checked against the data.';
+            } catch { note.textContent = 'Kept the fixed template: the site did not answer.'; }
+        })();
+    </script>
+</section>
