@@ -7,4 +7,4 @@ Author: Claude
 - The API no longer trains at startup: `app/main.py` now builds `app = create_app()` (`auto_train` defaults to `False`). Models are trained once with `python -m app.forecast.train` and `python -m app.models.train_risk`. `prepare_models` is still used by `tests/test_opportunities.py`.
 - `.claude/CLAUDE.md` now has a "Train once, then only use" rule and a "Train it once" step in the new-dataset procedure.
 - `python -m pytest tests -q` from `AI/`: 98 passed.
-- The copy in `Java/OpportunityApp/config/py/mosaic/app/main.py` still has `auto_train=True` and was left unchanged.
+- `Java/OpportunityApp/config/py/mosaic/app` is generated from `AI/app`: `.claude/hooks/package-python.ps1` zips it into `Java/OpportunityImpl/src/main/resources/mosaic-python.zip`, and `PythonApiLauncher` unpacks the zip when the site starts. The zip was rebuilt, and `Java/OpportunityApp/README.md` now says to train the export's models once, by hand.

@@ -68,7 +68,7 @@ python -m pytest tests -q  # active suite, using a small synthetic fixture
 | `GET /api/risk/reviews/summary` | observed low-review rate by month and late vs on-time + model evaluation | – |
 | `GET /api/risk/reviews/unreviewed?limit=50` | delivered orders with no review yet, ranked by low-review risk score | low_review |
 | `GET /api/risk/cashflow/summary` | observed stress rate by sector and month from the practice cash-flow dataset + model evaluation (`available: false` if the CSV isn't present) | – |
-| `GET /api/risk/cashflow/records?limit=50` | business-month snapshots ranked by predicted next-month stress risk | cashflow_stress |
+| `GET /api/risk/cashflow/records?limit=50` | held-out business-month snapshots (test months only) ranked by predicted next-month stress risk; 503 while the model's held-out ROC-AUC is below 0.6, which it currently is | cashflow_stress |
 | `POST /api/scenarios/sales-impact` | what a sales change would do to orders, late deliveries, low reviews, seller capacity and sales exposed to late delivery | – |
 
 Errors: `422` invalid query, `503` model not trained, `409` model trained on different data.
@@ -186,7 +186,7 @@ app/models/train_risk.py   risk model training CLI
 app/data/cashflow.py       cash-flow snapshot loader (separate profile, not Olist)
 app/models/cashflow.py     cash-flow split, fit/evaluate/predict
 app/models/train_cashflow.py cash-flow model training CLI
-app/models/prepare.py      startup training when models are missing or stale (skips cashflow if its CSV is absent)
+app/models/prepare.py      trains missing or stale Olist models; only used when a test calls `create_app(auto_train=True)`
 app/analysis/categories.py category change, flags, evidence, short forecasts
 app/analysis/delivery.py   observed late rates, seller table, open-order scoring
 app/analysis/reviews.py    observed low-review rates, unreviewed-order scoring

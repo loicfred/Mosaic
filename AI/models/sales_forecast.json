@@ -1,14 +1,14 @@
 {
   "model_version": "sales-ridge-v1",
-  "trained_at": "2026-09-23T07:15:06+00:00",
+  "trained_at": "2026-09-23T07:20:52+00:00",
   "data_range": {
     "start": "2017-01",
     "end": "2018-08"
   },
   "n_months": 20,
   "dataset_hashes": {
-    "olist_orders_dataset.csv": "1dca8c9a7a8d34f0a8d0f7c272616d582e7f29d67a8c21ddd903152bf4ee6441",
-    "olist_order_items_dataset.csv": "14e321c489a729b088f26f73262b506577e2b7fcb19cf04cd70fa6276d16ff65"
+    "olist_orders_dataset.csv": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+    "olist_order_items_dataset.csv": "0bc4d068c4fe38cbb01bd90e8746e3c613fe7b4baef75fab7b0e329701c3e279"
   },
   "feature_names": [
     "trend",

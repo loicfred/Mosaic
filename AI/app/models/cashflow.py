@@ -22,6 +22,13 @@ NUMERIC_FEATURES = [
 ]
 FEATURE_NAMES = CATEGORICAL_FEATURES + NUMERIC_FEATURES
 TOP_SHARE = 0.10
+# Below this held-out ROC AUC the ranking is too close to chance (0.5) to show as a prediction.
+MIN_ROC_AUC = 0.6
+
+
+def beats_baseline(evaluation: dict) -> bool:
+    roc_auc = evaluation.get("roc_auc")
+    return roc_auc is not None and roc_auc >= MIN_ROC_AUC
 
 
 def temporal_split(frame: pd.DataFrame, split_month: str, test_end: str) -> tuple[pd.DataFrame, pd.DataFrame]:

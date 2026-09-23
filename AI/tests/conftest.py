@@ -21,6 +21,8 @@ CASHFLOW_MONTHS = [f"2024-{m:02d}" for m in range(1, 7)]
 CASHFLOW_SPLIT_MONTH = "2024-06"  # test = June only
 CASHFLOW_TEST_END = "2024-07"
 CASHFLOW_ZERO_REVENUE_ID = "F-zero"
+# Half stressed; enough training rows for the gradient-boosted classifier to split at all.
+CASHFLOW_ROWS_PER_MONTH = 12
 
 FIXTURE_MONTHS = [f"2017-{m:02d}" for m in range(1, 13)]
 FIXTURE_MONTHLY_SALES = 350.0
@@ -197,7 +199,8 @@ def write_cashflow_fixture_csv(directory: Path) -> None:
     rows = []
     counter = 0
     for month in CASHFLOW_MONTHS:
-        for stressed in (False, False, True, True):
+        for i in range(CASHFLOW_ROWS_PER_MONTH):
+            stressed = i % 2 == 1
             counter += 1
             rows.append(_cashflow_row(f"F{counter:03d}", month, stressed))
     rows.append({

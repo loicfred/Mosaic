@@ -73,9 +73,10 @@ file's columns alphabetically), and it also holds SolarFramework's two AI tables
 same number.
 
 The API refuses a model trained on other files, so the models in `AI/models` (trained on the originals) do not
-serve the export. The packaged Python API trains missing or stale models from its own data folder at startup.
-Training can take about 50 s. If training fails, observed analytics remain available and model-backed pages
-report that the model is unavailable. To retrain the export manually:
+serve the export. The Python API never trains at startup; it only loads saved models. Train the export's models
+once, after the first export or whenever the export changes (model pages then report the model as stale). Training
+takes about 50 s. Until then, observed analytics remain available and model-backed pages report that the model is
+unavailable:
 
 ```powershell
 cd AI
