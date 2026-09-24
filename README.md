@@ -30,9 +30,9 @@ to be wary of sending their books to an AI service.
 | Quantify | Every finding carries an impact range with its stated basis. |
 | Simulate | The Scenario Lab changes supplier prices, selling prices, volume, collection speed, recurring costs, marketing, staffing and inventory and re-projects 90 days of cash. Actual records are never modified. |
 | Act + measure | Findings move through New -> Reviewed -> Planned -> In progress -> Completed. When an action starts, the target metric's baseline is frozen and re-measured on later data ("Outcome achieved", "Partly achieved", "Too early"...). |
-| Ask | **Valora Insight** ("Ask Valora") answers questions about the business from figures Valora already computed, shows the source of every figure, and refuses what the data cannot answer. It is a deterministic router, not a chatbot. |
+| Ask | **Valora Insight** ("Ask Valora") answers questions about the business from figures Valora already computed, shows the source of every figure, and refuses what the data cannot answer. It uses an LLM on Groq (free tier works) over a summary of computed figures, and falls back to built-in rules without a key. |
 | Onboard | A new business can sign up (owner account + empty business), then import its own CSV. |
-| Trust | RBAC, PostgreSQL row-level security, Argon2id, rotating refresh tokens, an append-only audit log, and no external AI calls. |
+| Trust | RBAC, PostgreSQL row-level security, Argon2id, rotating refresh tokens, an append-only audit log; the only external AI call is the optional Groq assistant, which never sees raw transactions. |
 
 ## Architecture
 
@@ -85,6 +85,9 @@ python scripts/bootstrap.py
 if your database password differs from `change-me-locally`), applies the
 migrations, retrains the models if your scikit-learn version differs from the
 one used for the shipped artefacts, and seeds the demo.
+
+To turn on the AI assistant, add a free Groq key (https://console.groq.com/keys)
+to `backend/.env`: `GROQ_API_KEY=gsk_...` (optional: `GROQ_MODEL=...`).
 
 Run the API:
 

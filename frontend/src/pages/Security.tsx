@@ -194,7 +194,7 @@ export function SecurityPage() {
         <Control
           icon={Lock}
           title="Data protection"
-          headline="Tokens and IPs stored only as hashes; no external AI"
+          headline="Tokens and IPs stored only as hashes; the AI assistant never sees raw transactions"
           rows={[
             ['Stored secrets', d.data_protection.stored_secrets],
             ['Audit IPs', d.data_protection.audit_ip],

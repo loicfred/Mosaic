@@ -92,6 +92,7 @@ function AnswerBlock({ a, onAsk, onNavigate }: { a: Answer; onAsk: (q: string) =
           ))}
         </div>
       )}
+      {a.via === 'rules' && <p className="mt-3 text-xs text-ink-3">AI assistant unavailable. Answered by Valora&apos;s built-in rules.</p>}
       {a.followUps.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {a.followUps.map((q) => (
@@ -219,8 +220,9 @@ export function InsightPanel({ businessName }: { businessName: string }) {
               ))}
             </ul>
             <p className="mt-5 text-xs leading-relaxed text-ink-3">
-              Valora Insight matches your question to figures Valora has already calculated. It does not guess, forecast beyond
-              Valora&apos;s 90-day cash projection, or send your records to an external AI service.
+              Valora Insight uses an AI model (hosted on Groq) that sees only a summary of figures Valora has already calculated, never your
+              raw transactions. It does not forecast beyond Valora&apos;s 90-day cash projection. If the AI is unavailable, Valora&apos;s
+              built-in rules answer instead.
             </p>
           </div>
         ) : (

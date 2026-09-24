@@ -51,6 +51,7 @@ Roles: **O** owner, **A** accountant, **V** viewer.
 
 | GET | `/analytics/overview` | O A V | cash, KPIs (last 3 complete months vs previous 3), cash series, projection, prediction summary, data health |
 | GET | `/insights` | O A V | monthly series, comparison, expense categories, product lines, concentration, recurring commitments, collections |
+| POST | `/insight/ask` | O A V | Ask Valora: `{question, history?, context?}` -> answer (headline, facts, chart, sources) from the Groq LLM; 503 `llm_unavailable` when `GROQ_API_KEY` is unset or Groq fails |
 
 ## Opportunities
 

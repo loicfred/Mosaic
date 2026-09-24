@@ -1,11 +1,9 @@
 /**
- * Valora Insight: a question router over data the app has already loaded.
- *
- * It is deliberately NOT a language model. A question is matched to one of a
- * fixed set of intents; each intent reads figures that the Valora API already
- * computed (overview, insights, findings, data health) and phrases them with a
- * template. Nothing is estimated here, nothing leaves the browser, and any
- * question outside those intents gets a plain refusal instead of a guess.
+ * Valora Insight answers come from the LLM endpoint (POST /insight/ask, see
+ * backend/app/services/assistant_service.py). This file holds the shared answer
+ * types and the offline fallback used when that endpoint is unavailable: a
+ * question router that matches a fixed set of intents and phrases figures the
+ * Valora API already computed, refusing anything outside those intents.
  */
 import { GAIN_KINDS, RISK_KINDS } from '@/lib/findings'
 import { date, monthLabel, murCompact, pct, pp } from '@/lib/format'
@@ -42,6 +40,8 @@ export interface Answer {
   kind?: DataKindName
   sources: Source[]
   followUps: string[]
+  /** Who answered: the LLM, or the local rules when the LLM is unavailable. */
+  via?: 'llm' | 'rules'
 }
 
 /** The subset of GET /insights used here. */
