@@ -26,7 +26,7 @@ function Control({
   return (
     <Card className="flex flex-col">
       <div className="flex items-start gap-3 p-4">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-600" aria-hidden>
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-50 text-accent-700" aria-hidden>
           <Icon className="size-4" />
         </span>
         <div className="min-w-0 flex-1">
@@ -42,7 +42,7 @@ function Control({
         </div>
       </div>
       <details className="group mt-auto border-t border-line">
-        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2 text-xs font-medium text-ink-3 hover:bg-mist hover:text-ink">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2 text-xs font-medium text-ink-3 hover:bg-surface-2 hover:text-ink">
           Details
           <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" aria-hidden />
         </summary>
@@ -71,7 +71,7 @@ export function SecurityPage() {
   return (
     <>
       <PageHeader
-        title="Security & audit"
+        title="Security & Audit"
         description="Controls read live from the running system. Only implemented controls are listed."
       />
       <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">

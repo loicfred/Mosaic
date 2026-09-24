@@ -15,7 +15,7 @@ import { date, dateTime, mur } from '@/lib/format'
 import type { Transaction } from '@/lib/types'
 
 const input =
-  'h-10 rounded-full border border-line bg-surface px-4 text-sm  outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100'
+  'h-10 rounded-full border border-line bg-surface px-4 text-sm shadow-card outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100'
 
 function Flags({ t }: { t: Transaction }) {
   return (
@@ -59,7 +59,7 @@ function HistoryBars({
             <span className={h.id === current ? 'font-medium text-ink' : 'text-ink-3'}>{date(h.date)}</span>
             <span className="relative h-2.5">
               <span
-                className={cn('block h-full rounded-r-[4px]', h.id === current ? 'bg-actual' : 'bg-before')}
+                className={cn('grow-x block h-full rounded-r-[4px]', h.id === current ? 'bg-actual' : 'bg-before')}
                 style={{ width: `${Math.max(1.5, (h.amount / max) * 100)}%` }}
               />
               {median !== null && (
@@ -140,7 +140,7 @@ function Detail({ id, onClose }: { id: string | null; onClose: () => void }) {
             <div>
               <h3 className="mb-2 font-medium text-ink">History with {t.counterparty}</h3>
               <p className="text-ink-3">
-                {t.counterparty_history.count} payments · median {mur(t.counterparty_history.median)} · total{''}
+                {t.counterparty_history.count} payments · median {mur(t.counterparty_history.median)} · total{' '}
                 {mur(t.counterparty_history.total)}
               </p>
               <HistoryBars recent={t.counterparty_history.recent} current={t.id} median={t.counterparty_history.median} />
@@ -163,12 +163,12 @@ function Detail({ id, onClose }: { id: string | null; onClose: () => void }) {
               <h3 className="mb-2 font-medium text-ink">Proposed data changes</h3>
               {t.pending_changes.map((p) => (
                 <p key={p.id} className="text-ink-2">
-                  {p.change_type === 'set_category' ? `Set category to ${p.new_value}` : 'Exclude as duplicate'} ·{''}
+                  {p.change_type === 'set_category' ? `Set category to ${p.new_value}` : 'Exclude as duplicate'} ·{' '}
                   <span className="capitalize">{p.status}</span>
                 </p>
               ))}
-              <Link to="/data-health" className="text-accent-600 hover:underline">
-                Review in data health
+              <Link to="/data-health" className="text-accent-700 hover:underline">
+                Review in Data Health
               </Link>
             </div>
           )}
@@ -176,7 +176,7 @@ function Detail({ id, onClose }: { id: string | null; onClose: () => void }) {
             <div>
               <h3 className="mb-2 font-medium text-ink">Used as evidence in</h3>
               {t.related_opportunities.map((o) => (
-                <Link key={o.id} to={`/opportunities?open=${o.id}`} className="flex items-center gap-1 text-accent-600 hover:underline">
+                <Link key={o.id} to={`/opportunities?open=${o.id}`} className="flex items-center gap-1 text-accent-700 hover:underline">
                   {o.title} <ExternalLink className="size-3.5" />
                 </Link>
               ))}
@@ -261,11 +261,11 @@ export function TransactionsPage() {
               aria-pressed={on}
               onClick={() => reset(() => setFlag(on ? '' : f.key))}
               className={cn(
-                'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 py-1.5  transition-colors',
-                on ? 'border-accent-600 bg-accent-100 text-accent-600' : 'border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink',
+                'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 py-1.5 shadow-card transition-colors',
+                on ? 'border-ink bg-ink text-white' : 'border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink',
               )}
             >
-              <f.icon className={cn('size-3.5', on ? 'text-accent-600' : f.tone)} aria-hidden />
+              <f.icon className={cn('size-3.5', on ? 'text-white' : f.tone)} aria-hidden />
               <span className="font-semibold">{f.count}</span> {f.label.toLowerCase()}
             </button>
           )
@@ -374,7 +374,7 @@ export function TransactionsPage() {
                     type="button"
                     onClick={() => setParams({ open: t.id })}
                     className={cn(
-                      'flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-mist',
+                      'flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-surface-2',
                       t.excluded && 'text-ink-3 line-through',
                     )}
                   >
@@ -410,7 +410,7 @@ export function TransactionsPage() {
                     <tr
                       key={t.id}
                       className={cn(
-                        'cursor-pointer transition-colors hover:bg-mist',
+                        'cursor-pointer transition-colors hover:bg-surface-2',
                         t.excluded && 'text-ink-3 line-through decoration-ink-3/40',
                       )}
                       onClick={() => setParams({ open: t.id })}

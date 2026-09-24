@@ -1,4 +1,4 @@
-import { ArrowRight, ArrowUp, Clock, Info, RotateCcw, X } from 'lucide-react'
+import { ArrowRight, ArrowUp, Clock, Info, RotateCcw, Sparkles, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { DataKind } from '@/components/domain/labels'
@@ -23,7 +23,7 @@ function MiniBars({ v }: { v: Extract<Visual, { type: 'bars' }> }) {
             </span>
             <span className="h-2 rounded-full bg-track">
               <span
-                className="block h-full rounded-full"
+                className="grow-x block h-full rounded-full"
                 style={{ width: `${Math.max(2, (r.value / max) * 100)}%`, background: v.color ?? 'var(--color-actual)' }}
               />
             </span>
@@ -41,12 +41,12 @@ function AnsweredBy({ a }: { a: Answer }) {
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 rounded border px-1.5 py-0.5 font-mono text-xs',
-        ai ? 'border-accent-500/40 bg-accent-50 text-accent-600' : 'border-line bg-page text-ink-3',
+        'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium',
+        ai ? 'border-accent-500/40 bg-accent-50 text-accent-700' : 'border-line bg-page text-ink-3',
       )}
       title={ai ? `Written by the AI model ${a.model ?? ''} from Valora’s figures` : 'Written by Valora’s built-in rules'}
     >
-      
+      {ai && <Sparkles className="size-3" aria-hidden />}
       {ai ? `AI${a.model ? ` · ${a.model.replace(/^[^/]+\//, '')}` : ''}` : 'Built-in rules'}
     </span>
   )
@@ -62,7 +62,7 @@ function Busy({ a, onRetry, onRules }: { a: Answer; onRetry: () => void; onRules
   }, [left])
   return (
     <div className="rounded-xl border border-warn/60 bg-warn-bg p-4" role="status">
-      <p className="flex gap-2 text-sm font-semibold leading-snug text-ink">
+      <p className="flex gap-2 text-[15px] font-semibold leading-snug text-ink">
         <Clock className="mt-0.5 size-4 shrink-0 text-warn-ink" aria-hidden />
         {a.headline}
       </p>
@@ -72,7 +72,7 @@ function Busy({ a, onRetry, onRules }: { a: Answer; onRetry: () => void; onRules
           type="button"
           onClick={onRetry}
           disabled={left > 0}
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-accent-600 px-3 text-xs font-medium text-surface transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-accent-600 px-3 text-xs font-medium text-white transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
         >
           <RotateCcw className="size-3.5" aria-hidden />
           {left > 0 ? `Retry in ${left}s` : 'Retry'}
@@ -80,7 +80,7 @@ function Busy({ a, onRetry, onRules }: { a: Answer; onRetry: () => void; onRules
         <button
           type="button"
           onClick={onRules}
-          className="h-8 rounded-lg border border-line bg-surface px-3 text-xs font-medium text-ink-2 hover:border-line-strong hover:text-accent-600"
+          className="h-8 rounded-lg border border-line bg-surface px-3 text-xs font-medium text-ink-2 hover:border-accent-500 hover:text-accent-700"
         >
           Use built-in rules
         </button>
@@ -94,7 +94,7 @@ function AnswerBlock({ a, onAsk, onNavigate }: { a: Answer; onAsk: (q: string) =
   return (
     <div className={cn('rounded-xl border bg-surface p-4', refused ? 'border-gold-500/50' : 'border-line')}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-medium text-ink-3">
+        <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
           {refused ? 'Outside Valora’s data' : a.status === 'empty' ? 'Not available yet' : 'From your data'}
         </span>
         <span className="flex items-center gap-1.5">
@@ -107,7 +107,7 @@ function AnswerBlock({ a, onAsk, onNavigate }: { a: Answer; onAsk: (q: string) =
           AI assistant unavailable. Answered by Valora&apos;s built-in rules.
         </p>
       )}
-      <p className="flex gap-2 text-sm font-semibold leading-snug text-ink">
+      <p className="flex gap-2 text-[15px] font-semibold leading-snug text-ink">
         {refused && <Info className="mt-0.5 size-4 shrink-0 text-gold-700" aria-hidden />}
         {a.headline}
       </p>
@@ -145,7 +145,7 @@ function AnswerBlock({ a, onAsk, onNavigate }: { a: Answer; onAsk: (q: string) =
                 <Link
                   to={s.to}
                   onClick={onNavigate}
-                  className="inline-flex items-center gap-0.5 font-medium text-accent-600 hover:underline"
+                  className="inline-flex items-center gap-0.5 font-medium text-accent-700 hover:underline"
                 >
                   Open <ArrowRight className="size-3" aria-hidden />
                 </Link>
@@ -161,7 +161,7 @@ function AnswerBlock({ a, onAsk, onNavigate }: { a: Answer; onAsk: (q: string) =
               key={q}
               type="button"
               onClick={() => onAsk(q)}
-              className="rounded border border-line px-2 py-1 text-xs text-ink-2 transition-colors hover:border-line-strong hover:bg-mist hover:text-accent-600"
+              className="rounded-full border border-line px-2.5 py-1 text-xs text-ink-2 transition-colors hover:border-accent-500 hover:bg-accent-50 hover:text-accent-700"
             >
               {q}
             </button>
@@ -175,7 +175,7 @@ function AnswerBlock({ a, onAsk, onNavigate }: { a: Answer; onAsk: (q: string) =
 function Thinking() {
   return (
     <div className="flex items-center gap-2 rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink-3" role="status">
-      <InsightOrb className="size-4 text-ink-3" />
+      <InsightOrb state="thinking" className="size-5 text-ink" />
       Reading your data…
     </div>
   )
@@ -234,12 +234,12 @@ export function InsightPanel({ businessName }: { businessName: string }) {
       role="dialog"
       aria-modal="false"
       aria-labelledby="insight-title"
-      className="panel-in shadow-float no-print fixed inset-0 z-50 flex flex-col bg-page sm:inset-auto sm:bottom-4 sm:right-4 sm:top-16 sm:w-[420px] sm:overflow-hidden sm:rounded-lg sm:border sm:border-line"
+      className="panel-in no-print fixed inset-0 z-50 flex flex-col bg-page sm:inset-auto sm:bottom-24 sm:right-6 sm:h-[min(680px,calc(100vh-8rem))] sm:w-[420px] sm:overflow-hidden sm:rounded-2xl sm:border sm:border-line sm:shadow-[0_18px_48px_-18px_rgba(44,44,44,0.35)]"
     >
       <div className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
-        <InsightOrb className="size-5 text-ink-3" />
+        <InsightOrb state={ins.orb} className="size-8 text-ink" />
         <div className="min-w-0 flex-1">
-          <h2 id="insight-title" className="text-sm font-semibold text-ink">
+          <h2 id="insight-title" className="text-[15px] font-semibold text-ink">
             Valora Insight
           </h2>
           <p className="truncate text-xs text-ink-3">Answers only from {businessName}</p>
@@ -248,7 +248,7 @@ export function InsightPanel({ businessName }: { businessName: string }) {
           <button
             type="button"
             onClick={ins.clear}
-            className="rounded-md p-2 text-ink-3 hover:bg-mist hover:text-ink"
+            className="rounded-md p-2 text-ink-3 hover:bg-brand-50 hover:text-ink"
             aria-label="Clear answers"
             title="Clear answers"
           >
@@ -258,7 +258,7 @@ export function InsightPanel({ businessName }: { businessName: string }) {
         <button
           type="button"
           onClick={() => ins.setOpen(false)}
-          className="rounded-md p-2 text-ink-3 hover:bg-mist hover:text-ink"
+          className="rounded-md p-2 text-ink-3 hover:bg-brand-50 hover:text-ink"
           aria-label="Close Valora Insight"
         >
           <X className="size-4" />
@@ -272,14 +272,14 @@ export function InsightPanel({ businessName }: { businessName: string }) {
               Ask about cash, revenue, costs, customers, suppliers, findings or data quality. Every answer shows the figures it uses and
               where they come from.
             </p>
-            <h3 className="mb-2 mt-5 text-xs font-medium text-ink-3">Suggested for this page</h3>
+            <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-ink-3">Suggested for this page</h3>
             <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
               {suggestionsFor(pathname).map((s) => (
                 <li key={s}>
                   <button
                     type="button"
                     onClick={() => ins.ask(s)}
-                    className="group flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left text-sm text-ink transition-colors hover:bg-mist"
+                    className="group flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-left text-sm text-ink transition-colors hover:bg-accent-50"
                   >
                     {s}
                     <ArrowRight className="size-3.5 shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5 group-hover:text-accent-600" />
@@ -307,7 +307,7 @@ export function InsightPanel({ businessName }: { businessName: string }) {
         <label htmlFor="insight-q" className="sr-only">
           Ask Valora about your business data
         </label>
-        <div className="flex items-center gap-2 rounded-xl border border-line-strong bg-surface pl-3 pr-1.5 transition-[border-color,box-] focus-within:border-accent-600 focus-within:ring-4 focus-within:ring-accent-100">
+        <div className="flex items-center gap-2 rounded-xl border border-line-strong bg-surface pl-3 pr-1.5 transition-[border-color,box-shadow] focus-within:border-accent-600 focus-within:ring-4 focus-within:ring-accent-100">
           <input
             id="insight-q"
             ref={input}
@@ -321,7 +321,7 @@ export function InsightPanel({ businessName }: { businessName: string }) {
           <button
             type="submit"
             disabled={!q.trim() || ins.orb === 'thinking'}
-            className="flex size-8 items-center justify-center rounded-lg bg-accent-600 text-surface transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
+            className="flex size-8 items-center justify-center rounded-lg bg-accent-600 text-white transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
             aria-label="Ask"
           >
             <ArrowUp className="size-4" />
@@ -332,20 +332,33 @@ export function InsightPanel({ businessName }: { businessName: string }) {
   )
 }
 
-/** The single entry point to Valora Insight: a labelled button in the page header. */
+/** The floating launcher. Label slides out on hover or focus. */
+/**
+ * The single entry point to Valora Insight: a labelled button, bottom right, on
+ * every page. The orb only moves on hover and while Valora is reading data.
+ */
 export function InsightLauncher() {
   const ins = useInsight()
+  const [hover, setHover] = useState(false)
   if (!ins) return null
+  const state = ins.orb === 'idle' && hover ? 'hover' : ins.orb
   return (
     <button
       type="button"
       onClick={() => ins.setOpen(!ins.open)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
       aria-expanded={ins.open}
       aria-label={ins.open ? 'Close Valora Insight' : 'Ask Valora'}
-      className="no-print flex h-8 items-center gap-2 rounded-md border border-line bg-surface px-2 text-sm font-medium text-ink-2 transition-colors hover:bg-mist hover:text-ink aria-expanded:bg-accent-100 aria-expanded:text-accent-600 sm:px-3"
+      className={cn(
+        'no-print fixed bottom-5 right-5 z-40 h-12 items-center gap-2 rounded-full border border-line bg-surface pl-1.5 pr-1.5 text-sm font-medium text-ink shadow-[0_8px_24px_-12px_rgba(44,44,44,0.35)] transition-colors duration-150 hover:border-accent-500 hover:text-accent-700 sm:bottom-6 sm:right-6 sm:pr-4',
+        ins.open ? 'hidden sm:flex' : 'flex',
+      )}
     >
-      <InsightOrb className="size-4" />
-      <span className="hidden sm:inline">Ask Valora</span>
+      <InsightOrb state={state} className="size-9" />
+      <span className="hidden sm:inline">{ins.open ? 'Close' : 'Ask Valora'}</span>
     </button>
   )
 }

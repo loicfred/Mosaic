@@ -32,7 +32,7 @@ export function ReportsPage() {
         <CardBody className="space-y-8 p-8">
           <header className="flex flex-wrap items-start justify-between gap-4 border-b border-line pb-6">
             <div>
-              <div className="text-xs text-ink-3">Decision brief</div>
+              <div className="text-xs uppercase tracking-wide text-ink-3">Decision brief</div>
               <h2 className="mt-1 text-2xl font-semibold">{b.business.name}</h2>
               <p className="text-sm text-ink-3">
                 {b.business.sector} · data to {date(b.as_of)} · amounts in {b.business.currency}
@@ -47,7 +47,7 @@ export function ReportsPage() {
           </header>
 
           <section>
-            <h3 className="mb-3 text-sm font-semibold text-ink">1. Position (actual, last 3 complete months)</h3>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-3">1. Position (actual, last 3 complete months)</h3>
             <div className="grid grid-cols-2 gap-4 text-sm md:grid-cols-4">
               <div className="rounded-lg bg-surface-2 p-3">
                 <div className="text-ink-3">Cash today</div>
@@ -82,7 +82,7 @@ export function ReportsPage() {
           </section>
 
           <section>
-            <h3 className="mb-3 text-sm font-semibold text-ink">2. Outlook</h3>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-3">2. Outlook</h3>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
               <div className="space-y-3">
                 <div className="flex flex-wrap items-center gap-3">
@@ -119,7 +119,7 @@ export function ReportsPage() {
           </section>
 
           <section>
-            <h3 className="mb-3 text-sm font-semibold text-ink">3. Opportunities and risks to decide on</h3>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-3">3. Opportunities and risks to decide on</h3>
             <table className="w-full text-sm">
               <thead className="text-left text-xs text-ink-3">
                 <tr>
@@ -161,7 +161,7 @@ export function ReportsPage() {
           </section>
 
           <section>
-            <h3 className="mb-3 text-sm font-semibold text-ink">4. Actions and measured outcomes</h3>
+            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-ink-3">4. Actions and measured outcomes</h3>
             <ul className="space-y-2 text-sm">
               {b.tracked_actions.length === 0 && <li className="text-ink-3">No actions started yet.</li>}
               {b.tracked_actions.map(

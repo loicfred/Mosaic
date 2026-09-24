@@ -8,7 +8,7 @@ export function FindingRow({ o }: { o: Opportunity }) {
   return (
     <Link
       to={`/opportunities?open=${o.id}`}
-      className="group grid gap-x-6 gap-y-2 px-5 py-3.5 transition-colors hover:bg-mist focus-visible:bg-surface-2 md:grid-cols-[minmax(0,1fr)_10.5rem_9rem_1rem] md:items-center"
+      className="group grid gap-x-6 gap-y-2 px-5 py-3.5 transition-colors hover:bg-surface-2 focus-visible:bg-surface-2 md:grid-cols-[minmax(0,1fr)_10.5rem_9rem_1rem] md:items-center"
     >
       <div className="min-w-0">
         <div className="flex items-start gap-2">

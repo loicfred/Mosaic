@@ -41,7 +41,7 @@ export function CompositionBar({
           visible.map((s) => (
             <Tip key={s.key} content={`${s.label}: ${s.display ?? format(s.value)} (${Math.round((s.value / total) * 100)}%)`}>
               <span
-                className="h-full first:rounded-l-full last:rounded-r-full"
+                className="grow-x h-full first:rounded-l-full last:rounded-r-full"
                 style={{ width: `${(s.value / total) * 100}%`, background: s.color }}
               />
             </Tip>

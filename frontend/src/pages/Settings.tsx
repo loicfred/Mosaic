@@ -101,7 +101,7 @@ function ModelsTab() {
       <Card>
         <CardHeader
           title="30-day cash-pressure model"
-          subtitle={`${cp.algorithm.replaceAll('_', '')} · ${cp.version} · trained ${dateTime(cp.trained_at)} · scikit-learn ${cp.sklearn_version}`}
+          subtitle={`${cp.algorithm.replaceAll('_', ' ')} · ${cp.version} · trained ${dateTime(cp.trained_at)} · scikit-learn ${cp.sklearn_version}`}
           action={<Badge tone={q.data.cash_pressure.status === 'loaded' ? 'good' : 'bad'}>{q.data.cash_pressure.status}</Badge>}
         />
         <CardBody className="space-y-5 text-sm">
@@ -109,9 +109,9 @@ function ModelsTab() {
             <strong className="text-ink">Target:</strong> {cp.target.definition}. {cp.target.eligibility}
           </p>
           <p className="text-ink-2">
-            <strong className="text-ink">Training data:</strong> {cp.training_data.source}.{''}
-            {cp.training_data.n_rows_eligible.toLocaleString('en-GB')} labelled business-dates from {cp.training_data.n_businesses}{''}
-            synthetic businesses; {cp.training_data.n_test_businesses} businesses held out entirely for testing. Positive rate{''}
+            <strong className="text-ink">Training data:</strong> {cp.training_data.source}.{' '}
+            {cp.training_data.n_rows_eligible.toLocaleString('en-GB')} labelled business-dates from {cp.training_data.n_businesses}{' '}
+            synthetic businesses; {cp.training_data.n_test_businesses} businesses held out entirely for testing. Positive rate{' '}
             {(cp.training_data.positive_rate_test * 100).toFixed(1)}% (test).
           </p>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
@@ -164,7 +164,7 @@ function ModelsTab() {
                     return (
                       <tr key={k}>
                         <td className="py-1.5">
-                          {k.replaceAll('_', '')}
+                          {k.replaceAll('_', ' ')}
                           {k === cp.algorithm && (
                             <Badge tone="accent" className="ml-1">
                               chosen
@@ -188,7 +188,7 @@ function ModelsTab() {
               <p className="mt-2 text-xs text-ink-3">{cp.cross_validation.selection_rule}</p>
               {cp.temporal_check?.roc_auc && (
                 <p className="mt-2 text-xs text-ink-3">
-                  Temporal check (train before {cp.temporal_check.train_until}, test after on unseen businesses): ROC-AUC{''}
+                  Temporal check (train before {cp.temporal_check.train_until}, test after on unseen businesses): ROC-AUC{' '}
                   {f3(cp.temporal_check.roc_auc)} vs rule {f3(cp.temporal_check.baseline_buffer_days.roc_auc)}.
                 </p>
               )}
@@ -245,7 +245,7 @@ function ModelsTab() {
                       dataKey="observed_rate"
                       stroke={C.actual}
                       strokeWidth={2}
-                      dot={{ r: 4, fill: C.actual, stroke: 'var(--color-surface)', strokeWidth: 2 }}
+                      dot={{ r: 4, fill: C.actual, stroke: '#fff', strokeWidth: 2 }}
                       isAnimationActive={false}
                     />
                   </LineChart>
@@ -309,7 +309,7 @@ function ModelsTab() {
             <div className="max-w-2xl">
               <HBarList
                 rows={Object.entries(bm.models).map(([k, v]) => ({
-                  label: k.replaceAll('_', ''),
+                  label: k.replaceAll('_', ' '),
                   value: (v as { roc_auc_mean: number }).roc_auc_mean,
                 }))}
                 format={(v) => v.toFixed(3)}
@@ -317,7 +317,7 @@ function ModelsTab() {
                 color={C.before}
               />
               <p className="mt-2 text-xs text-ink-3">
-                ROC-AUC on a 0-1 scale: 0.5 is a coin flip, 1.0 is perfect. Our model on held-out synthetic businesses:{''}
+                ROC-AUC on a 0-1 scale: 0.5 is a coin flip, 1.0 is perfect. Our model on held-out synthetic businesses:{' '}
                 {f3(cp.test.roc_auc)}.
               </p>
             </div>
@@ -339,7 +339,7 @@ function ModelsTab() {
             />
             <p className="text-ink-3">
               {an.production_rule}. Tested on {an.training_data.n_test_businesses} held-out synthetic businesses with injected anomalies.
-              Model alone: F1 {f3(an.test.f1)}, ROC-AUC {f3(an.test.roc_auc)}. Duplicate rule recall:{''}
+              Model alone: F1 {f3(an.test.f1)}, ROC-AUC {f3(an.test.roc_auc)}. Duplicate rule recall:{' '}
               {f3(an.duplicate_rule.recall_injected_duplicates)}.
             </p>
           </CardBody>
@@ -438,7 +438,7 @@ function ProfileTab() {
             <dd className="flex flex-wrap gap-1">
               {me?.permissions.map((p) => (
                 <Badge key={p} tone="accent">
-                  {p.replaceAll('_', '')}
+                  {p.replaceAll('_', ' ')}
                 </Badge>
               ))}
             </dd>

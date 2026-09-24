@@ -53,7 +53,7 @@ export function BandScale({
       <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
         {segs.map((s) => (
           <li key={s.key} className={s.key === active ? cn('font-semibold', s.ink) : 'text-ink-3'}>
-            {s.key}{''}
+            {s.key}{' '}
             <span className="font-normal">
               {s.from === 0
                 ? `<${Math.round(s.to * 100)}%`

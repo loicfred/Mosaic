@@ -10,7 +10,7 @@ export interface TooltipRow {
 /** Values lead, labels follow; series keyed by a short line in the series colour. */
 export function ChartTooltipBox({ title, rows, format = mur }: { title: string; rows: TooltipRow[]; format?: (v: number) => string }) {
   return (
-    <div className="min-w-44 rounded-lg border border-line bg-surface px-3 py-2 text-xs shadow-float">
+    <div className="min-w-44 rounded-lg border border-line bg-surface px-3 py-2 text-xs shadow-lg">
       <div className="mb-1.5 font-medium text-ink-3">{title}</div>
       {rows
         .filter((r) => r.value !== null && r.value !== undefined)

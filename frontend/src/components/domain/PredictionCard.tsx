@@ -21,7 +21,7 @@ export function PredictionCard({ p }: { p: Prediction }) {
           <InfoTip
             content={
               <>
-                Probability that cash falls below 14 days of committed outflows within 30 days, from a locally trained model. {p.reason}{''}
+                Probability that cash falls below 14 days of committed outflows within 30 days, from a locally trained model. {p.reason}{' '}
                 Model {p.model_version ?? 'n/a'}.
               </>
             }
@@ -32,7 +32,7 @@ export function PredictionCard({ p }: { p: Prediction }) {
       {p.probability !== null ? (
         <div className="flex items-end justify-between gap-3">
           <div>
-            <div className="tnum text-[28px] font-medium leading-[34px] text-ink">{Math.round(p.probability * 100)}%</div>
+            <div className="text-[40px] font-semibold leading-none tracking-tight text-ink">{Math.round(p.probability * 100)}%</div>
             <div className="mt-1 text-xs text-ink-3">chance of dropping below the buffer</div>
           </div>
           <BandBadge band={p.band} large />
@@ -59,14 +59,14 @@ export function PredictionCard({ p }: { p: Prediction }) {
                   <span className="tnum shrink-0 font-medium text-ink">{d.display}</span>
                 </div>
                 <div className="mt-1 h-1 rounded-full bg-track">
-                  <div className="h-full rounded-full bg-ink/60" style={{ width: `${(d.contribution / maxC) * 100}%` }} />
+                  <div className="grow-x h-full rounded-full bg-ink/60" style={{ width: `${(d.contribution / maxC) * 100}%` }} />
                 </div>
               </li>
             ))}
           </ul>
         </div>
       )}
-      <Link to="/settings?tab=models" className="mt-auto text-xs font-medium text-accent-600 hover:underline">
+      <Link to="/settings?tab=models" className="mt-auto text-xs font-medium text-accent-700 hover:underline">
         How the model was evaluated
       </Link>
     </div>

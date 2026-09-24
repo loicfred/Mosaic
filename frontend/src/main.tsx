@@ -7,11 +7,6 @@ import { AuthProvider } from './auth/AuthProvider'
 import { TooltipProvider } from './components/ui/tooltip'
 import { applyPrefs, loadPrefs } from './lib/a11y'
 import { ApiError } from './lib/api'
-import '@fontsource/ibm-plex-sans/latin-400.css'
-import '@fontsource/ibm-plex-sans/latin-500.css'
-import '@fontsource/ibm-plex-sans/latin-600.css'
-import '@fontsource/ibm-plex-mono/latin-400.css'
-import '@fontsource/ibm-plex-mono/latin-500.css'
 import './index.css'
 
 // Apply saved display preferences (text size, contrast, motion) before the first paint.

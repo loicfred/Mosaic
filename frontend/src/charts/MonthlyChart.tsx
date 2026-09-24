@@ -12,7 +12,7 @@ export function MonthlyChart({ months, height = 260 }: { months: MonthRow[]; hei
     <figure>
       <LegendKey
         items={[
-          { label: 'Revenue', color: C.series1, kind: 'rect' },
+          { label: 'Revenue', color: C.actual, kind: 'rect' },
           { label: 'Expenses (stock, operating, VAT)', color: C.expense, kind: 'rect' },
         ]}
       />
@@ -30,13 +30,13 @@ export function MonthlyChart({ months, height = 260 }: { months: MonthRow[]; hei
             />
             <YAxis tickFormatter={axisMur} tick={axisTick} axisLine={false} tickLine={false} width={48} />
             <Tooltip
-              cursor={{ fill: 'rgba(14,23,38,0.04)' }}
+              cursor={{ fill: 'rgba(27,42,78,0.05)' }}
               content={({ active, payload, label }) =>
                 active && payload?.length ? (
                   <ChartTooltipBox
                     title={String(label)}
                     rows={[
-                      { name: 'revenue', value: payload[0]?.payload.revenue, color: C.series1 },
+                      { name: 'revenue', value: payload[0]?.payload.revenue, color: C.actual },
                       { name: 'expenses', value: payload[0]?.payload.expenses, color: C.expense },
                       { name: 'net cash flow', value: payload[0]?.payload.net_cash_flow, color: C.ink3 },
                     ]}
@@ -44,8 +44,8 @@ export function MonthlyChart({ months, height = 260 }: { months: MonthRow[]; hei
                 ) : null
               }
             />
-            <Bar dataKey="revenue" fill={C.series1} radius={[2, 2, 0, 0]} maxBarSize={20} isAnimationActive={false} />
-            <Bar dataKey="expenses" fill={C.expense} radius={[2, 2, 0, 0]} maxBarSize={20} isAnimationActive={false} />
+            <Bar dataKey="revenue" fill={C.actual} radius={[4, 4, 0, 0]} maxBarSize={20} isAnimationActive={false} />
+            <Bar dataKey="expenses" fill={C.expense} radius={[4, 4, 0, 0]} maxBarSize={20} isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer>
       </div>

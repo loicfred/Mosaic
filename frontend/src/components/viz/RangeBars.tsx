@@ -42,7 +42,7 @@ export function RangeBars({
               aria-hidden
             >
               <span
-                className="absolute inset-y-0 rounded-full"
+                className="grow-x absolute inset-y-0 rounded-full"
                 style={{ left: `${x(r.low)}%`, width: `${Math.max(1.5, x(r.high) - x(r.low))}%`, background: color }}
               />
             </span>
@@ -56,7 +56,7 @@ export function RangeBars({
         return (
           <li key={r.id}>
             {onSelect ? (
-              <button type="button" onClick={() => onSelect(r.id)} className={cn(cls, 'transition-colors hover:bg-mist')}>
+              <button type="button" onClick={() => onSelect(r.id)} className={cn(cls, 'transition-colors hover:bg-surface-2')}>
                 {body}
               </button>
             ) : (

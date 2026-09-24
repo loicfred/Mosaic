@@ -38,7 +38,7 @@ const ACTION_LABEL: Record<OppStatus, string> = {
 function Section({ step, title, children }: { step: string; title: string; children: React.ReactNode }) {
   return (
     <section className="border-b border-line px-6 py-5">
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
+      <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-ink-3">
         <span className="rounded bg-brand-50 px-1.5 py-0.5 text-brand-800">{step}</span>
         {title}
       </h3>
@@ -106,12 +106,12 @@ export function OutcomePanel({ outcome, o }: { outcome: Outcome | null; o: Oppor
           <div className="flex flex-wrap justify-between gap-2 border-t border-line pt-2 text-xs">
             <span className="text-ink-3">Change vs expected</span>
             <span className="tnum font-semibold text-ink">
-              {fmtMetric(outcome.change, outcome.unit)}{''}
+              {fmtMetric(outcome.change, outcome.unit)}{' '}
               <span className="font-normal text-ink-3">/ {fmtMetric(outcome.expected_change, outcome.unit)}</span>
             </span>
           </div>
           <div className="text-xs text-ink-3">
-            {outcome.metric_label}. Measured on actual data{''}
+            {outcome.metric_label}. Measured on actual data{' '}
             {outcome.window ? `${date(outcome.window[0])} – ${date(outcome.window[1])}` : ''} ({outcome.days_observed} days since the action
             started).
           </div>
@@ -141,7 +141,7 @@ function Records({ ids }: { ids: string[] }) {
               <td className="px-3 py-2 text-ink">{t.counterparty ?? t.description}</td>
               <td className="tnum px-3 py-2 text-right text-ink">{mur(t.direction === 'outflow' ? -t.amount : t.amount)}</td>
               <td className="px-3 py-2 text-right">
-                <Link to={`/transactions?open=${t.id}`} className="text-accent-600 hover:underline" aria-label="Open transaction">
+                <Link to={`/transactions?open=${t.id}`} className="text-accent-700 hover:underline" aria-label="Open transaction">
                   <ExternalLink className="inline size-3.5" />
                 </Link>
               </td>
@@ -215,8 +215,8 @@ export function OpportunityDetail({ id, onClose }: { id: string | null; onClose:
               ))}
             </dl>
             <p className="mt-3 text-xs text-ink-3">
-              Data period{''}
-              {Array.isArray(prov.data_window) ? `${date(String(prov.data_window[0]))} – ${date(String(prov.data_window[1]))}` : ''} ·{''}
+              Data period{' '}
+              {Array.isArray(prov.data_window) ? `${date(String(prov.data_window[0]))} – ${date(String(prov.data_window[1]))}` : ''} ·{' '}
               {num(prov.transactions_analysed as number)} transactions · {num(prov.invoices_analysed as number)} invoices analysed
             </p>
             <Records ids={allIds} />
@@ -287,7 +287,7 @@ export function OpportunityDetail({ id, onClose }: { id: string | null; onClose:
                     <span
                       className={cn(
                         'flex items-center gap-1 rounded-full px-2.5 py-1',
-                        reached ? 'bg-accent-50 font-medium text-accent-600' : 'bg-surface-2 text-ink-3',
+                        reached ? 'bg-accent-50 font-medium text-accent-700' : 'bg-surface-2 text-ink-3',
                       )}
                     >
                       <Icon className="size-3.5" aria-hidden /> {STATUS_META[s].label}
@@ -358,7 +358,7 @@ export function OpportunityDetail({ id, onClose }: { id: string | null; onClose:
           </Section>
 
           <section className="px-6 py-5">
-            <h3 className="mb-2 text-sm font-semibold text-ink">Provenance</h3>
+            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-3">Provenance</h3>
             <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-xs text-ink-3 sm:grid-cols-2">
               <div>Engine: {String(prov.engine_version)}</div>
               <div>Detector: {String(prov.detector)}</div>
