@@ -30,7 +30,7 @@ export function FindingVisual({ o, overview, large }: { o: Opportunity; overview
             />
             <div className="shrink-0 text-right leading-tight">
               <div className="text-lg font-semibold text-ink">{ratio[ratio.length - 1].toFixed(0)}</div>
-              <div className="text-[11px] text-ink-3">
+              <div className="text-xs text-ink-3">
                 in {monthLabel(months[months.length - 1].month)} · {ratio[0].toFixed(0)} in {monthLabel(months[0].month)}
               </div>
             </div>
@@ -200,7 +200,7 @@ function Figure({ caption, children }: { caption: string; children: React.ReactN
   return (
     <figure className="min-w-0">
       {children}
-      <figcaption className="mt-1.5 text-[11px] text-ink-3">{caption}</figcaption>
+      <figcaption className="mt-1.5 text-xs text-ink-3">{caption}</figcaption>
     </figure>
   )
 }
@@ -240,7 +240,7 @@ function Compare({
         </div>
       ))}
       {marker && (
-        <div className="grid grid-cols-[5.5rem_1fr] gap-2.5 text-[11px] text-ink-3">
+        <div className="grid grid-cols-[5.5rem_1fr] gap-2.5 text-xs text-ink-3">
           <span />
           <span className="flex items-center gap-1.5">
             <span className="h-3 w-0 border-l border-dashed border-ink-2" aria-hidden /> {marker.label}
@@ -277,7 +277,7 @@ function Pin({
       {label && (
         <span
           className={cn(
-            'absolute left-0 -translate-x-1/2 whitespace-nowrap text-center text-[10px] leading-tight',
+            'absolute left-0 -translate-x-1/2 whitespace-nowrap text-center text-xs leading-tight',
             below ? 'top-2.5' : 'bottom-2.5',
             tone === 'bad' ? 'text-bad-ink' : 'text-ink-3',
           )}

@@ -50,7 +50,7 @@ export function BandScale({
           aria-hidden
         />
       </div>
-      <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-[11px]">
+      <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-0.5 text-xs">
         {segs.map((s) => (
           <li key={s.key} className={s.key === active ? cn('font-semibold', s.ink) : 'text-ink-3'}>
             {s.key}{' '}

@@ -7,7 +7,7 @@ export const TabsContent = T.Content
 export function TabsList({ className, ...p }: T.TabsListProps) {
   return (
     <T.List
-      className={cn('inline-flex max-w-full gap-1 overflow-x-auto rounded-lg border border-line bg-surface-2 p-1', className)}
+      className={cn('inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-line bg-surface p-1 shadow-card', className)}
       {...p}
     />
   )
@@ -17,7 +17,7 @@ export function TabsTrigger({ className, ...p }: T.TabsTriggerProps) {
   return (
     <T.Trigger
       className={cn(
-        'shrink-0 whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-ink-3 hover:text-ink data-[state=active]:bg-surface data-[state=active]:text-ink data-[state=active]:shadow-sm',
+        'shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-ink-2 transition-colors hover:text-ink data-[state=active]:bg-accent-600 data-[state=active]:text-white',
         className,
       )}
       {...p}

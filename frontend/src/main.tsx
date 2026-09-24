@@ -5,8 +5,12 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './auth/AuthProvider'
 import { TooltipProvider } from './components/ui/tooltip'
+import { applyPrefs, loadPrefs } from './lib/a11y'
 import { ApiError } from './lib/api'
 import './index.css'
+
+// Apply saved display preferences (text size, contrast, motion) before the first paint.
+applyPrefs(loadPrefs())
 
 const queryClient = new QueryClient({
   defaultOptions: {

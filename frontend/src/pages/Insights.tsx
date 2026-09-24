@@ -1,6 +1,6 @@
 import { AlertCircle, ArrowRight, CalendarClock, ChevronDown, Clock } from 'lucide-react'
-import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, type ReactNode } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { ChartTooltipBox } from '@/charts/ChartTooltip'
 import { CashChart } from '@/charts/CashChart'
@@ -8,6 +8,7 @@ import { HBarList } from '@/charts/HBarList'
 import { MonthlyChart } from '@/charts/MonthlyChart'
 import { axisTick, C } from '@/charts/theme'
 import { MetricStrip } from '@/components/domain/MetricStrip'
+import { PredictionCard } from '@/components/domain/PredictionCard'
 import { DataKind, Delta } from '@/components/domain/labels'
 import { PageHeader } from '@/components/layout/AppShell'
 import { Badge } from '@/components/ui/badge'
@@ -16,7 +17,7 @@ import { ErrorState, PageSkeleton } from '@/components/ui/states'
 import { CompositionBar } from '@/components/viz/CompositionBar'
 import { Dumbbell } from '@/components/viz/Dumbbell'
 import { Meter } from '@/components/viz/Meter'
-import { useInsights } from '@/hooks/queries'
+import { useInsights, useOverview } from '@/hooks/queries'
 import { axisMur, date, monthLabel, monthSpan, mur, murCompact } from '@/lib/format'
 import type { MonthRow } from '@/lib/types'
 
@@ -54,6 +55,7 @@ function TraceLink({ to, children }: { to: string; children: ReactNode }) {
 }
 
 const SECTIONS = [
+  ['cash', 'Cash forecast'],
   ['trend', 'Trend'],
   ['costs', 'Costs & sales'],
   ['concentration', 'Dependence'],
@@ -64,8 +66,8 @@ const SECTIONS = [
 /** An open section heading that states the finding first; the cards below are the evidence. */
 function Group({ id, title, insight }: { id: string; title: string; insight: ReactNode }) {
   return (
-    <div id={id} className="mb-4 mt-14 scroll-mt-20">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">{title}</h2>
+    <div id={id} className="mb-4 mt-12 scroll-mt-20">
+      <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3">{title}</h2>
       <p className="mt-1.5 max-w-3xl text-xl font-semibold leading-snug tracking-tight text-ink">{insight}</p>
     </div>
   )
@@ -123,8 +125,64 @@ function ConcentrationCard({ c }: { c: Concentration }) {
   )
 }
 
+/**
+ * The detailed cash forecast that the Overview links to: history and 90-day
+ * projection against the buffer, the projection's key points, and the model's
+ * 30-day cash-pressure estimate.
+ */
+function CashForecast() {
+  const ov = useOverview()
+  if (!ov.data || ov.data.monthly.length === 0) return null
+  const d = ov.data
+  const p = d.projection
+  const below = p.first_date_below_buffer
+  return (
+    <>
+      <Group
+        id="cash"
+        title="Cash forecast"
+        insight={
+          below
+            ? `At current run-rates cash falls below the 14-day buffer on ${date(below)} and bottoms out at ${murCompact(p.lowest_cash)} on ${date(p.lowest_cash_date)}.`
+            : `At current run-rates cash stays above the 14-day buffer; the low point is ${murCompact(p.lowest_cash)} on ${date(p.lowest_cash_date)}.`
+        }
+      />
+      <div className="panel grid grid-cols-1 overflow-hidden lg:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="min-w-0 p-5 lg:p-6">
+          <CashChart actual={d.cash_series} projected={d.projection_series} buffer={p.buffer_threshold} height={300} />
+          <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 border-t border-line pt-4 text-sm sm:grid-cols-4">
+            {[
+              ['Cash in 30 days', murCompact(p.cash_day_30)],
+              ['Cash in 60 days', murCompact(p.cash_day_60)],
+              ['Cash in 90 days', murCompact(p.cash_day_90)],
+              ['Days below buffer', `${p.days_below_buffer} of 90`],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <dt className="text-ink-3">{k}</dt>
+                <dd className="tnum mt-0.5 font-semibold text-ink">{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-3 text-xs leading-relaxed text-ink-3">
+            How it is built: recent sales and supplier run-rates, recurring payments on their usual dates, open and expected invoices at
+            each customer's recent payment speed, and VAT due dates. It is a projection, not a recorded value.
+          </p>
+        </div>
+        <div className="border-t border-line bg-periwinkle-50 p-5 lg:border-l lg:border-t-0 lg:p-6">
+          <PredictionCard p={d.prediction} />
+        </div>
+      </div>
+    </>
+  )
+}
+
 export function InsightsPage() {
   const q = useInsights()
+  const { hash } = useLocation()
+  // Arriving from "View detailed forecast": scroll to the section once the page has rendered.
+  useEffect(() => {
+    if (hash && q.data) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
+  }, [hash, q.data])
   if (q.isLoading) return <PageSkeleton />
   if (q.error || !q.data) return <ErrorState error={q.error} onRetry={() => q.refetch()} />
   const d = q.data
@@ -155,12 +213,15 @@ export function InsightsPage() {
         actions={<DataKind kind="actual" />}
       />
 
-      <nav aria-label="Sections" className="no-print mb-6 flex flex-wrap gap-x-5 gap-y-1">
+      <nav
+        aria-label="Sections"
+        className="no-print mb-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-line bg-surface p-1 shadow-card"
+      >
         {SECTIONS.map(([id, label]) => (
           <a
             key={id}
             href={`#${id}`}
-            className="text-sm font-medium text-ink-3 underline-offset-4 transition-colors hover:text-ink hover:underline"
+            className="shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-ink-2 transition-colors hover:bg-ink/[0.05] hover:text-ink"
           >
             {label}
           </a>
@@ -208,6 +269,8 @@ export function InsightsPage() {
           },
         ]}
       />
+
+      <CashForecast />
 
       <Group
         id="trend"
@@ -276,13 +339,6 @@ export function InsightsPage() {
           </CardBody>
         </Card>
       </div>
-
-      <Card className="mt-4">
-        <CardHeader title="Cash balance" subtitle="End of day, last 12 months" />
-        <CardBody>
-          <CashChart actual={d.cash_series} height={200} />
-        </CardBody>
-      </Card>
 
       <Group
         id="costs"

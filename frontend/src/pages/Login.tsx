@@ -5,15 +5,6 @@ import { useAuth } from '@/auth/AuthProvider'
 import { AuthLayout, inputClass } from '@/components/layout/AuthLayout'
 import { Button } from '@/components/ui/button'
 import { ApiError } from '@/lib/api'
-import { cn } from '@/lib/cn'
-
-const DEMO_PASSWORD = 'Coastal-Demo-2026!'
-const DEMO = [
-  { email: 'owner@coastal.demo', role: 'Owner' },
-  { email: 'accountant@coastal.demo', role: 'Accountant' },
-  { email: 'viewer@coastal.demo', role: 'Viewer' },
-  { email: 'owner@tamarind.demo', role: 'Other business' },
-]
 
 export function LoginPage() {
   const { me, signIn } = useAuth()
@@ -103,37 +94,6 @@ export function LoginPage() {
           Create account
         </Link>
       </p>
-
-      <section className="mt-5 border-t border-line pt-4" aria-labelledby="demo-accounts">
-        <p className="text-xs text-ink-3">
-          <span id="demo-accounts" className="font-semibold text-ink">
-            Demo accounts
-          </span>{' '}
-          (synthetic data) · password <code className="rounded bg-brand-100 px-1 py-0.5 text-ink">{DEMO_PASSWORD}</code>
-        </p>
-        <ul className="mt-2.5 flex flex-wrap gap-1.5">
-          {DEMO.map((d) => (
-            <li key={d.email}>
-              <button
-                type="button"
-                title={d.email}
-                onClick={() => {
-                  setEmail(d.email)
-                  setPassword(DEMO_PASSWORD)
-                }}
-                className={cn(
-                  'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
-                  email === d.email
-                    ? 'border-accent-500 bg-accent-50 text-accent-700'
-                    : 'border-line text-ink-2 hover:border-accent-500 hover:bg-accent-50 hover:text-accent-700',
-                )}
-              >
-                {d.role}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </section>
     </AuthLayout>
   )
 }

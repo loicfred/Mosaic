@@ -136,7 +136,7 @@ function ModelsTab() {
                       beforeLabel="Rule"
                       afterLabel="Model"
                     />
-                    <div className="mt-1.5 text-[11px] text-ink-3">rule: {ruleName as string}</div>
+                    <div className="mt-1.5 text-xs text-ink-3">rule: {ruleName as string}</div>
                   </div>
                 ))}
               </div>

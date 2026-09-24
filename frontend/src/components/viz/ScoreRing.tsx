@@ -26,7 +26,7 @@ export function ScoreRing({ score, size = 120, label }: { score: number; size?: 
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={cn('font-semibold leading-none text-ink', size >= 110 ? 'text-4xl' : 'text-2xl')}>{score}</span>
-          <span className="mt-1 text-[11px] text-ink-3">of 100</span>
+          <span className="mt-1 text-xs text-ink-3">of 100</span>
         </div>
       </div>
       <span className="text-xs font-medium text-ink-2">{word}</span>

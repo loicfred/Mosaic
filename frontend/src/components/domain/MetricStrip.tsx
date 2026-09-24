@@ -22,13 +22,7 @@ export interface StripMetric {
  */
 export function MetricStrip({ items, className }: { items: StripMetric[]; className?: string }) {
   return (
-    <dl
-      className={cn(
-        'grid grid-cols-2 overflow-hidden rounded-xl border border-line bg-surface',
-        items.length >= 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-4',
-        className,
-      )}
-    >
+    <dl className={cn('panel grid grid-cols-2 overflow-hidden', items.length >= 5 ? 'lg:grid-cols-5' : 'lg:grid-cols-4', className)}>
       {items.map((m, i) => (
         <div
           key={m.label}

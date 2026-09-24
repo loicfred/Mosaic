@@ -35,7 +35,7 @@ export function RangeBars({
               <span className="line-clamp-2 block text-sm leading-snug text-ink" title={r.label}>
                 {r.label}
               </span>
-              {r.sub && <span className="block truncate text-[11px] text-ink-3">{r.sub}</span>}
+              {r.sub && <span className="block truncate text-xs text-ink-3">{r.sub}</span>}
             </span>
             <span
               className="relative col-span-2 row-start-2 h-2.5 rounded-full bg-track @sm:col-span-1 @sm:col-start-2 @sm:row-start-1"

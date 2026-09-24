@@ -49,7 +49,7 @@
 
 ## 6. Registration information
 
-Demo accounts (all use the password shown on the login page):
+Demo accounts (all use the password `Coastal-Demo-2026!`; they are no longer listed on the login page, so type them in):
 
 | Account | Role | Use it to show |
 |---|---|---|
@@ -105,29 +105,28 @@ Full definitions: `docs/DATA_DICTIONARY.md`.
 
 | Metric | Value to quote | Where |
 |---|---|---|
-| Cash today | [FILL] | Overview → Last three months |
-| Days of outflows covered | [FILL] | Overview → Cash today meter |
+| Cash today | [FILL] | Overview → Business snapshot |
+| Days of outflows covered | [FILL] | Overview → Business snapshot, under Cash today |
 | Revenue, last three months, and change | [FILL] | Overview |
 | Expenses, last three months, and change | [FILL] | Overview |
 | Gross margin and change | [FILL] | Overview |
-| 30-day cash pressure probability | [FILL] | Overview → 30-day cash pressure (Predicted) |
+| 30-day cash pressure probability | [FILL] | Financial Insights → Cash forecast (Predicted) |
 | Data health score | [FILL] | Data Health |
 
 ## 12. Dashboard demo flow
 
-1. **Sign in** as the owner. Point out the Valora login and the demo accounts.
-2. **Welcome header.** "Good morning/afternoon/evening, [business]" and the data date.
-3. **Headline.** Read the one-sentence cash status: [FILL].
-4. **Last three months.** Cash, revenue, expenses, margin, each with its trend.
-5. **Cash chart.** Actual (solid), projected (dashed), the 14-day buffer line, and the model's 30-day cash-pressure estimate beside it.
-6. **Monthly chart filter.** Switch 3 / 6 / 12 months.
-7. **Opportunities.** "What each finding is worth", then open the top finding's evidence.
-8. **Scenario Lab.** Apply the finding's preset or the combined plan; read the 90-day difference: [FILL].
-9. **Ask Valora** (bottom-right orb). Ask two in-scope questions (section 13).
+1. **Sign in** as the owner (type the email and password).
+2. **Overview in five seconds.** Greeting, then the one headline: "Cash may fall below your safety buffer in [FILL] days", with the projected low point [FILL]. Point out it is labelled as a projection.
+3. **One recommended action.** Click **See what to do**: it opens the cash-pressure finding with its evidence and next steps.
+4. **Business snapshot.** Cash, revenue, expenses, margin, each with its change in words, compared with the previous 3 months.
+5. **Cash outlook.** One chart: actual cash, projected cash and the 14-day buffer line, with a sentence saying what it shows.
+6. **View detailed forecast.** Financial Insights → Cash forecast: cash in 30/60/90 days, days below the buffer, and the model's 30-day cash-pressure estimate: [FILL]%.
+7. **Opportunities.** From "Most important findings", open one; then "What each finding is worth" on the Opportunities page.
+8. **Scenario Lab.** Click **Test a fix**, apply a preset or the combined plan; read the 90-day difference: [FILL].
+9. **Ask Valora** (the one button, bottom right). Its suggested questions change with the page. Ask two in-scope questions (section 13).
 10. **Out-of-scope question.** Show the refusal (section 15).
-11. **Ask Valora about this** on the cash chart or a finding card.
-12. **Register a new business** (section 17) and show the empty first-steps page.
-13. **Trust.** Security & Audit page: row-level security status and the audit trail of what you just did.
+11. **Register a new business** (section 17) and show the empty first-steps page.
+12. **Trust.** Security & Audit page: row-level security status and the audit trail of what you just did.
 
 ## 13. Valora Insight demo questions
 
