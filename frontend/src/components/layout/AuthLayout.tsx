@@ -76,7 +76,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
             </span>
             <span className="min-w-0">
               <span className="block text-sm font-semibold">Valora Insight</span>
-              <span className="block text-xs leading-snug text-ink-3">After you sign in, ask questions about your own business data.</span>
+              <span className="block text-xs leading-snug text-ink-3">After you log in, ask questions about your own business data.</span>
             </span>
           </div>
         </aside>

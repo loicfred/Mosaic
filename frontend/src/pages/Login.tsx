@@ -80,10 +80,10 @@ export function LoginPage() {
         )}
         <Button type="submit" className="group h-11 w-full text-[15px]" disabled={busy}>
           {busy ? (
-            'Signing in…'
+            'Logging in…'
           ) : (
             <>
-              Sign in <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+              Log in <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
             </>
           )}
         </Button>

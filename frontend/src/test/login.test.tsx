@@ -14,7 +14,7 @@ describe('Login', () => {
     renderWithProviders(<LoginPage />, '/login')
     await userEvent.type(screen.getByLabelText('Email'), 'owner@coastal.demo')
     await userEvent.type(screen.getByLabelText('Password'), 'wrong-secret')
-    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    await userEvent.click(screen.getByRole('button', { name: /log in/i }))
     expect(await screen.findByRole('alert')).toHaveTextContent('Email or password is incorrect.')
     expect(document.body.textContent).not.toContain('wrong-secret')
   })

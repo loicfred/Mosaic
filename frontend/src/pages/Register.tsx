@@ -203,7 +203,7 @@ export function RegisterPage() {
       <p className="mt-5 text-center text-sm text-ink-3">
         Already have an account?{' '}
         <Link to="/login" className="font-medium text-accent-700 hover:underline">
-          Sign in
+          Log in
         </Link>
       </p>
     </AuthLayout>
