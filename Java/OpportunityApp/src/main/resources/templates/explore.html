@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{/fragments/head :: pageHead(${exploreTitle})}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/explore.css}">
+    <script th:src="@{/js/explore.js}" defer></script>
+</head>
+<body>
+<header th:replace="~{/fragments/header :: mainHeader}"></header>
+<main class="mod-page mx-auto">
+    <section class="mod-hero">
+        <p class="eyebrow">Explore the evidence</p>
+        <h1 class="statement" th:text="${exploreTitle}">Business evidence</h1>
+        <p class="lede">Recorded Brazilian marketplace data. Monetary values are recorded in Brazilian reais and shown here converted to US dollars.</p>
+        <nav class="explore-nav" aria-label="Evidence views">
+            <a href="/data-quality">Data quality</a><a href="/payments">Payments</a><a href="/freight">Freight</a><a href="/cohorts">Cohorts</a><a href="/models">Models</a><a href="/entities">Categories and sellers</a>
+        </nav>
+        <div th:replace="~{/fragments/items/notice :: error(${exploreError})}"></div>
+        <p th:if="${exploreError != null}"><a href="">Try again</a> or <a href="/entities">browse categories and sellers</a>.</p>
+    </section>
+    <div id="explore-content" aria-live="polite" th:if="${explore != null}"><p>Preparing evidence tables…</p></div>
+    <noscript><p>Enable JavaScript to view the evidence tables and charts.</p></noscript>
+</main>
+<footer th:replace="~{/fragments/footer :: mainFooter}"></footer>
+<script th:inline="javascript">window.exploreData = /*[[${explore}]]*/ null; window.exploreSection = /*[[${exploreSection}]]*/ 'quality';</script>
+</body>
+</html>

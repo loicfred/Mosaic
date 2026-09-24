@@ -42,7 +42,7 @@ import java.util.UUID;
 @Configuration
 public class SecurityConfig {
     private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
-    static final int REMEMBER_SECONDS = 14 * 24 * 3600;
+    private static final int REMEMBER_SECONDS = 14 * 24 * 3600;
     // only signs tokens inside this process; the tokens themselves live in persistent_logins
     private static final String REMEMBER_KEY = UUID.randomUUID().toString();
     private final IDatabaseService db;
@@ -77,7 +77,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, ObjectProvider<ClientRegistrationRepository> google, OAuth2Service oAuth2Service) {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**", "/error", "/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
+                        .requestMatchers("/auth/**", "/error", "/css/**", "/js/**", "/img/**", "/fonts/**", "/webjars/**").permitAll()
                         .anyRequest().authenticated())
                 // /api/** is called by the pages' own scripts: a signed-out call gets 401, not the login page's HTML
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(entryPoint()))

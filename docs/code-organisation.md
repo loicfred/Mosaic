@@ -6,12 +6,12 @@ Java follows the SolarERP pattern of controllers, services and data objects.
 
 ## Python
 
-`AI/app/main.py` assembles the application and loads its startup state.
-`AI/app/api/__init__.py` explicitly registers the endpoint modules. Each `get_*` module
+`Java/OpportunityApp/config/py/mosaic/app/main.py` assembles the application and loads its startup state.
+`Java/OpportunityApp/config/py/mosaic/app/api/__init__.py` explicitly registers the endpoint modules. Each `get_*` module
 owns one endpoint, including validation and response formatting; calculations remain
 in `analysis/` and `forecast/`, while CSV access remains in `data/`.
 
-| Endpoint | Module under `AI/app/api/` |
+| Endpoint | Module under `Java/OpportunityApp/config/py/mosaic/app/api/` |
 | --- | --- |
 | GET `/api/health` | `get_health.py` |
 | GET `/api/sales/history` | `get_sales_history.py` |
@@ -43,21 +43,25 @@ become a SolarERP module:
 - `service/PythonApiLauncher.java` owns the Python process lifecycle and extracts a bundled Python archive to
   SolarHome's `config/py/mosaic`. Python reads `datasets/` and `models/` beside the extracted `app/` package.
 - `service/Formatter.java` owns display formatting, including missing values and signed rounding.
-- `service/ai/` owns chatbot setup, allowed tools, narration and numeric evidence checks.
-- `obj/ApiResult.java` and `obj/ApiData.java` hold API responses; `ApiData` centralises optional nested JSON access.
+- `service/ai/` owns chatbot setup, allowed tools, narration and numeric evidence checks. `Panels` maps each suggestion
+  and caveats panel to its API call and writer; each writer extends `CheckedWriter<T>` for the typed reply it reads.
+- `obj/ApiResult.java` holds one API call's JSON body or error; pages render the body as it is, and Java code reads it
+  with `as(Type.class)` into a typed record in `obj/api/` (parsed by SolarFramework's `JSONItem.SimpleGSON`). A record
+  carries its own behaviour, e.g. a caveat check writes its own sentence.
 
 `Java/OpportunityApp/` is the website:
 
 - `controller/` assembles template models; `controller/api/` handles browser JSON requests.
-- `config/WebConfig.java`, `obj/Breadcrumbs.java` and `service/HelpService.java` serve the pages.
+- `config/WebConfig.java`, `obj/Breadcrumbs.java`, `obj/Selection.java` (the findings and trend pages' periods and filters)
+  and `service/HelpService.java` serve the pages.
 - `entity/` holds one SolarFramework entity per Olist file (table = file name, columns = the file's headers).
 - `data/BusinessDatabase.java` runs once all beans exist and before any starts: it fills empty tables from
-  `AI/datasets` through `data/CsvImport.java` (JDBC batches, one transaction per table) and, when SolarHome's
+  `Java/OpportunityApp/config/py/mosaic/datasets` through `data/EntityTable.java` (one per entity; JDBC batches, one transaction per table) and, when SolarHome's
   `config/py/mosaic/datasets/` lacks a table's file, writes the database there with SolarFramework's `IDatabaseService.exportCsv`.
 
-Data flow: `AI/datasets/*.csv` → `Java/OpportunityApp/config/Default.db` (SQLite, for the site's own entities). The Python API the
-site starts reads `Java/OpportunityApp/config/py/mosaic/`, an exact mirror of `AI/` (`app`, `datasets`, `models`)
-kept by `.claude/hooks/mirror-python.ps1`, so it serves the original CSVs and the models trained in `AI/models`.
+Data flow: `Java/OpportunityApp/config/py/mosaic/datasets/*.csv` → `Java/OpportunityApp/config/Default.db` (SQLite, for the
+site's own entities). The Python API the site starts is the Python project in `Java/OpportunityApp/config/py/mosaic/`, its
+only copy, so it serves the original CSVs and the models trained in its `models/`.
 
 Shared helpers remove repeated logic without requiring unrelated endpoints or services
 to inherit from a common base class. API response fields and template formatting method
@@ -65,7 +69,7 @@ names remain stable for callers.
 
 ## Verification
 
-Run the active Python suite from `AI/`:
+Run the active Python suite from `Java/OpportunityApp/config/py/mosaic/`:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pytest tests -q
@@ -78,7 +82,7 @@ cd Java\OpportunityImpl; .\mvnw.cmd install
 cd ..\OpportunityApp;   .\mvnw.cmd test
 ```
 
-`AI/old/` is archived code, not part of the active Python suite. The tests cover observed
+The tests cover observed
 metrics, model availability, scenario calculations, API calls, page rendering and AI
-fallbacks. `AI/tests/test_observed_rates.py` additionally checks reporting boundaries,
+fallbacks. `Java/OpportunityApp/config/py/mosaic/tests/test_observed_rates.py` additionally checks reporting boundaries,
 unknown outcomes, missing dates and empty periods.

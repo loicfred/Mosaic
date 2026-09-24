@@ -25,7 +25,7 @@ public class HelpController {
 
     @GetMapping("/help")
     public String help(Model model) {
-        Breadcrumbs.addTo(model, "help", new Crumb("Help", "/help"));
+        new Breadcrumbs("help", new Crumb("Help", "/help")).addTo(model);
         model.addAttribute("routes", help.routes());
         api.openApi().addTo(model, "openapi");
         api.datasets().addTo(model, "datasets");

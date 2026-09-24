@@ -1,130 +1,9 @@
 <div th:fragment="sidebar">
-    <!-- SolarERP's sidebar, keeping only what this site has: the account block, and the four screens instead of planets. -->
-    <style>
-        #sidebar {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 280px;
-            height: 100%;
-            background: var(--bg-shell);
-            color: var(--text-color);
-            padding: 0;
-            transition: left 0.3s;
-            z-index: 1050;
-            overflow-y: auto;
-            overscroll-behavior: contain;
-            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.6);
-        }
+    <!-- Shared business pages and evidence views. -->
 
-        #sidebar.open {
-            left: 0;
-        }
-
-        .sidebar-header {
-            padding: 1.25rem 1.5rem;
-            background: var(--bg-deep);
-            border-bottom: 2px solid var(--line-strong);
-        }
-
-        .sidebar-header h5 {
-            font-size: 1rem;
-            letter-spacing: 0.8px;
-        }
-
-        .sidebar-section {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .sidebar-section-title {
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 1.8px;
-            color: var(--muted);
-        }
-
-        #sidebar a {
-            display: block;
-            width: 100%;
-            padding: 0.6rem 0.75rem;
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-            border-radius: 4px;
-            font-weight: 500;
-            margin-bottom: 0.3rem;
-        }
-
-        #sidebar a:hover {
-            background: var(--row-hover);
-            padding-left: 1rem;
-        }
-
-        /* the page being shown: the accent tint, with an accent edge so it does not rely on colour alone */
-        #sidebar a[aria-current="page"] {
-            background: var(--accent-tint);
-            box-shadow: inset 3px 0 0 var(--accent);
-        }
-
-        .sidebar-data {
-            font-size: .8rem;
-            color: var(--muted);
-        }
-
-        .sidebar-user {
-            padding: 1rem;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .sidebar-user-name {
-            font-size: 0.95rem;
-        }
-
-        .sidebar-user-email {
-            font-size: 0.78rem;
-            color: var(--muted);
-        }
-
-        #sidebar .sidebar-login-btn, .sidebar-logout-btn {
-            display: block;
-            width: 100%;
-            padding: 0.6rem 0.75rem;
-            background: var(--accent);
-            color: #06121a;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-align: left;
-            border: none;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-
-        #sidebar .sidebar-login-btn:hover, .sidebar-logout-btn:hover {
-            background: var(--accent-soft);
-            padding-left: 0.75rem;
-        }
-
-        #sidebar-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.6);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-            z-index: 1040;
-        }
-
-        #sidebar-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-    </style>
-
-    <nav id="sidebar" aria-label="Screens">
+    <nav id="sidebar" aria-label="Pages">
         <div class="sidebar-header">
-            <h5 class="m-0 fw-bold text-uppercase">Navigation</h5>
+            <p class="m-0 fw-bold">Mosaic</p>
         </div>
 
         <div class="sidebar-user" th:if="${currentUser != null}">
@@ -146,21 +25,30 @@
         </div>
 
         <div class="sidebar-section">
-            <a th:href="@{/}" th:attr="aria-current=${page == 'overview'} ? 'page' : null">📊 Overview</a>
-            <a th:href="@{/categories}" th:attr="aria-current=${page == 'categories'} ? 'page' : null">🧩 Category health</a>
-            <a th:href="@{/risk}" th:attr="aria-current=${page == 'risk'} ? 'page' : null">🚚 Delivery and reviews</a>
-            <a th:href="@{/scenario}" th:attr="aria-current=${page == 'scenario'} ? 'page' : null">🔮 What if sales change?</a>
-            <a th:href="@{/help}" th:attr="aria-current=${page == 'help'} ? 'page' : null">📘 Help</a>
+            <a th:href="@{/}" th:attr="aria-current=${page == 'sales'} ? 'page' : null"><i class="tile t-sales"></i>Sales</a>
+            <a th:href="@{/delivery}" th:attr="aria-current=${page == 'delivery'} ? 'page' : null"><i class="tile t-delivery"></i>Delivery</a>
+            <a th:href="@{/reviews}" th:attr="aria-current=${page == 'reviews'} ? 'page' : null"><i class="tile t-reviews"></i>Reviews</a>
+            <a th:href="@{/sellers}" th:attr="aria-current=${page == 'sellers'} ? 'page' : null"><i class="tile t-sellers"></i>Sellers</a>
         </div>
 
         <div class="sidebar-section">
-            <p class="sidebar-section-title text-uppercase mt-0 mb-2">Flagged categories</p>
-            <a th:href="@{/categories(flag='underperforming_total')}">Falling behind the business</a>
-            <a th:href="@{/categories(flag='latest_month_anomaly')}">Unusual latest month</a>
+            <a th:href="@{/findings}" th:attr="aria-current=${page == 'findings'} ? 'page' : null">Findings</a>
+            <a th:href="@{/what-if}" th:attr="aria-current=${page == 'what-if'} ? 'page' : null">What if</a>
+            <a th:href="@{/data-quality}" th:attr="aria-current=${page == 'data-quality'} ? 'page' : null">Data quality</a>
+            <a th:href="@{/payments}" th:attr="aria-current=${page == 'payments'} ? 'page' : null">Payments</a>
+            <a th:href="@{/freight}" th:attr="aria-current=${page == 'freight'} ? 'page' : null">Freight</a>
+            <a th:href="@{/cohorts}" th:attr="aria-current=${page == 'cohorts'} ? 'page' : null">Customer cohorts</a>
+            <a th:href="@{/models}" th:attr="aria-current=${page == 'models'} ? 'page' : null">Model cards</a>
+            <a th:href="@{/entities}" th:attr="aria-current=${page == 'entities'} ? 'page' : null">Categories and sellers</a>
         </div>
 
         <div class="sidebar-section">
-            <p class="sidebar-section-title text-uppercase mt-0 mb-2">Data</p>
+            <a th:href="@{/help}" th:attr="aria-current=${page == 'help'} ? 'page' : null">Help</a>
+            <a th:href="@{/about}" th:attr="aria-current=${page == 'about'} ? 'page' : null">About</a>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-section-title mt-0 mb-2">Data</p>
             <p class="sidebar-data m-0">Olist Brazilian marketplace, January 2017 to August 2018. Gross item sales in
                 Brazilian reais (BRL).</p>
         </div>

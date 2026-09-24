@@ -20,7 +20,8 @@ import java.util.Comparator;
  * Starts the Python analytics API from SolarHome with the website and stops it on shutdown, through
  * SolarFramework's {@link PythonRunner}. An API that is already answering is left alone, so a server started by hand,
  * or kept from an earlier run, is reused.
- * Python reads datasets and models beside the extracted app package in SolarHome.
+ * Python reads datasets and models beside the app package in SolarHome/config/py/mosaic. In the repository that folder is
+ * the Python project itself, so its app/ is the source the zip was built from and is run as it is, never replaced.
  */
 @Component
 public class PythonApiLauncher implements SmartLifecycle {
@@ -91,17 +92,19 @@ public class PythonApiLauncher implements SmartLifecycle {
 
     private Path preparePythonDirectory() {
         Path destination = SolarHome.pathTo("config", "py", "mosaic");
+        // the Python project's own folder (it has its requirements.txt), whose app/ is edited by hand; the zip only carries app/
+        if (Files.isRegularFile(destination.resolve("requirements.txt"))) return Files.isRegularFile(destination.resolve("app/main.py")) ? destination : null;
         try (InputStream archive = getClass().getResourceAsStream("/mosaic-python.zip")) {
             if (archive != null) unpack(archive, destination);
         } catch (IOException e) {
             log.warn("Analytics API not started: could not unpack mosaic-python.zip ({})", e.getMessage());
             return null;
         }
-        return isApiProject(destination) ? destination : null;
+        return Files.isRegularFile(destination.resolve("app/main.py")) ? destination : null;
     }
 
     /** The archive contains app/ at its root; datasets and models beside it are retained. */
-    static Path unpack(InputStream archive, Path target) throws IOException {
+    private static Path unpack(InputStream archive, Path target) throws IOException {
         Path destination = target.toAbsolutePath().normalize();
         Path parent = destination.getParent();
         Files.createDirectories(parent);
@@ -127,6 +130,4 @@ public class PythonApiLauncher implements SmartLifecycle {
             for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.delete(path);
         }
     }
-
-    private static boolean isApiProject(Path dir) { return Files.isRegularFile(dir.resolve("app/main.py")); }
 }

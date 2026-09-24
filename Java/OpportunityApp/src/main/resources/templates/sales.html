@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{/fragments/head :: pageHead('Sales')}"></th:block>
+    <script th:src="@{/js/sales.js}" defer></script>
+</head>
+<body>
+
+<header th:replace="~{/fragments/header :: mainHeader}" id="master-header"></header>
+
+<main class="mod-page mx-auto">
+    <section class="page-head">
+        <nav th:replace="~{/fragments/items/pages :: pageSwitch}"></nav>
+        <h1 class="question">Where are sales heading?</h1>
+        <p class="answer" th:if="${forecast != null and !#lists.isEmpty(forecast.forecast)}" th:with="next=${forecast.forecast[0]}">
+            Forecast for <th:block th:text="${next.month}">2018-09</th:block>:
+            <span class="v pred" th:text="${@format.brl(next.sales)}">R$ 892,716</span>,
+            likely between <span class="v pred" th:text="${@format.brl(next.lower)}">R$ 737,185</span>
+            and <span class="v pred" th:text="${@format.brl(next.upper)}">R$ 1,048,246</span>.
+        </p>
+        <p class="verdict pred" th:if="${forecast != null}">A range from the method with the lowest recent error, not a promise. The tabs below show how good it is, where to invest, and what could hide behind it.</p>
+        <div th:replace="~{/fragments/items/notice :: error(${historyError})}"></div>
+    </section>
+    <section th:replace="~{/fragments/sales/page :: page}"></section>
+    <section class="mod-card obs mt-4" th:if="${findings != null}">
+        <h2 class="h5" th:text="|Findings: ${findings.triggered} checks triggered|">Findings</h2>
+        <p class="small" th:text="${findings.ranking_rule}"></p>
+        <ol class="mb-2">
+            <li th:each="f, i : ${findings.checks}" th:if="${f.triggered and i.index < 3}">
+                <a th:href="${f.records_available} ? |/findings/${f.finding_id}| : (${f.page == 'sales'} ? '/findings' : |/${f.page}|)" th:text="${f.title}"></a>
+                <span th:if="${f['exposure'] != null}" th:text="|: ${@format.brl(f['exposure'].sales)} of sales exposed|"></span>
+            </li>
+        </ol>
+        <a href="/findings">See every finding, change the periods or the thresholds</a>
+    </section>
+    <div th:replace="~{/fragments/items/notice :: error(${findingsError})}"></div>
+</main>
+
+<footer th:replace="~{/fragments/footer :: mainFooter}" id="master-footer"></footer>
+</body>
+</html>

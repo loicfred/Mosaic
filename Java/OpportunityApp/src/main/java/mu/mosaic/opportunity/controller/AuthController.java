@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 @Controller
 @RequestMapping("/auth/v1")
 public class AuthController {
-    static final int MIN_PASSWORD = 8;
-    static final int MAX_PASSWORD = 72; // BCrypt reads 72 bytes at most
+    private static final int MIN_PASSWORD = 8;
+    private static final int MAX_PASSWORD = 72; // BCrypt reads 72 bytes at most
     private static final Pattern EMAIL = Pattern.compile("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$");
     private final PasswordEncoder passwordEncoder;
     private final AuthEmailService emails;

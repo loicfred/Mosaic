@@ -1,8 +1,32 @@
-/* The page shell. Its layout follows SolarERP (ERP/src/main/resources/static/css/main.css), keeping only the
-   rules this site uses; the colours are Mosaic's own, all defined once below. Mosaic's own rules are in mosaic.css. */
+/* The site shell: palette, type, header, sidebar, breadcrumb, footer and the shared building blocks
+   (page column, card, table). Its layout follows SolarERP; the colours and type are Mosaic's own.
+   What goes inside a page is in mosaic.css. The login pages load this file too, for the palette. */
+
+/* Served from /fonts so the demo needs no internet; see fonts/README.md for sources and licence. */
+@font-face {
+    font-family: "Bricolage Grotesque";
+    src: url("../fonts/bricolage-grotesque-latin-wght-normal.woff2") format("woff2");
+    font-weight: 200 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    src: url("../fonts/atkinson-hyperlegible-next-latin-wght-normal.woff2") format("woff2");
+    font-weight: 200 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: "Atkinson Hyperlegible Next";
+    src: url("../fonts/atkinson-hyperlegible-next-latin-wght-italic.woff2") format("woff2");
+    font-weight: 200 800;
+    font-style: italic;
+    font-display: swap;
+}
 
 /* Mosaic palette, taken from the logo: near-black neutral surfaces, a blue-cyan accent, the logo's
-   violet-blue-cyan-green gradient for a few brand touches, and the three state colours of the favicon tiles.
+   violet-blue-cyan-green tiles for brand touches, and the three state colours of the favicon tiles.
    Every text colour here keeps at least 4.5:1 contrast on every surface (WCAG AA). */
 :root {
     color-scheme: dark;
@@ -22,12 +46,16 @@
     --text-soft: #c3c7d1;
     --muted: #9aa0ad;
 
-    /* brand accent; the gradient is for brand touches only, never for data */
+    /* brand accent; the logo's four tiles are for brand touches only, never for data */
     --accent: #38b6f5;
     --accent-soft: #8fd8fb;
     --accent-tint: rgba(56, 182, 245, .16);
     --row-hover: rgba(56, 182, 245, .08);
-    --brand-gradient: linear-gradient(90deg, #9b5cf6, #3b82f6 35%, #22d3ee 68%, #4ade80);
+    --tile-1: #9b5cf6;
+    --tile-2: #3b82f6;
+    --tile-3: #22d3ee;
+    --tile-4: #4ade80;
+    --brand-gradient: linear-gradient(90deg, var(--tile-1), var(--tile-2) 35%, var(--tile-3) 68%, var(--tile-4));
     --code: #c3e59b;
 
     /* what kind of number: observed, model prediction, hypothetical; and the verdict colours */
@@ -37,8 +65,31 @@
     --flag: #f37b6b;
     --better: #56c992;
 
+    /* several categories on one chart; observed data, so none reuses the prediction or hypothetical colours */
+    --series-1: #2bb3a3;
+    --series-2: #38b6f5;
+    --series-3: #e58bc4;
+    --series-4: #d6b656;
+
     --chart-grid: rgba(230, 232, 240, .09);
     --chart-baseline: #7b8190;
+
+    /* type: a legible text face for figures and explanations, an expressive one for the questions pages ask */
+    --font-text: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-display: "Bricolage Grotesque", var(--font-text);
+
+    /* Bootstrap reads these, so its components pick up the palette without per-component overrides */
+    --bs-body-font-family: var(--font-text);
+    --bs-body-color: var(--text-color);
+    --bs-body-bg: var(--bg-page);
+    --bs-emphasis-color: var(--text-color);
+    --bs-secondary-color: var(--muted);
+    --bs-border-color: var(--line);
+    --bs-link-color: var(--accent-soft);
+    --bs-link-color-rgb: 143, 216, 251;
+    --bs-link-hover-color: var(--text-color);
+    --bs-link-hover-color-rgb: 236, 238, 243;
+    --bs-heading-color: var(--text-color);
 }
 
 /* inherited by every scroller, so wide tables on a phone do not show a light scrollbar on a dark page */
@@ -46,11 +97,25 @@ html {
     scrollbar-color: rgba(230, 232, 240, .22) transparent;
 }
 
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-page);
+    color: var(--text-color);
+    line-height: 1.55;
+}
+
 img {
     user-select: none;
 }
 
-header, nav, .navbar, #resultBox {
+:focus-visible {
+    outline-color: var(--accent);
+}
+
+/* ---- header ---- */
+header, nav.navbar {
     background: var(--bg-shell);
 }
 
@@ -60,28 +125,146 @@ header, nav, .navbar, #resultBox {
     border-image: var(--brand-gradient) 1;
 }
 
-body {
-    min-height: 100vh;
+.hamburger-btn {
+    cursor: pointer;
+    transition: color .2s ease;
+}
+
+.hamburger-btn:hover {
+    color: var(--accent-soft) !important;
+}
+
+/* the account icon and menu, as SolarERP's profile icon; the badge shows the initial, as there is no avatar */
+.avatar-btn {
+    display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+    background: var(--accent-tint); color: var(--accent-soft); border: 1px solid var(--accent); font-weight: 700; padding: 0;
+}
+button.avatar-btn:hover, button.avatar-btn[aria-expanded="true"] { background: var(--accent); color: #06121a; }
+.avatar-popup {
+    display: none; top: calc(100% + .5rem); right: 0; min-width: 220px; max-width: 280px; padding: .75rem;
+    background: var(--bg-card); border: 1px solid var(--line-strong); box-shadow: 0 8px 24px rgba(0, 0, 0, .5); z-index: 1100;
+}
+.avatar-popup.active { display: block; }
+.avatar-popup-name { color: var(--text-color); }
+.avatar-popup-email { color: var(--muted); font-size: .8rem; margin-bottom: .6rem !important; }
+.avatar-popup-action {
+    width: 100%; text-align: left; padding: .45rem .6rem; border: 0; border-radius: 4px;
+    background: transparent; color: var(--accent-soft); font-weight: 600; border-top: 1px solid var(--line);
+}
+.avatar-popup-action:hover { background: var(--row-hover); }
+.login-icon { color: var(--text-soft); }
+.login-icon:hover { color: var(--accent-soft); }
+
+/* ---- sidebar, as SolarERP's: it slides in from the left over a dimmed page ---- */
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    height: 100%;
+    background: var(--bg-shell);
+    transition: left .3s;
+    z-index: 1050;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, .6);
+}
+
+#sidebar.open { left: 0; }
+
+.sidebar-header {
+    padding: 1.25rem 1.5rem;
+    background: var(--bg-deep);
+    border-bottom: 2px solid var(--line-strong);
+}
+
+.sidebar-section {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid var(--line);
+}
+
+.sidebar-section-title {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+#sidebar a {
     display: flex;
-    flex-direction: column;
-    background-color: var(--bg-page);
-    background-position: center;
-    background-size: cover;
+    align-items: center;
+    gap: .6rem;
+    padding: .55rem .75rem;
+    margin-bottom: .2rem;
     color: var(--text-color);
+    text-decoration: none;
+    font-size: .95rem;
+    border-radius: 4px;
+    transition: background .2s;
 }
 
-a {
-    color: var(--accent-soft);
+#sidebar a:hover { background: var(--row-hover); }
+
+/* the page being shown: the accent tint, with an accent edge so it does not rely on colour alone */
+#sidebar a[aria-current="page"] {
+    background: var(--accent-tint);
+    box-shadow: inset 3px 0 0 var(--accent);
 }
 
-a:hover {
-    color: var(--text-color);
+.sidebar-data { font-size: .8rem; color: var(--muted); }
+.sidebar-user { padding: 1rem; border-bottom: 1px solid var(--line); }
+.sidebar-user-name { font-size: .95rem; }
+.sidebar-user-email { font-size: .78rem; color: var(--muted); }
+
+#sidebar .sidebar-login-btn, .sidebar-logout-btn {
+    display: block;
+    width: 100%;
+    padding: .6rem .75rem;
+    background: var(--accent);
+    color: #06121a;
+    font-weight: 600;
+    font-size: .9rem;
+    text-align: left;
+    border: none;
+    border-radius: 4px;
+    transition: background .2s;
 }
 
-/* the bottom padding keeps the last footer line clear of the fixed Ask Mosaic button */
+#sidebar .sidebar-login-btn:hover, .sidebar-logout-btn:hover { background: var(--accent-soft); }
+
+#sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .6);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+    z-index: 1040;
+}
+
+#sidebar-overlay.show { opacity: 1; pointer-events: auto; }
+
+/* ---- breadcrumb bar under the header ---- */
+#page-crumbs {
+    background: var(--bg-shell);
+    border-bottom: 1px solid var(--line);
+}
+
+#page-crumbs .breadcrumb {
+    --bs-breadcrumb-divider: '\203A';
+    --bs-breadcrumb-divider-color: var(--muted);
+    --bs-breadcrumb-item-padding-x: .55rem;
+    font-size: .82rem;
+}
+
+/* the last crumb is the page itself, so it is plain text; only the links light up */
+#page-crumbs a[href] { color: var(--muted); transition: color .2s; }
+#page-crumbs a[href]:hover { color: var(--text-color); text-decoration: underline; }
+#page-crumbs .breadcrumb-item.active { color: var(--text-color); }
+
+/* ---- footer ---- */
 footer {
     background: var(--bg-shell);
-    padding: 32px 20px 64px;
+    padding: 32px 20px;
 }
 
 .footer-content {
@@ -89,289 +272,101 @@ footer {
     border-bottom: 1px solid var(--line);
 }
 
-.footer-col {
-    flex: 1 1 180px;
-    min-width: 160px;
-}
-
-.footer-brand {
-    flex: 2 1 240px;
-}
-
-.footer-logo {
-    border-radius: 14px;
-}
+.footer-col { flex: 1 1 180px; min-width: 160px; }
+.footer-brand { flex: 2 1 240px; }
+.footer-logo { border-radius: 14px; }
 
 .footer-brand p {
     color: var(--muted);
-    font-size: 0.85rem;
-    margin: 0.75rem 0 0;
+    font-size: .85rem;
+    margin: .75rem 0 0;
 }
 
 .footer-col-title {
-    font-size: 0.7rem;
-    font-weight: 800;
-    letter-spacing: 1.8px;
-    color: var(--muted);
-    margin: 0 0 0.6rem;
-}
-
-.footer-col a, .footer-col button {
-    display: block;
-    background: none;
-    border: none;
-    padding: 0;
-    color: var(--text-color);
-    text-decoration: none;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-    cursor: pointer;
-    transition: color 0.2s;
-}
-
-.footer-col a:hover, .footer-col button:hover {
-    color: var(--accent-soft);
-}
-
-.footer-bottom {
-    max-width: 1100px;
-    color: var(--muted);
-}
-
-.hamburger-btn {
-    cursor: pointer;
-    transition: color 0.2s ease;
-}
-
-.hamburger-btn:hover {
-    color: var(--accent-soft) !important;
-}
-
-/* Neither of these is a card. A page sits flat on the window background and lets the window
-   scroll it; the only difference is how wide it is allowed to get.
-   .mod-page is the centred column; .mod-panel takes the width of the .container it sits in
-   and exists mainly to mark a module page for the theming rules just below. */
-.mod-page {
-    max-width: 1320px;
-    padding: 24px 16px 60px;
-}
-
-:is(.mod-page, .mod-panel) {
-    color: var(--text-color);
-}
-
-:is(.mod-page, .mod-panel) :where(h1, h2, h3, h4, h5, h6, p, span, small, label, a, b, button, th, td) {
-    color: var(--text-color);
-}
-
-/* Greeting band across the top of a page. */
-.mod-hero {
-    border-radius: 18px;
-    padding: 28px 30px;
-    margin-bottom: 22px;
-    background: linear-gradient(120deg, var(--bg-shell), var(--bg-card) 55%, rgba(34, 211, 238, .14));
-    border: 1px solid var(--line);
-}
-
-.mod-hero:after {
-    content: '';
-    position: absolute;
-    right: -60px;
-    top: -60px;
-    width: 240px;
-    height: 240px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, .26), transparent 70%);
-}
-
-.mod-hero h1 {
-    font-size: 1.7rem;
-}
-
-.mod-hero p, .mod-hero .mod-date {
-    font-size: .9rem;
-}
-
-/* Pill row of filters. It is a <nav>, so it has to undo the header's background above. */
-.mod-nav {
-    gap: 6px;
-    background: none;
-}
-
-.mod-nav a {
     font-size: .8rem;
-    padding: .3rem .9rem;
-    border-radius: 20px;
-    border: 1px solid var(--line-strong);
+    font-weight: 700;
+    color: var(--muted);
+    margin: 0 0 .6rem;
+}
+
+.footer-col a {
+    display: block;
+    color: var(--text-color);
     text-decoration: none;
-    transition: .2s;
+    font-size: .9rem;
+    margin-bottom: .5rem;
+    transition: color .2s;
 }
 
-.mod-nav a:hover {
-    border-color: var(--accent);
+.footer-col a:hover { color: var(--accent-soft); }
+.footer-note { color: var(--muted); font-size: .85rem; margin: 0; max-width: 42ch; }
+.footer-note a { display: inline; color: var(--accent-soft); font-size: inherit; margin: 0; }
+.footer-bottom { max-width: 1100px; color: var(--muted); }
+
+/* ---- shared building blocks ---- */
+/* A page sits flat on the window background; only its width is limited. */
+.mod-page {
+    width: 100%;
+    max-width: 1180px;
+    padding: 28px 16px 64px;
 }
 
-.mod-nav a.on {
-    background: var(--accent-tint);
-    border-color: var(--accent);
-}
-
-/* Content card. */
 .mod-card {
     background: var(--bg-card);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 18px;
 }
 
 .mod-card h3 {
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 4px;
 }
 
 .mod-card-sub {
-    color: var(--muted) !important;
-    font-size: .8rem;
+    color: var(--muted);
+    font-size: .85rem;
     margin-bottom: 14px;
 }
 
-/* KPI strip. Each page keeps its own number size, nothing else varies. */
-.mod-tiles {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 14px;
-    margin-bottom: 22px;
-}
-
+/* a single figure in a box; the Help page uses it to show the three markers */
 .mod-tile {
     background: var(--bg-card);
     border: 1px solid var(--line);
-    border-radius: 14px;
+    border-radius: 12px;
     padding: 16px 18px;
-    transition: .2s;
 }
 
-a.mod-tile:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-}
-
-.mod-tile-num {
-    font-size: 1.6rem;
-    line-height: 1.2;
-}
-
-.mod-tile small {
-    color: var(--text-soft) !important;
-}
-
-/* Page body. Column counts differ per page, so only the gap is shared. */
+/* Column counts differ per page, so only the gap is shared; below a tablet every grid is one column. */
 .mod-grid {
     display: grid;
     gap: 14px;
 }
 
 @media (max-width: 991.98px) {
-    .mod-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* Cards linking to the other pages. */
-.mod-links {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 14px;
-    margin-bottom: 22px;
-}
-
-.mod-links a {
-    gap: 12px;
-    background: var(--bg-card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 14px 16px;
-    transition: .2s;
-}
-
-.mod-links a:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-}
-
-.mod-links b {
-    font-size: .95rem;
-}
-
-.mod-links small {
-    color: var(--text-soft) !important;
-    font-size: .78rem;
-}
-
-.mod-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: var(--accent-tint);
-}
-
-.mod-icon svg {
-    width: 20px;
-    height: 20px;
-    color: var(--accent-soft);
+    .mod-grid { grid-template-columns: 1fr; }
 }
 
 .mod-chip {
-    font-size: .7rem;
+    font-size: .75rem;
     padding: .15rem .5rem;
     border-radius: 20px;
     background: var(--accent-tint);
-    color: var(--accent-soft) !important;
-}
-
-.mod-empty {
-    color: var(--muted) !important;
-    font-size: .85rem;
-    padding: 12px 0;
+    color: var(--accent-soft);
 }
 
 .mod-note {
-    color: var(--muted) !important;
-    font-size: .8rem;
-    font-style: italic;
+    color: var(--muted);
+    font-size: .85rem;
 }
 
-/* Small stat pills above a list. */
-.mod-stats {
-    gap: 10px;
-    margin-bottom: 12px;
-}
-
-.mod-stat {
-    background: var(--bg-page);
-    border-radius: 10px;
-    padding: 8px 14px;
-    font-size: .8rem;
-}
-
-.mod-stat b {
-    font-size: 1.1rem;
-    line-height: 1.2;
-}
-
-.mod-bar-track {
-    background: var(--line);
-    border-radius: 4px;
-    height: 14px;
-}
-
-.mod-bar-fill {
-    background: var(--accent);
-    height: 100%;
-    border-radius: 4px;
-    min-width: 2px;
-    transition: width .4s;
+.mod-section-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.3rem;
+    letter-spacing: -.01em;
+    margin-bottom: .25rem;
 }
 
 /* The data-grid look every table shares. A page adds only its own deltas alongside this class. */
@@ -401,16 +396,9 @@ a.mod-tile:hover {
     vertical-align: middle;
 }
 
-.mod-table tbody tr:hover td {
-    background-color: var(--row-hover);
-}
+.mod-table tbody tr:hover td { background-color: var(--row-hover); }
 
-/* Section heading. */
-.mod-section-title {
-    padding-bottom: 10px;
-}
-
-/* Theming for the Bootstrap tab strip. */
+/* Bootstrap's tab strip, as the Help page uses it; the active tab carries the logo's gradient */
 .mod-tabs {
     border-bottom: none;
     background: var(--bg-shell);
@@ -423,9 +411,7 @@ a.mod-tile:hover {
     padding: 10px 20px;
 }
 
-.mod-tabs .nav-link:hover {
-    color: var(--text-color);
-}
+.mod-tabs .nav-link:hover { color: var(--text-color); }
 
 .mod-tabs .nav-link.active {
     background: var(--bg-card);
@@ -434,8 +420,24 @@ a.mod-tile:hover {
     color: var(--text-color);
 }
 
-.mod-tab-body {
-    background: var(--bg-card);
-    border-radius: 0 0 12px 12px;
-    padding: 1rem;
+/* Bootstrap's light outline buttons and dark inputs, in the palette */
+.btn-outline-light {
+    --bs-btn-color: var(--text-color);
+    --bs-btn-border-color: var(--line-strong);
+    --bs-btn-hover-color: var(--bg-deep);
+    --bs-btn-hover-bg: var(--accent);
+    --bs-btn-hover-border-color: var(--accent);
+    --bs-btn-active-color: var(--bg-deep);
+    --bs-btn-active-bg: var(--accent-soft);
+    --bs-btn-active-border-color: var(--accent-soft);
+    --bs-btn-focus-shadow-rgb: 56, 182, 245;
+}
+
+.mod-form .form-control, .mod-form .form-select { background-color: var(--bg-field); color: var(--text-color); border-color: var(--line-strong); }
+.mod-form .form-control::placeholder { color: var(--muted); }
+.mod-form .form-control:focus, .mod-form .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 .2rem var(--accent-tint); }
+.form-check-input:checked { background-color: var(--accent); border-color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
 }

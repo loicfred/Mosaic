@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * One row of small_business_cashflow.csv, columns named as in the file: one business's one month from the synthetic
  * hackathon practice dataset. A separate profile, never joined to the Olist tables; record_id is a row id, not a business.
  * Describes the file only: it is not in BusinessDatabase.TABLES, so nothing imports or exports it, and the Python API
- * reads AI/datasets/small_business_cashflow.csv directly.
+ * reads config/py/mosaic/datasets/small_business_cashflow.csv directly.
  */
 @Entity
 @Table(name = "small_business_cashflow")

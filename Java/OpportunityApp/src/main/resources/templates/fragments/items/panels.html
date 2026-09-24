@@ -1,0 +1,25 @@
+<!-- The same three tabs under every data page's chart. `api` is the page's address on this site
+     (/api/overview or /api/trend/<measure>); each AI tab asks {api}/advice or {api}/caveats once per page load.
+     The Evidence panel is the page's own, placed between these two fragments. -->
+<div th:fragment="tabs(api)" class="panel-tabs" aria-label="Evidence, suggestion and caveats">
+    <button type="button" class="panel-tab" data-panel="evidence-panel" aria-controls="evidence-panel">Evidence</button>
+    <button type="button" class="panel-tab" data-panel="advice-panel" th:data-url="@{${api + '/advice'}}" th:data-ask="@{${api + '/advice/ask'}}" aria-controls="advice-panel">Suggested opportunity</button>
+    <button type="button" class="panel-tab" data-panel="caveats-panel" th:data-url="@{${api + '/caveats'}}" th:data-ask="@{${api + '/caveats/ask'}}" aria-controls="caveats-panel">Possible caveats</button>
+</div>
+
+<th:block th:fragment="answers">
+    <div id="advice-panel" class="mod-card hypo mt-3" hidden aria-live="polite">
+        <h3 class="panel-title">Suggested opportunity</h3>
+        <p class="panel-text mb-2"></p>
+        <p class="panel-note muted-note mb-0"></p>
+        <div class="panel-charts"></div>
+        <div class="panel-chat-slot"></div>
+    </div>
+    <div id="caveats-panel" class="mod-card obs mt-3" hidden aria-live="polite">
+        <h3 class="panel-title">Possible caveats</h3>
+        <p class="panel-text mb-2"></p>
+        <p class="panel-note muted-note mb-0"></p>
+        <div class="panel-charts"></div>
+        <div class="panel-chat-slot"></div>
+    </div>
+</th:block>

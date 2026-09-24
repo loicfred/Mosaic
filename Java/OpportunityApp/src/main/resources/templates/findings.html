@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{/fragments/head :: pageHead('Findings')}"></th:block>
+</head>
+<body>
+<header th:replace="~{/fragments/header :: mainHeader}" id="master-header"></header>
+<main class="mod-page mx-auto">
+    <section class="page-head">
+        <h1 class="question">What needs a closer look?</h1>
+        <p class="lede">Every check from the Sales, Delivery, Reviews and Sellers pages in one list. A check says where to look, not why it happened.</p>
+        <div th:replace="~{/fragments/items/notice :: error(${findingsError})}"></div>
+    </section>
+
+    <form method="get" action="/findings">
+        <div class="mod-card"><fieldset th:replace="~{/fragments/items/selection :: fields(${selection})}"></fieldset></div>
+
+        <section class="mt-4" th:if="${findings != null}">
+            <p><strong th:text="|${findings.triggered} of ${#lists.size(findings.checks)} checks triggered.|"></strong>
+                <span th:text="|Ranking: ${findings.ranking_rule}|"></span></p>
+            <p class="small">Thresholds apply to this page only. Change one and press Apply to see which findings appear or disappear. <a href="/findings">Reset to defaults</a>.</p>
+            <div class="mod-table table-responsive">
+                <table class="table">
+                    <thead><tr><th scope="col">Finding</th><th scope="col">Page</th><th scope="col">Triggered</th>
+                        <th scope="col" class="n">Size</th><th scope="col">Threshold</th><th scope="col" class="n">Sales exposed</th></tr></thead>
+                    <tbody>
+                    <tr th:each="f : ${findings.checks}" th:classappend="${f.triggered} ? 'fw-semibold' : 'text-body-secondary'">
+                        <td>
+                            <a th:if="${f.records_available}" th:href="|/findings/${f.finding_id}${query}|" th:text="${f.title}"></a>
+                            <a th:unless="${f.records_available}" th:href="${f.page == 'sales' ? '/' : '/' + f.page}" th:text="${f.title}"></a>
+                        </td>
+                        <td th:text="${@format.label(f.page)}"></td>
+                        <td th:text="${f.triggered} ? 'Yes' : 'No'"></td>
+                        <td class="n" th:text="${f['size'] == null or f['size'].value == null} ? 'Not available' : |${@format.num(f['size'].value, 1)} ${f['size'].unit}|"></td>
+                        <td>
+                            <th:block th:if="${f['threshold'] != null}">
+                                <label class="visually-hidden" th:for="|t-${f.finding_id}|" th:text="|Threshold for ${f.title}|"></label>
+                                <input class="form-control form-control-sm d-inline-block w-auto" type="number" min="0" max="100" step="0.05"
+                                       th:id="|t-${f.finding_id}|" th:name="|t.${f.finding_id}|" th:value="${f['threshold'].value}">
+                                <span th:text="${f['threshold'].unit}"></span>
+                            </th:block>
+                            <span th:if="${f['threshold'] == null}">Fixed rule</span>
+                        </td>
+                        <td class="n" th:text="${f['exposure'] == null} ? '—' : ${@format.brl(f['exposure'].sales)}"
+                            th:title="${f['exposure'] == null} ? 'No order subset to measure' : ${f['exposure'].basis}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <details class="mod-card mt-3" open>
+                <summary>Limitations</summary>
+                <ul class="plain"><li th:each="l : ${findings.limitations}" th:text="${l}"></li></ul>
+                <p class="small mb-0" th:text="|Dataset version ${findings.dataset_version}.|"></p>
+            </details>
+        </section>
+        <button class="btn btn-primary mt-3 no-print" type="submit">Apply</button>
+    </form>
+</main>
+<footer th:replace="~{/fragments/footer :: mainFooter}" id="master-footer"></footer>
+</body>
+</html>

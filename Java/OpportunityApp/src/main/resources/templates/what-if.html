@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{/fragments/head :: pageHead('What if?')}"></th:block>
+    <script th:src="@{/js/what-if.js}" defer></script>
+</head>
+<body>
+<header th:replace="~{/fragments/header :: mainHeader}" id="master-header"></header>
+<main class="mod-page mx-auto">
+    <section class="mod-hero position-relative overflow-hidden">
+        <h1 class="statement m-0">What if sales change?</h1>
+        <p class="lede mt-3">Compare observed activity with a hypothetical change. These are scenarios, not forecasts.</p>
+        <div th:replace="~{/fragments/items/notice :: error(${impactError})}"></div>
+    </section>
+    <section class="mt-4" th:if="${impact != null}">
+        <form id="what-if-form" class="row g-3">
+            <div class="col-md-6"><label for="scenario-category" class="form-label">Business scope</label>
+                <select id="scenario-category" class="form-select"><option value="">Whole business</option>
+                    <option th:each="category : ${impact.available_categories}" th:value="${category}" th:text="${category}"></option>
+                </select>
+            </div>
+            <div class="col-md-6"><label for="scenario-horizon" class="form-label">Months ahead</label><input id="scenario-horizon" class="form-control" type="number" min="1" max="6" value="3" required></div>
+            <div class="col-12"><label for="scenario-change" class="form-label">Sales change: <output id="change-label">0%</output></label><input id="scenario-change" class="form-range" type="range" min="-30" max="30" value="0" step="1"></div>
+            <div class="col-12"><label><input id="scenario-summary" type="checkbox"> Ask AI to write the summary</label><p class="small">A calculated summary is available even when AI is switched off or unavailable.</p></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">Compare scenario</button></div>
+        </form>
+        <p class="mt-3 small">Category and seller are assigned from each order's highest-priced item. Category sales include all items in those orders. Seller load measures assigned orders against each seller's busiest observed month.</p>
+        <p id="scenario-status" role="status" aria-live="polite"></p>
+        <section id="scenario-results" hidden class="mt-4">
+            <h2>Observed baseline and hypothetical outcome</h2>
+            <p id="scenario-period"></p>
+            <div class="table-responsive"><table class="table"><thead><tr><th scope="col">Monthly measure</th><th scope="col">Observed baseline</th><th scope="col">Hypothetical</th></tr></thead><tbody id="scenario-comparison"></tbody></table></div>
+            <p id="scenario-narrative"></p><p id="scenario-source" class="small"></p>
+            <h3>Assumptions and limitations</h3><ul id="scenario-assumptions"></ul>
+            <p>Late deliveries use orders with known delivery outcomes; low reviews use available ratings. Missing outcomes appear as unavailable, and applying these observed rates to future orders assumes comparable delivery and review coverage.</p>
+        </section>
+    </section>
+</main>
+<footer th:replace="~{/fragments/footer :: mainFooter}" id="master-footer"></footer>
+</body>
+</html>

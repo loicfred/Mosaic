@@ -42,6 +42,11 @@
             <groupId>org.solarframework.mu</groupId>
             <artifactId>ai-impl</artifactId>
         </dependency>
+        <!-- The analytics API's replies are read into typed records through SolarFramework's Gson (JSONItem.SimpleGSON) -->
+        <dependency>
+            <groupId>org.solarframework.mu</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
@@ -55,11 +60,6 @@
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
-        <!-- The assistant's per-session conversation cache -->
-        <dependency>
-            <groupId>com.github.ben-manes.caffeine</groupId>
-            <artifactId>caffeine</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -69,7 +69,7 @@
 
     <build>
         <plugins>
-            <!-- Every build re-zips ../../AI/app into mosaic-python.zip, so the jar always carries the current Python code;
+            <!-- Every build re-zips ../OpportunityApp/config/py/mosaic/app into mosaic-python.zip, so the jar always carries the current Python code;
                  PythonApiLauncher unpacks it into SolarHome/config/py/mosaic on start. Same content as .claude/hooks/package-python.ps1. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -84,22 +84,11 @@
                         </goals>
                         <configuration>
                             <target>
-                                <zip destfile="${project.basedir}/src/main/resources/mosaic-python.zip" basedir="${project.basedir}/../../AI"
+                                <delete file="${project.basedir}/src/main/resources/mosaic-python.zip"/>
+                                <zip destfile="${project.basedir}/src/main/resources/mosaic-python.zip" basedir="${project.basedir}/../OpportunityApp/config/py/mosaic"
                                      includes="app/**/*.py" excludes="**/__pycache__/**" whenempty="fail"/>
                             </target>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- The trimmed API responses in src/test/resources/api are shared with OpportunityApp's page tests -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
                     </execution>
                 </executions>
             </plugin>

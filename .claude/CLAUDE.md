@@ -30,6 +30,7 @@ Inspect the repository, existing instructions, dependency manifests and current 
 - Make minimal, targeted edits. Do not reformat, rename or reorganise unrelated code. Never use destructive Git commands to clean the workspace.
 - Prefer the simplest implementation that completes one end-to-end user journey. Avoid speculative abstractions, duplicate helpers, premature services and dependencies with no immediate use.
 - Keep functions focused on one named task. Use descriptive names, early returns and small cohesive modules. Comments should explain a non-obvious reason or constraint, not restate the code.
+- Fix code in its own shape: a one-line statement stays one line, and a small fix adds no comment or docstring lines explaining itself (the commit message and worklog carry the reason).
 - Follow the established style in the file being changed. Remove debug logging, dead code and unused imports introduced by the task before finishing.
 - Keep frontend presentation separate from backend calculations and data access. The backend is authoritative for metrics, evidence and financial calculations.
 - Never expose secrets, credentials, unrestricted database access or provider keys to the browser. Do not commit `.env`, downloaded private data, generated databases or large raw datasets.
@@ -48,23 +49,23 @@ Inspect the repository, existing instructions, dependency manifests and current 
 
 The running application is the demo. Adding things must never take down what already works. The Spring site (`Java/OpportunityImpl/.../service/MosaicApi.java`) calls the Python API on port 8000, and the Help page reads `/openapi.json` live.
 
-New endpoint (`AI/app/api/`):
+New endpoint (`Java/OpportunityApp/config/py/mosaic/app/api/`):
 
-- One module per route, named `get_<thing>.py`, exposing `router`. Register it in the tuple in `AI/app/api/__init__.py`, or it will not exist.
+- One module per route, named `get_<thing>.py`, exposing `router`. Register it in the tuple in `Java/OpportunityApp/config/py/mosaic/app/api/__init__.py`, or it will not exist. Exception: routes that differ only by a table entry share one module that registers them in a loop, as `get_trends.py` does for the trend pages; pass `name=` so each keeps its own OpenAPI operationId.
 - Keep the handler thin: calculations go in `app/analysis/`, loading in `app/data/`, model code in `app/models/` or `app/forecast/`.
 - Give the route a `summary=` (the Help page shows it) and a Pydantic-typed or clearly documented response.
 - Never rename, remove or change the response shape of an existing route unless you also update every caller in `MosaicApi.java` and its templates, in the same change. Prefer adding a new field or a new route.
 - Model-backed routes must use `require_model` from `app/api/deps.py`, so a missing model returns 503 and a stale one 409. Never let them return 500.
-- Add a test in `AI/tests/` for the success path and for the missing-model or empty-data case.
+- Add a test in `Java/OpportunityApp/config/py/mosaic/tests/` for the success path and for the missing-model or empty-data case.
 
 New or retrained model:
 
-- Add a training module with a `main()` runnable as `python -m app.<package>.<module>`. Save `<name>.joblib` plus `<name>.json` metadata to `AI/models/`, including `dataset_hashes`, the evaluation and its limitations, as the existing trainers do.
+- Add a training module with a `main()` runnable as `python -m app.<package>.<module>`. Save `<name>.joblib` plus `<name>.json` metadata to `Java/OpportunityApp/config/py/mosaic/models/`, including `dataset_hashes`, the evaluation and its limitations, as the existing trainers do.
 - Add the name to `MODEL_NAMES` in `app/models/__init__.py`.
 - **Train once, then only use.** Training and serving are separate: the trainer script runs once, by hand, and saves the artefact. The API (`python -m app.main`) only loads saved artefacts and must never train at startup or per request (`create_app` defaults to `auto_train=False`; keep it that way). Retrain only when the dataset file changes (the API then returns 409) or the model code or features change. Do not put a new model in `prepare_models` in `app/models/prepare.py`; that helper exists only for tests that call `create_app(auto_train=True)`.
 - Retrain and commit only the model you changed. Never commit another model's artefacts retrained on your own copy of the data: a different download or line endings change `dataset_hashes`, and every teammate's API then answers 409. All Olist models must be trained on the canonical CSVs (`olist_orders_dataset.csv` SHA-256 starts `8df58e`).
 - A model that does not beat its baseline on held-out data must not rank or predict anything in the product: gate its route (as `beats_baseline` in `app/models/cashflow.py` does) and keep only its evaluation visible. Serve predictions only for held-out rows, never for the rows the model was trained on.
-- `Java/OpportunityApp/config/py/mosaic` is an exact mirror of `AI/` (`app`, `datasets`, `models`; only its `.venv` is its own). `.claude/hooks/mirror-python.ps1` keeps it so after each Claude turn; after changing any of them by hand, run it yourself. Never edit, train or add data inside the mirror. Change `AI/` and mirror it.
+- The Python project has exactly one copy: `Java/OpportunityApp/config/py/mosaic` (`app`, `tests`, `datasets`, `models`, requirements and its own `.venv`). Edit, train and test there; never recreate a second copy (the old `AI/` folder is gone). `mosaic-python.zip` in `Java/OpportunityImpl/src/main/resources` is generated from its `app/` by the `Stop` hook `.claude/hooks/package-python.ps1` and by every Maven build of `OpportunityImpl`; never edit the zip. In the repository `PythonApiLauncher` runs this folder as it is (it has `requirements.txt`), and `BusinessDatabase` never exports into it, because that would rewrite the original CSVs and void the models' `dataset_hashes`.
 - Do not overwrite an existing artefact with a worse or untested model. Compare the held-out evaluation with the current `.json` before replacing it.
 - Do not change the input features of an existing model without retraining it and updating every place that builds those features.
 
@@ -73,22 +74,22 @@ New or retrained model:
 Follow these steps in order. The existing trainers are the templates: `app/forecast/train.py` (single model) and `app/models/train_risk.py` (several models, temporal split).
 
 1. **Inspect the file before writing code.** Record its source URL, licence, download date, row count, columns, types, date range, currency and grain (what one row is). Confirm the target column exists and is known at the moment of prediction. Check for duplicates, missing values and one-to-many keys. Write this into `docs/` (dataset dictionary) and state the decision the model supports. If no decision needs it, do not train it.
-2. **Place the file.** Put it in `AI/datasets/` (or `MOSAIC_DATASETS_DIR`), unchanged. Never commit it; large or restricted raw data stays out of Git. A small permitted fixture for tests may go in `AI/tests/`.
+2. **Place the file.** Put it in `Java/OpportunityApp/config/py/mosaic/datasets/` (or `MOSAIC_DATASETS_DIR`), unchanged. Never commit it; large or restricted raw data stays out of Git. A small permitted fixture for tests may go in `Java/OpportunityApp/config/py/mosaic/tests/`.
 3. **Register the file name** as a constant in `app/config.py`, next to the Olist `*_FILE` constants. Do **not** add it to `ALL_DATASET_FILES` unless it is guaranteed present: startup hashes every file there with `_sha256` in `app/data/olist.py`, and a missing file crashes the API. Instead, hash an optional file only when it exists and merge it into `app.state.dataset_hashes` in `app/main.py`. Otherwise `require_model` sees no current hash and always returns 409.
 4. **Write a loader** in `app/data/<dataset>.py` (one module per dataset, not inside `olist.py`). It should read only the needed `usecols` with explicit dtypes, parse dates, and count excluded rows instead of silently dropping them. Do not join it to Olist as if it were the same business. Keep it a separate profile.
 5. **Put the model code** (features, split, fit, predict, baseline) in `app/models/<name>.py` or `app/forecast/<name>.py`, and the training script in `train_<name>.py` with `train(datasets_dir, models_dir) -> dict` and `main()`, runnable as `python -m app.<package>.train_<name>`.
 6. **Evaluate honestly.** Use a temporal split when rows have dates (as in `SPLIT_DATE`/`TEST_END_DATE`). Exclude post-outcome and leaking fields. Always compare against a simple baseline (naive/majority/mean) and report both. If the model does not beat the baseline, say so and do not wire it into the product.
-7. **Save the artefact** as `AI/models/<name>.joblib` plus `<name>.json`. The metadata must contain the keys `model_summary` in `app/api/deps.py` reads (`model_version`, `trained_at`, `prediction_time`, `split_date`, `test_end`, `evaluation`, `importances`, `limitations`) plus `dataset_hashes` for the new file only, `feature_names`, `data_range` and exclusion counts. Use `None` for keys that do not apply rather than omitting them.
+7. **Save the artefact** as `Java/OpportunityApp/config/py/mosaic/models/<name>.joblib` plus `<name>.json`. The metadata must contain the keys `model_summary` in `app/api/deps.py` reads (`model_version`, `trained_at`, `prediction_time`, `split_date`, `test_end`, `evaluation`, `importances`, `limitations`) plus `dataset_hashes` for the new file only, `feature_names`, `data_range` and exclusion counts. Use `None` for keys that do not apply rather than omitting them.
 8. **Register the model.** Add a `<NAME>_MODEL` constant and put it in `MODEL_NAMES` in `app/models/__init__.py`, and add a `<NAME>_TRAIN_COMMAND` in `app/api/deps.py`.
 9. **Train it once** with `python -m app.<package>.train_<name>`, check the printed evaluation, then leave it. Starting the API must not retrain it.
 10. **Serve it** through a new `app/api/get_<thing>.py` route using `require_model(request, NAME, TRAIN_COMMAND)`, following the endpoint rules above.
-11. **Test it** in `AI/tests/test_<name>.py`: the loader on a small fixture (missing values, bad dates, empty file), the baseline comparison, and the API route for success, missing model (503), changed data (409) and missing dataset file (the API still starts).
+11. **Test it** in `Java/OpportunityApp/config/py/mosaic/tests/test_<name>.py`: the loader on a small fixture (missing values, bad dates, empty file), the baseline comparison, and the API route for success, missing model (503), changed data (409) and missing dataset file (the API still starts).
 12. **Document it.** Add the dataset and model to `docs/requirements.md` and write the session's worklog entry. Include the evaluation numbers and limitations exactly as saved in the `.json`.
 
 Before handing off, all of these must pass. Report any that fail; do not hide them:
 
-1. `python -m pytest tests -q` from `AI/`.
-2. The API starts: `python -m app.main`, then `GET /api/health` and `GET /openapi.json` return 200.
+1. `.venv\Scripts\python.exe -m pytest tests -q` from `Java/OpportunityApp/config/py/mosaic`.
+2. The API starts: `python -m app.main` from the same folder, then `GET /api/health` and `GET /openapi.json` return 200.
 3. If Java callers were touched, `PagesRenderTest` passes and the affected page renders.
 
 ## Team and constraints
@@ -254,7 +255,7 @@ Suggested ownership, adjusted to members' skills:
 2. Backend/data storage: schemas, import APIs, persistence and integration.
 3. Data analysis/ML: cleaning, metrics, alert detection and optional model evaluation.
 4. Evidence/scenarios: reproducibility, drill-down, scenario mathematics and calculation tests.
-5. AI/demo integration: interpretation, grounded explanations, failure handling and demo coordination; assist frontend integration.
+5. Java/OpportunityApp/config/py/mosaic/demo integration: interpretation, grounded explanations, failure handling and demo coordination; assist frontend integration.
 
 Every member tests their own work. Define interfaces early, merge small changes frequently and keep one working demo branch. No teammate should wait until the final night to integrate. These are human team roles, not instructions to spawn AI agents automatically.
 

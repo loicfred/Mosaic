@@ -13,17 +13,6 @@
               "-File",
               "${CLAUDE_PROJECT_DIR}/.claude/hooks/package-python.ps1"
             ]
-          },
-          {
-            "type": "command",
-            "command": "powershell.exe",
-            "args": [
-              "-NoProfile",
-              "-ExecutionPolicy",
-              "Bypass",
-              "-File",
-              "${CLAUDE_PROJECT_DIR}/.claude/hooks/mirror-python.ps1"
-            ]
           }
         ]
       }

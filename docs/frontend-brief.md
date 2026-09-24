@@ -2,7 +2,7 @@
 
 Historical brief for the React prototype in `front-end/`. The active website is `Java/OpportunityApp/`; see its README for current setup and routes. The API examples below are illustrative and should be checked against the running FastAPI docs.
 
-You are building the React UI. The Python backend in `AI/` is finished and is the single
+You are building the React UI. The Python backend in `Java/OpportunityApp/config/py/mosaic/` is finished and is the single
 source of truth for every number. **Do not compute, re-derive, round-trip or invent any
 metric in the frontend.** Display what the API returns, formatted.
 
@@ -10,7 +10,7 @@ metric in the frontend.** Display what the API returns, formatted.
 
 ```powershell
 cd AI
-.\.venv\Scripts\python.exe -m app.forecast.train      # once, if AI/models/ is empty
+.\.venv\Scripts\python.exe -m app.forecast.train      # once, if Java/OpportunityApp/config/py/mosaic/models/ is empty
 .\.venv\Scripts\python.exe -m app.models.train_risk   # once, ~30 s
 .\.venv\Scripts\python.exe -m app.main                # serves http://127.0.0.1:8000
 ```

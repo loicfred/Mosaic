@@ -1,0 +1,13 @@
+.explore-nav { display:flex; flex-wrap:wrap; gap:1rem; margin:1.5rem 0; }
+#explore-content { min-width:0; }
+#explore-content .mod-card { margin:1.5rem 0; padding:1.5rem; min-width:0; }
+.explore-table { overflow:auto; max-width:100%; }
+.explore-table table { width:100%; border-collapse:collapse; }
+.explore-table th, .explore-table td { padding:.7rem; text-align:left; border-bottom:1px solid var(--chart-grid); white-space:nowrap; }
+.explore-chart { height:300px; margin:1rem 0; }
+.explore-facts { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:1rem; }
+.explore-facts dt { color:var(--muted); font-weight:400; }
+.explore-facts dd { margin:0; overflow-wrap:anywhere; }
+.explore-filter { display:block; margin:1rem 0; }
+.explore-filter input { display:block; width:min(100%,28rem); padding:.6rem; }
+.explore-detail { overflow-wrap:anywhere; white-space:pre-wrap; }

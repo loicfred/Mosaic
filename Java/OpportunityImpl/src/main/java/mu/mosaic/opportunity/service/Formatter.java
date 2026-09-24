@@ -1,32 +1,42 @@
 package mu.mosaic.opportunity.service;
 
+import mu.mosaic.opportunity.obj.api.Moved;
 import org.solarframework.core.util.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * Display formatting for templates, as {@code ${@format.brl(x)}}. Formatting only: a rate (0.0361) is shown as a
- * percentage (3.61%), and an amount in reais also shows its approximate value in US dollars. A missing value shows as
- * a dash, never as zero.
+ * percentage (3.61%), and an amount recorded in reais is displayed converted to US dollars, for easier
+ * visualization. A missing value shows as a dash, never as zero.
  */
 @Component("format")
 public class Formatter {
-    public static final String MISSING = "—";
-    /** Reais per US dollar: a rough average over the data's range (January 2017 to August 2018), for scale only. */
-    public static final double BRL_PER_USD = 3.4;
+    private static final String MISSING = "—";
+    /** Equal-month mean of Federal Reserve monthly USD/BRL averages, Jan 2017–Aug 2018; for scale only.
+     * Source: https://fred.stlouisfed.org/data/EXBZUS */
+    private static final double BRL_PER_USD = 3.33;
 
     public String brl(Object value) {
         if (!(value instanceof Number number)) return MISSING;
-        String magnitude = String.format(Locale.US, "%,.0f", Math.abs(number.doubleValue()));
         String usd = String.format(Locale.US, "%,.0f", Math.abs(number.doubleValue()) / BRL_PER_USD);
-        String sign = number.doubleValue() < 0 && !magnitude.equals("0") ? "−" : "";
-        return sign + "BRL " + magnitude + " (≈ " + (usd.equals("0") ? "" : sign) + "USD " + usd + ")";
+        String sign = number.doubleValue() < 0 && !usd.equals("0") ? "−" : "";
+        return sign + "$" + usd;
     }
 
-    public String num(Object value, int digits) {
+    public String num(Object value, int digits) { return num(value, digits, MISSING); }
+
+    /** As {@link #num(Object, int)}, with the words to write for a missing value, e.g. "unknown" in the model's evidence. */
+    public String num(Object value, int digits, String missing) {
         return value instanceof Number number
-                ? String.format(Locale.US, "%,." + digits + "f", number.doubleValue()) : MISSING;
+                ? String.format(Locale.US, "%,." + digits + "f", number.doubleValue()) : missing;
+    }
+
+    /** A fraction as a bare percentage number for the model's evidence: 0.0361 -> "3.6"; {@code missing} when unknown. */
+    public String percentNumber(Object rate, int digits, String missing) {
+        return rate instanceof Number n ? num(n.doubleValue() * 100, digits, missing) : missing;
     }
 
     /** A fraction as a percentage: 0.0361 -> 3.61%. */
@@ -44,10 +54,62 @@ public class Formatter {
     /** A signed whole-number change: -1253.3 -> −1,253. */
     public String change(Object value) { return formatSignedNumber(value, "%,.0f"); }
 
-    /** A 0–1 ranking score as a 0–100 score. */
-    public String score(Object value) {
-        return value instanceof Number number ? String.valueOf(Math.round(number.doubleValue() * 100)) : MISSING;
+    /** A trend figure by the API's unit: rate as a percentage, brl as money, days, and counts (averages keep one decimal). */
+    public String unit(String unit, Object value) {
+        if (!(value instanceof Number n)) return MISSING;
+        return switch (String.valueOf(unit)) {
+            case "rate" -> rate(n, 1);
+            case "brl" -> brl(n);
+            case "days" -> num(n, 1) + " days";
+            default -> num(n, countDigits(n.doubleValue()));
+        };
     }
+
+    /** A trend change by its change_unit ("−6.5 pp", "−2.1 days"); counts add their relative change ("+146, +13.7%"). */
+    public String unitChange(Map<String, Object> moved) { return unitChange(moved.get("change"), moved.get("change_unit"), moved.get("change_pct")); }
+
+    public String unitChange(Moved moved) { return unitChange(moved.change(), moved.changeUnit(), moved.changePct()); }
+
+    private String unitChange(Object change, Object changeUnit, Object changePct) {
+        if (!(change instanceof Number n)) return "no comparable change";
+        String unit = String.valueOf(changeUnit);
+        String main = switch (unit) {
+            case "pp" -> pp(n);
+            case "brl" -> insertDollarSign(formatSignedNumber(n.doubleValue() / BRL_PER_USD, "%,.0f"));
+            case "days" -> formatSignedNumber(n, "%,.1f") + " days";
+            default -> formatSignedNumber(n, "%,." + countDigits(n.doubleValue()) + "f");
+        };
+        return "count".equals(unit) && changePct instanceof Number pct ? main + ", " + pct(pct) : main;
+    }
+
+    /** "10.1% in the 3 months before, 3.6% in the last 3 (−6.5 pp)", from anything with previous, recent and a change. */
+    public String movement(String unit, Moved moved) {
+        return unit(unit, moved.previousValue()) + " in the 3 months before, "
+                + unit(unit, moved.recentValue()) + " in the last 3 (" + unitChange(moved) + ")";
+    }
+
+    /** A group's name: categories are written readably, state codes stay as they are. */
+    public String groupName(String groupLabel, Object name) {
+        return "category".equals(groupLabel) ? label(name) : String.valueOf(name);
+    }
+
+    /** A check's threshold with its unit: "5%", "2 pp", "1.5 days". */
+    public String threshold(Object threshold, Object unit) {
+        if ("brl".equals(String.valueOf(unit))) {
+            double usd = threshold instanceof Number n ? n.doubleValue() / BRL_PER_USD : 0;
+            return threshold instanceof Number ? "$" + num(usd, usd == Math.rint(usd) ? 0 : 1) : "?";
+        }
+        String t = threshold instanceof Number n ? num(n, n.doubleValue() == Math.rint(n.doubleValue()) ? 0 : 1) : "?";
+        return switch (String.valueOf(unit)) {
+            case "pct" -> t + "%";
+            case "pp" -> t + " pp";
+            case "days" -> t + " days";
+            default -> t;
+        };
+    }
+
+    /** Whole counts and large averages without decimals; a smaller average such as 135.7 sellers a month keeps one. */
+    private int countDigits(double v) { return v == Math.rint(v) || Math.abs(v) >= 1000 ? 0 : 1; }
 
     public String label(Object value) {
         return value instanceof String text ? StringUtils.readable(text) : MISSING;
@@ -57,7 +119,13 @@ public class Formatter {
         return value instanceof String text && text.length() >= 10 ? text.substring(0, 10) : MISSING;
     }
 
-    private static String formatSignedNumber(Object value, String format) {
+    /** Puts the $ sign after a leading +/− so "+123" becomes "+$123". */
+    private String insertDollarSign(String signedMagnitude) {
+        return signedMagnitude.startsWith("+") || signedMagnitude.startsWith("−")
+                ? signedMagnitude.charAt(0) + "$" + signedMagnitude.substring(1) : "$" + signedMagnitude;
+    }
+
+    private String formatSignedNumber(Object value, String format) {
         if (!(value instanceof Number number)) return MISSING;
         String magnitude = String.format(Locale.US, format, Math.abs(number.doubleValue()));
         // the sign follows what is displayed, so -0.04 shows as 0.0%, not −0.0%

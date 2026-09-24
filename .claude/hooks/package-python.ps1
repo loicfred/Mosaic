@@ -3,7 +3,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$aiRoot = Join-Path $ProjectRoot 'AI'
+$aiRoot = Join-Path $ProjectRoot 'Java/OpportunityApp/config/py/mosaic'
 $appRoot = Join-Path $aiRoot 'app'
 $resourceDir = Join-Path $ProjectRoot 'Java/OpportunityImpl/src/main/resources'
 $archivePath = Join-Path $resourceDir 'mosaic-python.zip'

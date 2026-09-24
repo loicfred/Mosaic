@@ -9,14 +9,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="theme-color" content="#0e0f12">
         <link rel="icon" th:href="@{/img/mosaic.svg}" type="image/svg+xml">
+        <link rel="preload" th:href="@{/fonts/bricolage-grotesque-latin-wght-normal.woff2}" as="font" type="font/woff2" crossorigin>
         <link rel="stylesheet" th:href="@{/webjars/bootstrap/dist/css/bootstrap.min.css}">
         <link rel="stylesheet" th:href="@{/css/main.css}">
         <link rel="stylesheet" th:href="@{/css/mosaic.css}">
         <script th:src="@{/webjars/bootstrap/dist/js/bootstrap.bundle.min.js}" defer></script>
         <script th:src="@{/webjars/chart.js/dist/chart.umd.min.js}" defer></script>
         <script th:src="@{/js/charts.js}" defer></script>
+        <script th:src="@{/js/panels.js}" defer></script>
         <script th:src="@{/js/app.js}" defer></script>
-        <script th:src="@{/js/assistant.js}" defer></script>
     </th:block>
 </head>
 </html>

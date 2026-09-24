@@ -4,54 +4,57 @@ import org.solarframework.ai.Chatbot;
 import org.solarframework.ai.IAIManager;
 import org.solarframework.ai.IAIService;
 import org.solarframework.ai.dto.ChatbotDefinition;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.solarframework.core.util.EnvValue;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * The site's one way to the language model, through SolarFramework's AI manager.
  * <p>The model and the chatbots' instructions live in {@code config/ai/agents.json}, SolarFramework's own AI config
  * file, as in SolarERP. What a file cannot hold - tools, memory, the tool allowlist - is added in code by whoever
  * uses a bot. Without the file the model is off, and the site keeps working without it.
- * <p>When the {@value #CLOUD_KEY} environment variable is set and the file defines a {@value #CLOUD} service, every
- * bot runs on that cloud service instead, so the key stays out of the committed file.
+ * <p>When the file defines a {@value #CLOUD} service and the variable its {@code "${NAME}"} key names is set, every
+ * bot runs on that cloud service instead. SolarFramework reads the key from the environment, so it stays out of the
+ * committed file.
  */
 @Component
 public class LocalAi {
-    static final String CLOUD = "Groq", CLOUD_KEY = "GROQ_API_KEY";
-    public static final String ASSISTANT = "MosaicAssistant", NARRATOR = "ScenarioNarrator", ADVISOR = "InvestmentAdvisor", CAVEATS = "CaveatWriter";
+    private static final String CLOUD = "Groq";
     private final IAIManager manager;
 
-    @Autowired
-    public LocalAi(IAIManager manager) { this(manager, System.getenv()); }
+    /** The chatbots {@code config/ai/agents.json} defines, by the name they have there. */
+    public enum Bot {
+        SCENARIO_NARRATOR("ScenarioNarrator"), INVESTMENT_ADVISOR("InvestmentAdvisor"), CAVEAT_WRITER("CaveatWriter"),
+        TREND_ADVISOR("TrendAdvisor"), TREND_CAVEATS("TrendCaveats"), PANEL_CHAT("PanelChat");
 
-    /** @param env where the cloud key is looked for; tests pass their own so the machine's key cannot change them */
-    LocalAi(IAIManager manager, Map<String, String> env) {
+        private final String configName;
+
+        Bot(String configName) { this.configName = configName; }
+    }
+
+    public LocalAi(IAIManager manager) {
         this.manager = manager;
         manager.LoadFromFile();
-        useCloud(manager, env);
+        useCloud();
     }
 
-    /** Points the service the bots use at the cloud service's endpoint and model, with the key from the environment. */
-    static void useCloud(IAIManager manager, Map<String, String> env) {
-        String key = env.get(CLOUD_KEY);
+    /** Points the service the bots use at the cloud service's endpoint, model and key, when that key is set. */
+    private void useCloud() {
         IAIService local = manager.getDefaultService();
-        if (key == null || key.isBlank() || local == null || !manager.hasService(CLOUD)) return;
+        if (local == null || !manager.hasService(CLOUD)) return;
         IAIService cloud = manager.getService(CLOUD);
+        String key = EnvValue.resolve(cloud.getApiKey());
+        if (key == null || key.isBlank() || key.equals("N/A")) return;
         local.setBaseUrl(cloud.getBaseUrl());
         local.setModel(cloud.getModel());
-        local.setApiKey(key);
+        local.setApiKey(cloud.getApiKey());
     }
 
-    /**
-     * Whether a service answers. SolarFramework asks LM Studio's own API, which a cloud endpoint does not have, so
-     * an https endpoint is taken as up and a failing call falls back to the template like any other failure.
-     */
-    public static boolean reachable(IAIService s) {
+    /** Whether a service answers; SolarFramework sends the key, so this holds for the cloud service too. */
+    public boolean reachable(IAIService s) {
         try {
-            return s.getBaseUrl() != null && s.getBaseUrl().startsWith("https://") || s.isAvailable();
+            return s.isAvailable();
         } catch (RuntimeException e) {
             return false;
         }
@@ -64,8 +67,8 @@ public class LocalAi {
     }
 
     /** A chatbot from the config file, on its service, ready for the tools and memory only code can give it; null when there is none. */
-    public Chatbot.Builder bot(String name) {
-        Chatbot configured = manager.getChatbot(name);
+    public Chatbot.Builder bot(Bot bot) {
+        Chatbot configured = manager.getChatbot(bot.configName);
         if (configured == null || service() == null) return null;
         return Chatbot.builder(configured.getService()).applyDefinition(configured.getDefinition());
     }
@@ -79,8 +82,8 @@ public class LocalAi {
         if (s == null) return new Status(false, false, null, null);
         try {
             if (!reachable(s)) return new Status(true, false, s.getModel(), null);
-            if (s.getBaseUrl().startsWith("https://")) return new Status(true, true, s.getModel(), null);
-            return new Status(true, true, s.getModel(), s.isModelSupportingTools());
+            // a cloud endpoint names its models but reports no state or capabilities, so tool support stays unknown
+            return new Status(true, true, s.getModel(), s.getModelState() == null ? null : s.isModelSupportingTools());
         } catch (RuntimeException e) {
             return new Status(true, false, s.getModel(), null);
         }

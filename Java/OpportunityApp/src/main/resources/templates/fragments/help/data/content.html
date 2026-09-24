@@ -1,0 +1,71 @@
+<!-- What the AI side reads and runs: the dataset files with their real columns, the trained models, and the language model's setup. -->
+<section data-pane="data" hidden th:fragment="dataContent">
+    <div class="doc-intro doc-page">
+        <h2>What the figures are made from</h2>
+        <p>The files the analytics API reads, the models it trained on them, and the language model that explains
+            the results. Read from the running apps each time this page opens.</p>
+    </div>
+
+    <article class="doc-page" id="data-datasets">
+        <h2>Datasets</h2>
+        <p class="doc-lead">The CSV files the analytics API reads, with their columns as the files name them.</p>
+        <p>When the website exports its database, the files also include record columns such as <code>ID</code> and <code>CreatedAt</code>. They are shown here because they are present in the CSV; the analytics calculations use the Olist fields.</p>
+        <div th:replace="~{/fragments/items/notice :: error(${datasetsError})}"></div>
+        <div class="doc-facts d-flex flex-wrap" th:if="${datasets != null}">
+            <span class="doc-fact"><b th:text="${#lists.size(datasets.files)}">8</b> files</span>
+            <span class="doc-fact">folder <b>analytics API data folder</b></span>
+        </div>
+        <div th:each="f : ${datasets?.files ?: {}}" class="doc-file" th:id="|data-${f.file}|">
+            <h3 th:text="${f.file}">olist_orders_dataset.csv</h3>
+            <div class="doc-facts d-flex flex-wrap mb-2">
+                <span class="doc-fact"><b th:text="${#lists.size(f.columns)}">8</b> columns</span>
+            </div>
+            <div class="doc-columns"><code th:each="c : ${f.columns}" class="mod-chip" th:text="${c}">order_id</code></div>
+        </div>
+    </article>
+
+    <article class="doc-page" id="data-models">
+        <h2>Trained models</h2>
+        <p class="doc-lead">Trained by the analytics API from these files and stored beside its data folder.</p>
+        <p>A model that is not trained, or was trained on different data, is reported on the page that uses it.</p>
+        <div th:replace="~{/fragments/items/notice :: error(${healthError})}"></div>
+        <div class="doc-rows" th:if="${health != null}">
+            <div th:each="m : ${health.models}" class="doc-row" th:classappend="${m.value} ? 'is-on' : 'is-off'">
+                <div class="doc-row-head">
+                    <span class="doc-dot"></span>
+                    <span class="doc-row-name" th:text="${m.key}">sales_forecast</span>
+                    <span class="doc-standing" th:text="${m.value} ? 'Trained and loaded' : 'Not trained yet'">Trained</span>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <article class="doc-page" id="data-language">
+        <h2>Language model</h2>
+        <p class="doc-lead">Writes the scenario summary, the investment suggestion and the caveats. It never supplies a figure.</p>
+        <p>Set in <code>config/ai/agents.json</code>, SolarFramework's AI config file.</p>
+        <div class="doc-rows" th:if="${aiStatus != null}">
+            <div class="doc-row" th:classappend="${aiStatus.reachable()} ? 'is-on' : 'is-off'">
+                <div class="doc-row-head">
+                    <span class="doc-dot"></span>
+                    <span class="doc-row-name" th:text="${aiStatus.model() ?: 'No model'}">model</span>
+                    <span class="doc-standing" th:text="${aiStatus.reachable()} ? 'Connected' : (${aiStatus.enabled()} ? 'Configured but offline' : 'Switched off')">Connected</span>
+                </div>
+                <p th:if="${!aiStatus.reachable() and aiStatus.enabled()}">Start LM Studio's server to switch it on.</p>
+                <p th:if="${!aiStatus.enabled()}">No model is configured, so the scenario, suggestion and caveats keep their fixed summaries.</p>
+            </div>
+        </div>
+        <div class="ref-scroll" th:unless="${#lists.isEmpty(chatbots)}">
+            <table class="ref-table">
+                <thead><tr><th>Chatbot</th><th>What it does</th><th>Max steps</th></tr></thead>
+                <tbody>
+                <tr th:each="b : ${chatbots}">
+                    <td><code th:text="${b.name()}">ScenarioNarrator</code></td>
+                    <td th:text="${b.attribute('description')}">Answers questions</td>
+                    <td th:text="${b.maxSteps()}">5</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+</section>

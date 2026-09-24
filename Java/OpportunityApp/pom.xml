@@ -15,7 +15,7 @@
     <artifactId>OpportunityApp</artifactId>
     <version>0.1.0</version>
     <name>OpportunityApp</name>
-    <description>Mosaic website: Spring Boot and Thymeleaf on SolarFramework, over the analytics API in ../../AI</description>
+    <description>Mosaic website: Spring Boot and Thymeleaf on SolarFramework, over the analytics API in config/py/mosaic</description>
 
     <repositories>
         <repository>
@@ -49,12 +49,18 @@
             <artifactId>sqlite-jdbc</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- The one LLM client: the scenario summary and the assistant both run through AIImpl -->
+        <!-- The one LLM client: the scenario summary, suggestion and caveats all run through AIImpl -->
         <dependency>
             <groupId>org.solarframework.mu</groupId>
             <artifactId>ai-impl</artifactId>
         </dependency>
-        <!-- AIImpl marks these optional, but AIConfig's cache bean needs them -->
+        <!-- SolarFramework makes SLF4J optional; the executable jar still needs its API at startup. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.18</version>
+            <optional>false</optional>
+        </dependency>        <!-- AIImpl marks these optional, but AIConfig's cache bean needs them -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
@@ -90,14 +96,6 @@
         <dependency>
             <groupId>org.solarframework.mu</groupId>
             <artifactId>mailer-impl</artifactId>
-        </dependency>
-        <!-- OpportunityImpl's trimmed API responses (Fixtures, src/test/resources/api) for the page tests -->
-        <dependency>
-            <groupId>mu.mosaic</groupId>
-            <artifactId>OpportunityImpl</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

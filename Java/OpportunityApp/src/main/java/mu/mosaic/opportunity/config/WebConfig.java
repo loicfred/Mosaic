@@ -10,6 +10,6 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) { // static assets skip the request log
-        registry.addInterceptor(new RequestLoggerInterceptor()).excludePathPatterns("/css/**", "/js/**", "/img/**", "/webjars/**");
+        registry.addInterceptor(new RequestLoggerInterceptor()).excludePathPatterns("/css/**", "/js/**", "/img/**", "/fonts/**", "/webjars/**");
     }
 }

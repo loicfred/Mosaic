@@ -1,0 +1,15 @@
+# 2026-09-24 — Findings inbox, evidence records and period selection
+
+Author: Claude
+
+Finished the fourteen selected features that Codex's session left partial (PF-1, 4, 7, 12, 13, 14 and the route registration), and moved all fourteen into the FR table as FR-14 to FR-17 (FR-4, 5 and 6 now point at the current pages).
+
+Python (`Java/OpportunityApp/config/py/mosaic`):
+- `app/analysis/findings.py` + `app/api/get_findings.py`: `GET /api/findings` lists every check from the sales page (`caveats.sales_checks`, moved out of `get_sales_caveats.py` unchanged) and the three trend pages as `<page>:<id>`. Each finding has `threshold`, `size`, `exposure` (gross item value of the orders involved, labelled "sales exposed") and `records_available`. The list is ranked triggered first, then by exposure. The selection (`app/analysis/selection.py`, Codex's) applies to the request only. Thresholds re-judge trend checks by calling the existing `change_check`/`groups_check`/`gap_check` again, not by copying their rules. The default list is cached in `app.state`, since the data never changes after startup (2.4 s first call, 0.01 s after).
+- `/api/findings/{id}/records` (paginated, all counted or only flagged orders), `/export` (CSV with rule, months, dataset version and `numerator_contribution` on every row) and `/trend/{measure}` (a trend page under a selection). Records exist for the five rate findings in `RECORD_RULES`; on the real data `sales:late_rate_rising` gives 672 of 18,603 on the records page, as on the Sales caveat.
+- Registered `get_financial_views` and `get_findings`. Removed the unused `app/data/evidence.py` and its startup load. `get_trends.py` now reuses `findings.TREND_MEASURES`, and `financial_views._scope` reuses `placed_orders`.
+- Fixed two items from the open list: cancellation exposure counted 0 (it excluded the cancelled orders it is about), and the monthly sales history counted item-less orders it lists as left out (`build_monthly_sales`). The forecast uses sales only, so no retraining. Updated `test_olist.py` and the scenario test, whose response gained `category` and `population`.
+
+Website (`Java/OpportunityApp`): `FindingsController` with `findings.html` (periods, filters, editable thresholds, "Reset to defaults"), `finding.html` (counts, rate, records, pages, CSV download, print), the shared `fragments/items/selection.html`, the top three findings on the Sales page, and the period form on the trend pages (`TrendController` calls `selectedTrend` only when a field is filled). Print CSS in `mosaic.css`. New `FindingsPagesTest`; `PagesRenderTest` stubs the findings call.
+
+Verified: Python `pytest tests -q` 159 passed. The API started on the real data; `/api/health`, `/openapi.json`, every `/api/explore/*` and `/api/findings*` route answered 200, and an out-of-range threshold answered 422. `OpportunityImpl` `mvnw -o install`: 81 tests passed. `OpportunityApp` `mvnw -o test`: 34 passed. Not checked: the pages in Chrome with the live API. That is listed under Outstanding work together with the remaining limits.

@@ -1,17 +1,22 @@
 package mu.mosaic.opportunity.controller;
 
-import mu.mosaic.opportunity.Fixtures;
 import mu.mosaic.opportunity.service.ai.LocalAi;
 import mu.mosaic.opportunity.obj.ApiResult;
+import mu.mosaic.opportunity.obj.Measure;
 import mu.mosaic.opportunity.service.MosaicApi;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JsonParserFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -32,26 +37,43 @@ class PagesRenderTest {
     @MockitoBean MosaicApi api;
     @MockitoBean LocalAi ai;
 
-    private static Map<String, Object> fixture(String name) { return Fixtures.load(name); }
+    /** A real API reply, trimmed, from src/test/resources/api; a fresh, mutable copy each time. */
+    private Map<String, Object> fixture(String name) {
+        try (var in = getClass().getResourceAsStream("/api/" + name + ".json")) {
+            return JsonParserFactory.getJsonParser().parseMap(new String(in.readAllBytes(), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
-    private static ApiResult ok(String name) { return ApiResult.ok(fixture(name)); }
+    private ApiResult ok(String name) { return new ApiResult(fixture(name)); }
+
+    private static final ApiResult FINDINGS = new ApiResult(Map.of("triggered", 1, "ranking_rule", "Triggered checks first.", "dataset_version", "abc123", "limitations", List.of("Coincidence is not cause."),
+            "checks", List.of(Map.of("finding_id", "sales:late_rate_rising", "page", "sales", "title", "Late deliveries are becoming more common",
+                    "triggered", true, "records_available", true, "exposure", Map.of("sales", 400.0, "basis", "orders in the numerator")))));
+
+    @BeforeEach
+    void findingsAnswer() { when(api.findings(anyMap())).thenReturn(FINDINGS); }
 
     @Test
-    void overviewShowsTheForecastWithItsEvidenceBehindAButton() throws Exception {
+    void salesPageShowsTheForecastWithItsEvidenceBehindATab() throws Exception {
         when(api.salesHistory()).thenReturn(ok("history"));
         when(api.salesForecast(anyInt())).thenReturn(ok("forecast"));
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("sales-chart"),
-                containsString(">Show evidence</button>"),
-                containsString(">Suggest investment</button>"),
-                containsString(">View possible caveats</button>"),
+                containsString("<title>Mosaic - Sales</title>"),
+                containsString("sales-chart"), containsString("Forecast for 2018-09"),
+                matchesRegex("(?s).*<a href=\"/\" aria-current=\"page\">.*"),
+                containsString(">Evidence</button>"),
+                containsString(">Suggested opportunity</button>"), containsString("data-ask=\"/api/overview/advice/ask\""),
+                containsString(">Possible caveats</button>"),
                 containsString("data-url=\"/api/overview/caveats\""),
+                containsString("href=\"/findings/sales:late_rate_rising\""),
                 matchesRegex("(?s).*<div id=\"evidence-panel\" class=\"mt-3\" hidden>.*scored better than the model.*not counted as sales.*"))));
     }
 
     @Test
-    void overviewStillRendersWhenTheApiIsDown() throws Exception {
-        ApiResult down = ApiResult.failed(DOWN);
+    void salesPageStillRendersWhenTheApiIsDown() throws Exception {
+        ApiResult down = new ApiResult(DOWN, 502);
         when(api.salesHistory()).thenReturn(down);
         when(api.salesForecast(anyInt())).thenReturn(down);
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(containsString(DOWN)));
@@ -59,7 +81,7 @@ class PagesRenderTest {
 
     @Test
     void untrainedForecastIsReportedAndHistoryStillShows() throws Exception {
-        ApiResult untrained = ApiResult.failed("No trained sales_forecast model found.");
+        ApiResult untrained = new ApiResult("No trained sales_forecast model found.", 503);
         when(api.salesHistory()).thenReturn(ok("history"));
         when(api.salesForecast(anyInt())).thenReturn(untrained);
         mvc.perform(get("/")).andExpect(status().isOk()).andExpect(content().string(allOf(
@@ -67,97 +89,51 @@ class PagesRenderTest {
     }
 
     @Test
-    void categoryListWithoutAFilterShowsAll() throws Exception {
-        when(api.categories(isNull())).thenReturn(ok("categories"));
-        mvc.perform(get("/categories")).andExpect(status().isOk()).andExpect(content().string(containsString("Health beauty")));
+    void eachTrendPageShowsItsChartButtonsAndEvidence() throws Exception {
+        for (Measure m : Measure.values()) {
+            when(api.trend(m)).thenReturn(ok("trend-" + m.path() + "-trend"));
+            mvc.perform(get("/" + m.path())).andExpect(status().isOk()).andExpect(content().string(allOf(
+                    containsString("<title>Mosaic - " + m.title() + "</title>"),
+                    containsString(m.question()),
+                    containsString("id=\"trend-chart\""),
+                    containsString(">Suggested opportunity</button>"),
+                    containsString("data-url=\"/api/trend/" + m.path() + "/advice\""),
+                    containsString("data-url=\"/api/trend/" + m.path() + "/caveats\""),
+                    matchesRegex("(?s).*<a href=\"/" + m.path() + "\" aria-current=\"page\">.*"))));
+        }
     }
 
     @Test
-    void categoryListFiltersOnlyByKnownFlags() throws Exception {
-        when(api.categories(isNull())).thenReturn(ok("categories"));
-        mvc.perform(get("/categories").param("flag", "drop table")).andExpect(status().isOk())
-                .andExpect(content().string(allOf(containsString("Health beauty"), containsString("/categories/health_beauty"))));
-    }
-
-    @Test
-    void categoryEvidenceIsReadable() throws Exception {
-        when(api.category("sports_leisure")).thenReturn(ok("category"));
-        mvc.perform(get("/categories/sports_leisure")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("Flagged: this category trails the business"),
-                containsString("−15.5 pp"),
-                containsString("Flag when the gap is −10.0 pp or lower"),
-                containsString("Not flagged: the latest month is within its usual swing."))));
-    }
-
-    @Test
-    void pagesShareTheShellWithSidebarAndBreadcrumbs() throws Exception {
-        when(api.category("sports_leisure")).thenReturn(ok("category"));
-        mvc.perform(get("/categories/sports_leisure")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("<title>Mosaic - Sports leisure</title>"),
-                containsString("id=\"sidebar\""),
-                matchesRegex("(?s).*<a href=\"/categories\" aria-current=\"page\">.*"),
-                matchesRegex("(?s).*aria-label=\"Breadcrumb\".*<a href=\"/\"[^>]*>Overview</a>.*<a href=\"/categories\"[^>]*>Category health</a>\\s*</li>\\s*<li[^>]*aria-current=\"page\">\\s*<span>Sports leisure</span>.*"),
-                containsString("Every number comes from the Mosaic analytics API"))));
+    void deliveryPageStatesTheChangeWithItsFigures() throws Exception {
+        when(api.trend(Measure.DELIVERY)).thenReturn(ok("trend-delivery-trend"));
+        mvc.perform(get("/delivery")).andExpect(status().isOk()).andExpect(content().string(allOf(
+                containsString("3.6%"), containsString("10.1%"), containsString("−6.5 pp"),
+                containsString("That is an improvement."),
+                containsString("2018-06, 2018-07, 2018-08"),
+                containsString("The most recent months can still have orders on their way"))));
     }
 
     @Test
     @SuppressWarnings("unchecked")
-    void shortHistoryCategoryExplainsWhatWasNotChecked() throws Exception {
-        Map<String, Object> c = fixture("category");
-        ((Map<String, Object>) c.get("evidence")).put("latest_month_anomaly", Map.of("reason", "insufficient_history", "months_available", 4));
-        c.put("forecast", null);
-        c.put("forecast_reason", "insufficient_history");
-        when(api.category("new_thing")).thenReturn(ApiResult.ok(c));
-        mvc.perform(get("/categories/new_thing")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("only 4 earlier months"), containsString("does not have enough monthly history"))));
+    void aMeasureThatDidNotImproveSaysSo() throws Exception {
+        Map<String, Object> trend = fixture("trend-reviews-trend");
+        ((Map<String, Object>) trend.get("trend")).put("improving", false);
+        when(api.trend(Measure.REVIEWS)).thenReturn(new ApiResult(trend));
+        mvc.perform(get("/reviews")).andExpect(status().isOk())
+                .andExpect(content().string(containsString("That is not an improvement")));
     }
 
     @Test
-    void riskPageShowsScoresNotChances() throws Exception {
-        when(api.deliverySummary()).thenReturn(ok("delivery-summary"));
-        when(api.openOrders(anyInt())).thenReturn(ok("open-orders"));
-        when(api.sellers(anyInt(), anyInt())).thenReturn(ok("sellers"));
-        when(api.reviewSummary()).thenReturn(ok("review-summary"));
-        when(api.unreviewed(anyInt())).thenReturn(ok("unreviewed"));
-        mvc.perform(get("/risk")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("62.4%"), containsString("not a percentage chance"), containsString("no recent orders"), containsString(">92<"))));
+    void trendPageStillRendersWhenTheApiIsDown() throws Exception {
+        when(api.trend(Measure.SELLERS)).thenReturn(new ApiResult(DOWN, 502));
+        mvc.perform(get("/sellers")).andExpect(status().isOk()).andExpect(content().string(allOf(
+                containsString(DOWN), not(containsString("trend-chart")))));
     }
 
     @Test
-    void riskPageHandlesUntrainedModels() throws Exception {
-        Map<String, Object> summary = fixture("delivery-summary");
-        summary.put("model", null);
-        when(api.deliverySummary()).thenReturn(ApiResult.ok(summary));
-        when(api.openOrders(anyInt())).thenReturn(ApiResult.failed("No trained late_delivery model found."));
-        when(api.sellers(anyInt(), anyInt())).thenReturn(ok("sellers"));
-        when(api.reviewSummary()).thenReturn(ok("review-summary"));
-        when(api.unreviewed(anyInt())).thenReturn(ApiResult.failed("No trained low_review model found."));
-        mvc.perform(get("/risk")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("Not trained yet"), containsString("No trained late_delivery model found."), containsString("No trained low_review model found."))));
-    }
-
-    @Test
-    void firstScenarioVisitAsksForTheExplanation() throws Exception {
-        when(api.salesImpact(3, 20.0)).thenReturn(ok("scenario"));
-        when(ai.status()).thenReturn(new LocalAi.Status(false, false, null, null));
-        mvc.perform(get("/scenario")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("+1,253 on the recent average"),
-                containsString("association fitted on 20 months"),
-                containsString("41 of 1,810"),
-                containsString("exposure, not money lost"),
-                containsString("A 20% change in sales over the next 3 months would mean about 7,520 orders a month"),
-                containsString("Written from a fixed template."),
-                not(containsString("data-summary-url")),
-                containsString("Local AI: switched off."))));
-    }
-
-    @Test
-    void theAiSummaryIsAskedForAfterThePageOnlyWhenWantedAndReachable() throws Exception {
-        when(api.salesImpact(3, 20.0)).thenReturn(ok("scenario"));
-        when(ai.status()).thenReturn(new LocalAi.Status(true, true, "fake-model", true));
-        mvc.perform(get("/scenario")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("data-summary-url=\"/api/scenario/summary?change=20.0&amp;horizon=3\""), containsString("Local AI: connected (fake-model)"))));
-        mvc.perform(get("/scenario").param("run", "1")).andExpect(status().isOk()).andExpect(content().string(not(containsString("data-summary-url"))));
+    void removedPagesAreGone() throws Exception {
+        for (String path : List.of("/categories", "/risk", "/scenario"))
+            mvc.perform(get(path)).andExpect(status().isNotFound());
     }
 
     @Test
@@ -166,30 +142,13 @@ class PagesRenderTest {
                 "/api/health", Map.of("get", Map.of("summary", "Health")),
                 "/api/scenarios/sales-impact", Map.of("post", Map.of("summary", "Sales Impact", "requestBody", Map.of())),
                 "/api/sales/forecast", Map.of("get", Map.of("summary", "Sales Forecast", "parameters", List.of(Map.of("name", "horizon"))))));
-        when(api.openApi()).thenReturn(ApiResult.ok(openapi));
-        when(api.datasets()).thenReturn(ApiResult.ok(Map.of("files", List.of(Map.of("file", "olist_orders_dataset.csv", "columns", List.of("order_id", "order_status"))))));
-        when(api.health()).thenReturn(ApiResult.failed(DOWN));
+        when(api.openApi()).thenReturn(new ApiResult(openapi));
+        when(api.datasets()).thenReturn(new ApiResult(Map.of("files", List.of(Map.of("file", "olist_orders_dataset.csv", "columns", List.of("order_id", "order_status"))))));
+        when(api.health()).thenReturn(new ApiResult(DOWN, 502));
         mvc.perform(get("/help")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("<code>/help</code>"), containsString("<code>/api/assistant</code>"),
+                containsString("<code>/help</code>"), containsString("<code>/api/overview/advice</code>"),
                 containsString("<code>/api/scenarios/sales-impact</code>"), containsString("JSON body"), containsString(">horizon<"),
                 containsString("olist_orders_dataset.csv"), containsString(">order_status<"),
                 containsString(DOWN))));
-    }
-
-    @Test
-    void everyPageCarriesTheAssistantWithItsContext() throws Exception {
-        when(api.category("sports_leisure")).thenReturn(ok("category"));
-        mvc.perform(get("/categories/sports_leisure")).andExpect(status().isOk()).andExpect(content().string(allOf(
-                containsString("id=\"assistant\""), containsString("data-context=\"category sports_leisure\""), containsString("/js/assistant.js"))));
-    }
-
-    @Test
-    void submittedScenarioWithoutTheCheckboxSkipsTheExplanation() throws Exception {
-        Map<String, Object> none = fixture("scenario");
-        none.put("consequences", null);
-        none.put("reason", "no_baseline_activity");
-        when(api.salesImpact(6, -50.0)).thenReturn(ApiResult.ok(none));
-        mvc.perform(get("/scenario").param("run", "1").param("change", "-50").param("horizon", "6")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("there were no sales in the recent months")));
     }
 }

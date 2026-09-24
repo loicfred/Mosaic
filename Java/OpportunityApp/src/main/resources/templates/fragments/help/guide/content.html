@@ -36,26 +36,13 @@
     </article>
 
     <article class="doc-page" id="guide-screens">
-        <h2>The four screens</h2>
-        <p class="doc-lead">Start on the Overview; each screen links to the evidence behind what it shows.</p>
+        <h2>The four data pages</h2>
+        <p class="doc-lead">Start on Sales; each page links to the evidence behind what it shows.</p>
         <div class="doc-screens">
-            <a class="doc-screen" th:href="@{/}"><b>Overview</b><span>The sales forecast, with buttons for its evidence, an investment suggestion and the possible caveats behind it.</span></a>
-            <a class="doc-screen" th:href="@{/categories}"><b>Category health</b><span>Every category against the whole business. Open one to see the rule that flagged it and its inputs.</span></a>
-            <a class="doc-screen" th:href="@{/risk}"><b>Delivery and reviews</b><span>Late deliveries, the low reviews that follow them, the riskiest open orders and the least reliable sellers.</span></a>
-            <a class="doc-screen" th:href="@{/scenario}"><b>What if sales change?</b><span>Move the sliders to see orders, late deliveries, low reviews and sellers pushed past their busiest month.</span></a>
-        </div>
-    </article>
-
-    <article class="doc-page" id="guide-assistant">
-        <h2>Asking the assistant</h2>
-        <p class="doc-lead">The <b>Ask Mosaic</b> button opens a chat on any page, and it knows which page you are on.</p>
-        <p>On a category, "why is this flagged?" is enough. The assistant can only read the same figures the site shows,
-            through a fixed set of tools, and it links to the page with the evidence. <b>New</b> starts a fresh conversation.</p>
-
-        <div class="doc-faq">
-            <h3>Common questions</h3>
-            <th:block th:replace="~{/fragments/help/guide/content :: question('guide-assistant-q0', 'Why was an answer withheld?',
-                'Before an answer is shown, every number in it is checked against what the tools returned. An answer with a figure that is not in the data is withheld, and you are told so.')}"></th:block>
+            <a class="doc-screen" th:href="@{/}"><b>Sales</b><span>The sales forecast, with tabs for its evidence, an investment suggestion and the possible caveats behind it.</span></a>
+            <a class="doc-screen" th:href="@{/delivery}"><b>Delivery</b><span>The late-delivery rate by month, the customer states where it improved most, and what could hide behind faster delivery.</span></a>
+            <a class="doc-screen" th:href="@{/reviews}"><b>Reviews</b><span>The share of 1 or 2 star reviews, the categories where reviews improved while sales grew, and what could hide behind it.</span></a>
+            <a class="doc-screen" th:href="@{/sellers}"><b>Sellers</b><span>Active sellers a month, the categories where new sellers also find more orders, and what could hide behind a growing seller base.</span></a>
         </div>
     </article>
 
@@ -64,14 +51,14 @@
         <p class="doc-lead">Start the website; it starts the Python analytics API itself and stops it when it stops.</p>
         <ol>
             <li>Start the website. The data takes a few seconds to load.</li>
-            <li>For the plain-language summary and the assistant, run LM Studio with the model named in <code>config/ai/agents.json</code>.</li>
-            <li>A local model can take a minute or two. The scenario page does not wait: its fixed summary is replaced when the model answers.</li>
+            <li>For the plain-language summaries, run LM Studio with the model named in <code>config/ai/agents.json</code>.</li>
+            <li>A local model can take a minute or two. The pages do not wait for it: the suggestion and caveats are asked for only when their button is pressed.</li>
         </ol>
 
         <div class="doc-faq">
             <h3>Common questions</h3>
             <th:block th:replace="~{/fragments/help/guide/content :: question('guide-running-q0', 'What if LM Studio is not running?',
-                'The scenario keeps its fixed summary and the assistant says it is offline. Every figure, chart and evidence table still works.')}"></th:block>
+                'The scenario, suggestion and caveats keep their fixed summaries. Every figure, chart and evidence table still works.')}"></th:block>
         </div>
     </article>
 </section>

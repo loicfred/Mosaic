@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{/fragments/head :: pageHead('Finding evidence')}"></th:block>
+</head>
+<body>
+<header th:replace="~{/fragments/header :: mainHeader}" id="master-header"></header>
+<main class="mod-page mx-auto" th:with="base=|/findings/${findingId}${#strings.isEmpty(query) ? '?' : query + '&'}|">
+    <section class="page-head">
+        <p class="eyebrow">Evidence behind a finding</p>
+        <h1 class="question" th:text="${findingId}">sales:late_rate_rising</h1>
+        <div th:replace="~{/fragments/items/notice :: error(${recordsError})}"></div>
+        <p class="no-print" th:if="${recordsError != null}"><a href="/findings">Back to all findings</a></p>
+    </section>
+
+    <th:block th:if="${records != null}" th:with="s=${records.summary}">
+        <section class="mod-card obs">
+            <h2 class="h5">How the rate was counted</h2>
+            <p th:text="${s.rule}"></p>
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Recent months</dt><dd class="col-sm-8" th:text="${#strings.listJoin(s.recent_months, ', ')}"></dd>
+                <dt class="col-sm-4">Orders counted (denominator)</dt><dd class="col-sm-8" th:text="${@format.num(s.denominator_orders, 0)}"></dd>
+                <dt class="col-sm-4">Orders flagged (numerator)</dt><dd class="col-sm-8" th:text="${@format.num(s.numerator_orders, 0)}"></dd>
+                <dt class="col-sm-4">Rate, recent months</dt><dd class="col-sm-8" th:text="${s.value == null} ? 'Not available: no orders' : ${@format.rate(s.value, 1)}"></dd>
+                <dt class="col-sm-4">Rate, comparison months</dt><dd class="col-sm-8" th:text="${s.previous_value == null} ? 'Not available' : |${@format.rate(s.previous_value, 1)} (${#strings.listJoin(s.previous_months, ', ')})|"></dd>
+                <dt class="col-sm-4">Gross item value of these orders</dt><dd class="col-sm-8" th:text="${@format.brl(s.sales)}"></dd>
+            </dl>
+        </section>
+
+        <section class="mt-4">
+            <p class="no-print">
+                Showing: <a th:href="|${base}population=denominator|">every order counted</a> ·
+                <a th:href="|${base}population=numerator|">only the flagged orders</a> ·
+                <a th:href="|/findings/${findingId}/export${query}${#strings.isEmpty(query) ? '?' : '&'}population=${records.population}|">Download CSV</a> ·
+                <button type="button" class="btn btn-link p-0 align-baseline" onclick="window.print()">Print summary</button>
+            </p>
+            <p th:text="|${@format.num(records.total, 0)} ${records.population == 'numerator' ? 'flagged' : 'counted'} orders, page ${records.page}.|"></p>
+            <p th:if="${records.total == 0}">No orders match this finding and selection.</p>
+            <div class="mod-table table-responsive" th:if="${records.total > 0}">
+                <table class="table">
+                    <thead><tr><th scope="col" th:each="k : ${records.records[0].keySet()}" th:text="${@format.label(k)}"></th></tr></thead>
+                    <tbody><tr th:each="r : ${records.records}"><td th:each="v : ${r.values()}" th:text="${v == null} ? '—' : ${v}"></td></tr></tbody>
+                </table>
+            </div>
+            <nav class="no-print" aria-label="Pages" th:with="last=${(records.total + records.page_size - 1) / records.page_size}">
+                <a th:if="${records.page > 1}" th:href="|${base}population=${records.population}&page=${records.page - 1}|">Previous page</a>
+                <a th:if="${records.page < last}" th:href="|${base}population=${records.population}&page=${records.page + 1}|">Next page</a>
+            </nav>
+        </section>
+    </th:block>
+</main>
+<footer th:replace="~{/fragments/footer :: mainFooter}" id="master-footer"></footer>
+</body>
+</html>

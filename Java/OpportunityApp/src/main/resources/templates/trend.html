@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{/fragments/head :: pageHead(${measure.title})}"></th:block>
+    <script th:src="@{/js/trend.js}" defer></script>
+</head>
+<body>
+
+<header th:replace="~{/fragments/header :: mainHeader}" id="master-header"></header>
+
+<main class="mod-page mx-auto">
+    <section class="page-head">
+        <nav th:replace="~{/fragments/items/pages :: pageSwitch}"></nav>
+        <h1 class="question" th:text="${measure.question}">Are deliveries getting faster?</h1>
+        <p class="answer" th:if="${trend != null}">
+            <th:block th:text="|${trend.label}:|">Late-delivery rate:</th:block>
+            <span class="v" th:classappend="${trend.trend.improving} ? '' : 'bad'" th:text="${@format.unit(trend.unit, trend.trend.recent.value)}">3.6%</span>
+            <th:block th:text="${selection.isEmpty()} ? 'in the last 3 months, against' : |in ${#strings.listJoin(trend.trend.recent_months, ', ')}, against|">in the last 3 months, against</th:block>
+            <span class="v" th:text="${@format.unit(trend.unit, trend.trend.previous.value)}">10.1%</span>
+            <th:block th:text="${selection.isEmpty()} ? 'in the 3 before' : |in ${#strings.listJoin(trend.trend.previous_months, ', ')}|">in the 3 before</th:block> (<th:block th:text="${@format.unitChange(trend.trend)}">−6.5 pp</th:block>).
+        </p>
+        <p class="verdict" th:if="${trend != null}" th:classappend="${trend.trend.improving} ? 'good' : ''"
+           th:text="${trend.trend.improving} ? 'That is an improvement. The tabs below show where it points to an opportunity, and what could hide behind it.' : 'That is not an improvement, so there is no opportunity to suggest; the caveats still apply.'"></p>
+        <div th:replace="~{/fragments/items/notice :: error(${trendError})}"></div>
+        <details class="mod-card mt-3" th:open="${!selection.isEmpty()}">
+            <summary>Test this with other periods, a category or a customer state</summary>
+            <form method="get" th:action="|/${measure.path}|">
+                <fieldset th:replace="~{/fragments/items/selection :: fields(${selection})}"></fieldset>
+                <button class="btn btn-primary mt-3" type="submit">Apply</button> <a th:href="|/${measure.path}|">Reset</a>
+            </form>
+            <p class="small mt-3 mb-0" th:if="${!selection.isEmpty()}">The chart and comparison use this selection. The tabs below still use the default windows;
+                <a th:href="|/findings${query}|">see every check under this selection</a>.</p>
+        </details>
+    </section>
+    <section th:replace="~{/fragments/trend/page :: page}"></section>
+</main>
+
+<footer th:replace="~{/fragments/footer :: mainFooter}" id="master-footer"></footer>
+</body>
+</html>

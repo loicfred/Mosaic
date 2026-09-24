@@ -23,7 +23,7 @@ final class ModuleHome {
             System.setProperty(SolarHome.PROPERTY, home.toString());
         }
         setIfAbsent("spring.config.import", "optional:file:" + home.resolve(".env") + "[.properties]");
-        setIfAbsent("mosaic.data.source-dir", home.resolve("../../AI/datasets").normalize().toString());
+        setIfAbsent("mosaic.data.source-dir", home.resolve("config/py/mosaic/datasets").normalize().toString());
     }
 
     /** The module folder: the one holding the pom.xml above target/classes or the packaged jar; null when run from elsewhere. */
