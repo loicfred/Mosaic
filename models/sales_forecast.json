@@ -1,0 +1,153 @@
+{
+  "model_version": "sales-ridge-v1",
+  "trained_at": "2026-09-23T07:20:52+00:00",
+  "data_range": {
+    "start": "2017-01",
+    "end": "2018-08"
+  },
+  "n_months": 20,
+  "dataset_hashes": {
+    "olist_orders_dataset.csv": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+    "olist_order_items_dataset.csv": "0bc4d068c4fe38cbb01bd90e8746e3c613fe7b4baef75fab7b0e329701c3e279"
+  },
+  "feature_names": [
+    "trend",
+    "lag_1",
+    "lag_2",
+    "lag_3",
+    "mean_last_3"
+  ],
+  "evaluation": {
+    "model": {
+      "mae": 92044.61814336477,
+      "mape": 10.412307198255691,
+      "skipped_zero_actuals": 0,
+      "points": [
+        {
+          "month_index": 14,
+          "actual": 981051.06,
+          "predicted": 995926.4428571488
+        },
+        {
+          "month_index": 15,
+          "actual": 993592.98,
+          "predicted": 983489.9702052125
+        },
+        {
+          "month_index": 16,
+          "actual": 992871.75,
+          "predicted": 1058637.9094489801
+        },
+        {
+          "month_index": 17,
+          "actual": 863265.53,
+          "predicted": 1082804.2623220847
+        },
+        {
+          "month_index": 18,
+          "actual": 878044.27,
+          "predicted": 1036706.8692114674
+        },
+        {
+          "month_index": 19,
+          "actual": 848860.1,
+          "predicted": 932181.92522572
+        }
+      ]
+    },
+    "naive_last": {
+      "mae": 54997.984999999986,
+      "mape": 6.0102758911963035,
+      "skipped_zero_actuals": 0,
+      "points": [
+        {
+          "month_index": 14,
+          "actual": 981051.06,
+          "predicted": 837895.43
+        },
+        {
+          "month_index": 15,
+          "actual": 993592.98,
+          "predicted": 981051.06
+        },
+        {
+          "month_index": 16,
+          "actual": 992871.75,
+          "predicted": 993592.98
+        },
+        {
+          "month_index": 17,
+          "actual": 863265.53,
+          "predicted": 992871.75
+        },
+        {
+          "month_index": 18,
+          "actual": 878044.27,
+          "predicted": 863265.53
+        },
+        {
+          "month_index": 19,
+          "actual": 848860.1,
+          "predicted": 878044.27
+        }
+      ]
+    },
+    "mean_last_3": {
+      "mae": 87832.6394444444,
+      "mape": 9.526760821849818,
+      "skipped_zero_actuals": 0,
+      "points": [
+        {
+          "month_index": 14,
+          "actual": 981051.06,
+          "predicted": 841845.17
+        },
+        {
+          "month_index": 15,
+          "actual": 993592.98,
+          "predicted": 921467.5933333334
+        },
+        {
+          "month_index": 16,
+          "actual": 992871.75,
+          "predicted": 937513.1566666667
+        },
+        {
+          "month_index": 17,
+          "actual": 863265.53,
+          "predicted": 989171.93
+        },
+        {
+          "month_index": 18,
+          "actual": 878044.27,
+          "predicted": 949910.0866666666
+        },
+        {
+          "month_index": 19,
+          "actual": 848860.1,
+          "predicted": 911393.85
+        }
+      ]
+    }
+  },
+  "residual_std": 79352.09577455475,
+  "exclusions": {
+    "statuses": {
+      "canceled": 625,
+      "unavailable": 609
+    },
+    "orders_without_items": 8,
+    "months_outside_range": {
+      "2016-09": 2,
+      "2016-10": 293,
+      "2016-12": 1,
+      "2018-09": 1
+    }
+  },
+  "limitations": [
+    "Trained on about 20 monthly observations; treat the forecast as a trend indicator, not a guarantee.",
+    "No seasonal term: the single November 2017 peak cannot be learned as a recurring pattern.",
+    "Sales are gross item prices booked by purchase month, not profit and not cash received.",
+    "Prediction interval width comes from one-step backtest errors and is applied to every horizon."
+  ]
+}

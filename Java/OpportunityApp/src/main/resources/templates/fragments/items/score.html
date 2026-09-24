@@ -1,7 +1,0 @@
-<!-- A 0-1 model ranking shown as a 0-100 bar, never as a percentage chance. -->
-<td th:fragment="score(risk)">
-    <div class="score">
-        <div class="mod-bar-track"><div class="mod-bar-fill" th:style="|width: ${@format.score(risk)}%|"></div></div>
-        <b th:text="${@format.score(risk)}"></b>
-    </div>
-</td>

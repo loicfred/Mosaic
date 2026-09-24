@@ -1,0 +1,49 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "API (FastAPI :8000)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\backend\\.venv\\Scripts\\python.exe -m uvicorn app.main:app --port 8000 --reload",
+      "options": { "cwd": "${workspaceFolder}\\backend" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "app", "panel": "dedicated" }
+    },
+    {
+      "label": "Web (Vite :5173)",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": { "cwd": "${workspaceFolder}\\frontend" },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": { "group": "app", "panel": "dedicated" }
+    },
+    {
+      "label": "Run OpportunityOS",
+      "dependsOn": ["API (FastAPI :8000)", "Web (Vite :5173)"],
+      "problemMatcher": []
+    },
+    {
+      "label": "Reset demo data",
+      "type": "shell",
+      "command": "${workspaceFolder}\\backend\\.venv\\Scripts\\python.exe scripts\\seed_demo.py",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "First-time setup (after creating the database)",
+      "type": "shell",
+      "command": "python -m venv backend\\.venv; backend\\.venv\\Scripts\\python.exe -m pip install -r backend\\requirements-dev.txt; backend\\.venv\\Scripts\\python.exe scripts\\bootstrap.py; cd frontend; npm install",
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run backend tests",
+      "type": "shell",
+      "command": "${workspaceFolder}\\backend\\.venv\\Scripts\\python.exe -m pytest",
+      "options": { "cwd": "${workspaceFolder}\\backend" },
+      "problemMatcher": []
+    }
+  ]
+}

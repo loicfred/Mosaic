@@ -1,0 +1,122 @@
+{
+  "model_version": "late_delivery-hgb-v1",
+  "trained_at": "2026-09-23T07:21:04+00:00",
+  "label": "late",
+  "prediction_time": "at_purchase",
+  "split_date": "2018-06-01",
+  "test_end": "2018-09-01",
+  "dataset_hashes": {
+    "olist_orders_dataset.csv": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+    "olist_order_items_dataset.csv": "0bc4d068c4fe38cbb01bd90e8746e3c613fe7b4baef75fab7b0e329701c3e279",
+    "olist_products_dataset.csv": "3e6569628a17fbc75fd206ee357b59e20364b9afa90f5b6cd5b4d624c58aa9cc",
+    "olist_sellers_dataset.csv": "1f643d2b950373b85735e7794b20986f528d7a000432e7c6f9bcbb44d0846a0e",
+    "olist_customers_dataset.csv": "983a422239e1712ded753b3bf9ecf47dc73f144d306029dcfa99e70a226883d2",
+    "olist_geolocation_dataset.csv": "b514f6fc991b9566aeba02aa5d67e2c3630f034b60a0e05aa0d082a3b66d88d6",
+    "olist_order_reviews_dataset.csv": "012b61c7593e34f51fa614efdf802b9c7056ce6aae5307ddb93236e7cfc797d7",
+    "product_category_name_translation.csv": "a81f0d1f27b27e7293f761bc79e3ce8f348ee39c4b3ed3e49bde38f478586278"
+  },
+  "feature_names": [
+    "n_items",
+    "n_sellers",
+    "total_price",
+    "total_freight",
+    "freight_ratio",
+    "total_weight_g",
+    "max_volume_cm3",
+    "category",
+    "seller_state",
+    "customer_state",
+    "same_state",
+    "distance_km",
+    "purchase_month",
+    "purchase_weekday",
+    "promised_days",
+    "seller_prior_orders",
+    "seller_prior_late_rate"
+  ],
+  "categorical_features": [
+    "category",
+    "seller_state",
+    "customer_state"
+  ],
+  "evaluation": {
+    "n_train": 77867,
+    "n_test": 18603,
+    "n_positive_test": 672,
+    "base_rate": 0.03612320593452669,
+    "roc_auc": 0.6821020758144315,
+    "average_precision": 0.0674753658536001,
+    "top_10pct": {
+      "threshold": 0.5781176591228019,
+      "flagged": 1861,
+      "precision": 0.07092960773777539,
+      "recall": 0.19642857142857142
+    }
+  },
+  "importances": [
+    {
+      "feature": "promised_days",
+      "auc_drop_mean": 0.1861748391984087,
+      "auc_drop_std": 0.0025227672580778035
+    },
+    {
+      "feature": "seller_prior_late_rate",
+      "auc_drop_mean": 0.011690962844342434,
+      "auc_drop_std": 0.003940632295158381
+    },
+    {
+      "feature": "customer_state",
+      "auc_drop_mean": 0.01013474934338241,
+      "auc_drop_std": 0.0024355436547103112
+    },
+    {
+      "feature": "category",
+      "auc_drop_mean": 0.007401869202312538,
+      "auc_drop_std": 0.0024334596257817908
+    },
+    {
+      "feature": "n_sellers",
+      "auc_drop_mean": 0.00410199249238481,
+      "auc_drop_std": 0.0014831492930389213
+    },
+    {
+      "feature": "n_items",
+      "auc_drop_mean": 0.0015995094290016665,
+      "auc_drop_std": 0.0017541184849961902
+    },
+    {
+      "feature": "seller_prior_orders",
+      "auc_drop_mean": 0.0010839501156549637,
+      "auc_drop_std": 0.0006455783413997526
+    },
+    {
+      "feature": "seller_state",
+      "auc_drop_mean": 0.0008632794760869089,
+      "auc_drop_std": 0.0012132265453117569
+    },
+    {
+      "feature": "purchase_weekday",
+      "auc_drop_mean": 0.0003691233060063359,
+      "auc_drop_std": 0.00016561068291913897
+    },
+    {
+      "feature": "total_weight_g",
+      "auc_drop_mean": -2.0996491843106035e-05,
+      "auc_drop_std": 0.0003850561689445201
+    }
+  ],
+  "exclusions": {
+    "delivered_without_delivery_date": 8,
+    "orders_without_items": 775,
+    "orders_without_geolocation": 489,
+    "delivered_without_review": 646,
+    "orders_with_multiple_reviews": 547
+  },
+  "limitations": [
+    "Scores are ranking signals from a class-balanced model, not calibrated probabilities.",
+    "Late orders purchased near the end of the data may still be undelivered, so recent late rates are under-counted.",
+    "Seller history uses earlier orders by purchase date; a prior order's outcome may not have been known yet at that time.",
+    "Feature importance measures association on held-out data, not cause.",
+    "Trained on a Brazilian marketplace (Olist, 2017-2018); it describes that data only."
+  ]
+}

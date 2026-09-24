@@ -1,0 +1,126 @@
+{
+  "model_version": "low_review-hgb-v1",
+  "trained_at": "2026-09-23T07:21:12+00:00",
+  "label": "low_review",
+  "prediction_time": "after_delivery",
+  "split_date": "2018-06-01",
+  "test_end": "2018-09-01",
+  "dataset_hashes": {
+    "olist_orders_dataset.csv": "8df58ef3d2d7e9944010f7beecd9b75367f5588ec6e3c91cec19ae3345ef9ecf",
+    "olist_order_items_dataset.csv": "0bc4d068c4fe38cbb01bd90e8746e3c613fe7b4baef75fab7b0e329701c3e279",
+    "olist_products_dataset.csv": "3e6569628a17fbc75fd206ee357b59e20364b9afa90f5b6cd5b4d624c58aa9cc",
+    "olist_sellers_dataset.csv": "1f643d2b950373b85735e7794b20986f528d7a000432e7c6f9bcbb44d0846a0e",
+    "olist_customers_dataset.csv": "983a422239e1712ded753b3bf9ecf47dc73f144d306029dcfa99e70a226883d2",
+    "olist_geolocation_dataset.csv": "b514f6fc991b9566aeba02aa5d67e2c3630f034b60a0e05aa0d082a3b66d88d6",
+    "olist_order_reviews_dataset.csv": "012b61c7593e34f51fa614efdf802b9c7056ce6aae5307ddb93236e7cfc797d7",
+    "product_category_name_translation.csv": "a81f0d1f27b27e7293f761bc79e3ce8f348ee39c4b3ed3e49bde38f478586278"
+  },
+  "feature_names": [
+    "n_items",
+    "n_sellers",
+    "total_price",
+    "total_freight",
+    "freight_ratio",
+    "total_weight_g",
+    "max_volume_cm3",
+    "category",
+    "seller_state",
+    "customer_state",
+    "same_state",
+    "distance_km",
+    "purchase_month",
+    "purchase_weekday",
+    "promised_days",
+    "seller_prior_orders",
+    "seller_prior_late_rate",
+    "delivery_days",
+    "days_late",
+    "late",
+    "handover_late"
+  ],
+  "categorical_features": [
+    "category",
+    "seller_state",
+    "customer_state"
+  ],
+  "evaluation": {
+    "n_train": 79781,
+    "n_test": 18873,
+    "n_positive_test": 2065,
+    "base_rate": 0.10941556721241986,
+    "roc_auc": 0.7387837481978489,
+    "average_precision": 0.4067050755911336,
+    "top_10pct": {
+      "threshold": 0.5416751165472276,
+      "flagged": 1888,
+      "precision": 0.444385593220339,
+      "recall": 0.4062953995157385
+    }
+  },
+  "importances": [
+    {
+      "feature": "n_items",
+      "auc_drop_mean": 0.054827733939678255,
+      "auc_drop_std": 0.0034944539188208608
+    },
+    {
+      "feature": "days_late",
+      "auc_drop_mean": 0.03604255957903133,
+      "auc_drop_std": 0.0012473774650907596
+    },
+    {
+      "feature": "category",
+      "auc_drop_mean": 0.02004915795891038,
+      "auc_drop_std": 0.002966130876640398
+    },
+    {
+      "feature": "delivery_days",
+      "auc_drop_mean": 0.01985555996049391,
+      "auc_drop_std": 0.0030539756409829148
+    },
+    {
+      "feature": "max_volume_cm3",
+      "auc_drop_mean": 0.011470290291836127,
+      "auc_drop_std": 0.0014804210554209898
+    },
+    {
+      "feature": "promised_days",
+      "auc_drop_mean": 0.0035988339462472707,
+      "auc_drop_std": 0.0011790835089329605
+    },
+    {
+      "feature": "seller_state",
+      "auc_drop_mean": 0.0033279091128058046,
+      "auc_drop_std": 0.0017361515383672954
+    },
+    {
+      "feature": "n_sellers",
+      "auc_drop_mean": 0.002469082519220134,
+      "auc_drop_std": 0.0003408588986766393
+    },
+    {
+      "feature": "customer_state",
+      "auc_drop_mean": 0.0023796894825824032,
+      "auc_drop_std": 0.0011560096303597223
+    },
+    {
+      "feature": "handover_late",
+      "auc_drop_mean": 0.0023303615365910303,
+      "auc_drop_std": 0.0007638609045307615
+    }
+  ],
+  "exclusions": {
+    "delivered_without_delivery_date": 8,
+    "orders_without_items": 775,
+    "orders_without_geolocation": 489,
+    "delivered_without_review": 646,
+    "orders_with_multiple_reviews": 547
+  },
+  "limitations": [
+    "Scores are ranking signals from a class-balanced model, not calibrated probabilities.",
+    "Predicts after delivery: delivery outcome is an input, so it cannot be used at purchase time.",
+    "Orders without a review are excluded from training; reviewers may differ from non-reviewers.",
+    "Lateness and low reviews move together in this data; that is an association, not proof of cause.",
+    "Trained on a Brazilian marketplace (Olist, 2017-2018); it describes that data only."
+  ]
+}

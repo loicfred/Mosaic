@@ -1,0 +1,60 @@
+{
+  "model_name": "transaction_anomaly",
+  "version": "anomaly-20260923-5a5d1d",
+  "trained_at": "2026-09-23T17:03:12+00:00",
+  "sklearn_version": "1.9.1",
+  "algorithm": "IsolationForest(n_estimators=300, max_samples=4096)",
+  "features": [
+    "log_ratio_counterparty_median",
+    "log_ratio_category_median",
+    "log_ratio_business_median",
+    "is_new_counterparty",
+    "is_weekend"
+  ],
+  "threshold": 0.649123,
+  "training_data": {
+    "source": "SYNTHETIC SME panel (outflows, excluding financing flows)",
+    "sha256_prefix": "5a5d1d07f8c7158b",
+    "n_train": 164829,
+    "n_test": 39910,
+    "n_test_businesses": 42,
+    "injected_rate_test": 0.00682
+  },
+  "test": {
+    "roc_auc": 0.9864,
+    "pr_auc": 0.3207,
+    "precision": 0.4294,
+    "recall": 0.5368,
+    "f1": 0.4771,
+    "flag_rate": 0.00852
+  },
+  "rule_only_test": {
+    "precision": 1.0,
+    "recall": 0.4228,
+    "f1": 0.5943,
+    "flag_rate": 0.00288
+  },
+  "combined_model_or_rule_test": {
+    "precision": 0.5359,
+    "recall": 0.8235,
+    "f1": 0.6493,
+    "flag_rate": 0.01047
+  },
+  "production_flags_test": {
+    "precision": 0.6938,
+    "recall": 0.7831,
+    "f1": 0.7358,
+    "flag_rate": 0.00769
+  },
+  "production_rule": "(model flag AND larger than usual) OR 4x rule, AND amount >= 1% of average monthly outflows (materiality)",
+  "rule": "amount >= 4x payee median with >= 3 prior payments (tax and payroll excluded)",
+  "duplicate_rule": {
+    "recall_injected_duplicates": 1.0,
+    "flagged_rows": 225,
+    "injected_duplicates": 113
+  },
+  "limitations": [
+    "Ground truth exists only for anomalies we injected into synthetic data; real-world anomalies are more varied.",
+    "Flags are prompts for review, never automatic corrections."
+  ]
+}
