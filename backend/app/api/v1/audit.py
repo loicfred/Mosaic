@@ -73,8 +73,8 @@ def security_summary(ctx: AuthContext = Depends(get_context)) -> dict[str, Any]:
                 "errors": "generic messages with request id; no stack traces"},
         "data_protection": {"stored_secrets": "refresh tokens stored as SHA-256 hashes; no card or bank numbers stored",
                             "audit_ip": "client IPs stored only as salted hashes",
-                            "external_ai": "disabled - explanations are generated locally from verified figures"
-                            if not s.external_ai_enabled else "enabled (structured findings only)",
+                            "external_ai": "disabled - Ask Valora uses local rules" if not s.external_ai_enabled
+                            else f"Ask Valora uses {s.groq_model} on Groq (computed summaries only, no raw transactions)",
                             "https": "HSTS and Secure cookies enforced when APP_ENV=production",
                             "at_rest": "Use disk/volume encryption for the PostgreSQL host (deployment responsibility)"},
         "audit": {"append_only": "database trigger rejects UPDATE/DELETE on audit_events",

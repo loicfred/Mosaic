@@ -191,9 +191,16 @@ same order becomes one column.
 ## Valora Insight
 
 "Ask Valora" opens a panel that answers questions about the signed-in business
-from data the app already loads (`/analytics/overview`, `/insights`,
-`/opportunities`, `/data-quality/health`). It is a deterministic router, not a
-chatbot or a language model:
+with an LLM (Groq). `POST /insight/ask` (`backend/app/services/assistant_service.py`)
+builds a compact JSON summary of the analysis bundle (the same figures as
+`/analytics/overview`, `/insights`, `/opportunities`, `/data-quality/health`),
+sends it with the question and recent turns, and requires a JSON reply
+(headline, body, facts, data kind, follow-ups). The model picks a chart and
+sources by key from catalogues the server builds, so every plotted number and
+every link comes from the analysis. See docs/SECURITY.md "AI assistant".
+
+When `GROQ_API_KEY` is not set or the call fails, the panel falls back to a
+deterministic router in the browser:
 
 1. The question is matched to one of about 18 intents (cash, cash outlook, cash
    pressure, revenue, costs, margin, customers, suppliers, receivables,

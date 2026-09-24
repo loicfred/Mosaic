@@ -55,9 +55,14 @@ class Settings(BaseSettings):
     models_dir: Path = ROOT_DIR / "models"
     audit_ip_salt: str = Field(default="", description="salt for hashing client IPs in audit logs")
 
-    # Explanations are produced locally from verified figures. No external LLM is
-    # called by this codebase; see docs/SECURITY.md "Privacy-first AI".
-    external_ai_enabled: bool = False
+    # Valora Insight ("Ask Valora") answers with a Groq-hosted LLM when GROQ_API_KEY is set. Only a compact
+    # summary of already-computed figures is sent; see docs/SECURITY.md "AI assistant".
+    groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    llm_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
+    llm_rate_limit: int = 20  # questions per window per user
+    llm_rate_window_seconds: int = 60
 
     @field_validator("cors_origins", mode="before")
     @classmethod
@@ -75,6 +80,10 @@ class Settings(BaseSettings):
     @property
     def secure_cookies(self) -> bool:
         return self.cookie_secure or self.is_production
+
+    @property
+    def external_ai_enabled(self) -> bool:
+        return bool(self.groq_api_key.strip())
 
 
 @lru_cache
