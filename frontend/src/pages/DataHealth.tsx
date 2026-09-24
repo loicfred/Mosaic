@@ -459,12 +459,24 @@ export function DataHealthPage() {
         <TabsContent value="ledger" className="mt-4 space-y-4">
           <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
             <div className="flex flex-col gap-4">
-              <ScoreCard
-                title="Data health"
-                subtitle={`${Number(h.totals.transactions).toLocaleString('en-GB')} transactions · ${date(String(h.totals.date_min))} – ${date(String(h.totals.date_max))}`}
-                score={h.score}
-                components={h.components}
-              />
+              {h.components ? (
+                <ScoreCard
+                  title="Data health"
+                  subtitle={`${Number(h.totals.transactions).toLocaleString('en-GB')} transactions · ${date(String(h.totals.date_min))} – ${date(String(h.totals.date_max))}`}
+                  score={h.score ?? 0}
+                  components={h.components}
+                />
+              ) : (
+                // A new business has no transactions yet, so there is no score to show.
+                <Card>
+                  <EmptyState title="No transactions yet">
+                    Data health is scored once records are imported.{' '}
+                    <button type="button" onClick={() => setTab('import')} className="font-medium text-accent-700 hover:underline">
+                      Import a CSV
+                    </button>
+                  </EmptyState>
+                </Card>
+              )}
               <a
                 href="#proposals"
                 className={cn(

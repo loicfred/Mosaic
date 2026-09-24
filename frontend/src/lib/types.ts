@@ -236,9 +236,10 @@ export interface HealthCheck {
 }
 
 export interface LedgerHealth {
-  score: number
-  components: Record<string, number>
-  weights: Record<string, number>
+  /** null, with no components or weights, while the business has no transactions. */
+  score: number | null
+  components?: Record<string, number>
+  weights?: Record<string, number>
   checks: HealthCheck[]
   totals: Record<string, number | string>
   pending_changes: number
