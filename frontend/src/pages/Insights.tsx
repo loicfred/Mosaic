@@ -68,7 +68,7 @@ function Group({ id, title, insight }: { id: string; title: string; insight: Rea
   return (
     <div id={id} className="mb-4 mt-12 scroll-mt-20">
       <h2 className="text-xs font-medium text-ink-3">{title}</h2>
-      <p className="mt-1.5 max-w-3xl text-xl font-semibold leading-snug text-ink">{insight}</p>
+      <p className="mt-1 max-w-3xl text-lg font-semibold text-ink">{insight}</p>
     </div>
   )
 }
@@ -179,7 +179,7 @@ function CashForecast() {
 export function InsightsPage() {
   const q = useInsights()
   const { hash } = useLocation()
-  // Arriving from "View detailed forecast": scroll to the section once the page has rendered.
+  // Arriving from "View forecast detail": scroll to the section once the page has rendered.
   useEffect(() => {
     if (hash && q.data) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start' })
   }, [hash, q.data])
@@ -207,7 +207,7 @@ export function InsightsPage() {
   return (
     <>
       <PageHeader
-        title="Financial Insights"
+        title="Financial insights"
         meta={`Actual data to ${date(d.as_of)} · ${monthSpan(cmp.current_period)} vs ${monthSpan(cmp.previous_period)}`}
         description="What changed, where the money goes, and who the business depends on. Figures link to their transactions."
         actions={<DataKind kind="actual" />}
@@ -428,7 +428,7 @@ export function InsightsPage() {
             <div className="flex flex-wrap items-end gap-x-8 gap-y-2">
               <div>
                 <div className="text-xs text-ink-3">Committed every month</div>
-                <div className="text-2xl font-semibold text-ink">{murCompact(recurringTotal)}</div>
+                <div className="tnum text-2xl font-medium text-ink">{murCompact(recurringTotal)}</div>
               </div>
               <div className="text-sm text-ink-2">
                 {recurring.length} payments
@@ -494,7 +494,7 @@ export function InsightsPage() {
                   <div className="flex items-center gap-1.5 text-xs text-ink-3">
                     <Clock className="hidden size-3.5 sm:block" aria-hidden /> Days to collect
                   </div>
-                  <div className="mt-1 text-lg font-semibold text-ink sm:text-xl">{col.collection_days_recent?.toFixed(0)}</div>
+                  <div className="mt-1 text-lg font-semibold text-ink">{col.collection_days_recent?.toFixed(0)}</div>
                   <div className="text-xs text-ink-3">
                     was {col.collection_days_prior?.toFixed(0)} · terms {col.standard_terms_days}
                   </div>
@@ -503,13 +503,13 @@ export function InsightsPage() {
                   <div className="flex items-center gap-1.5 text-xs text-ink-3">
                     <CalendarClock className="hidden size-3.5 sm:block" aria-hidden /> Open receivables
                   </div>
-                  <div className="mt-1 text-lg font-semibold whitespace-nowrap text-ink sm:text-xl">{axisMur(col.open_receivables)}</div>
+                  <div className="mt-1 text-lg font-semibold whitespace-nowrap text-ink">{axisMur(col.open_receivables)}</div>
                 </div>
                 <div className="rounded-lg bg-surface-2 p-3">
                   <div className="flex items-center gap-1.5 text-xs text-ink-3">
                     <AlertCircle className="hidden size-3.5 sm:block" aria-hidden /> Overdue
                   </div>
-                  <div className="mt-1 text-lg font-semibold whitespace-nowrap text-bad-ink sm:text-xl">
+                  <div className="mt-1 text-lg font-semibold whitespace-nowrap text-bad-ink">
                     {axisMur(col.overdue_receivables)}
                   </div>
                 </div>

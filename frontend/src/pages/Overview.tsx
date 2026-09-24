@@ -1,51 +1,37 @@
-import {
-  AlertTriangle,
-  ArrowDownRight,
-  ArrowRight,
-  ArrowUpRight,
-  CheckCircle2,
-  Database,
-  FileUp,
-  FlaskConical,
-  Minus,
-  Target,
-} from 'lucide-react'
+import { AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, Database, FileUp, FlaskConical, Minus, Target } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/auth/AuthProvider'
 import { CashChart } from '@/charts/CashChart'
 import { SeverityBadge } from '@/components/domain/labels'
 import { PageHeader } from '@/components/layout/AppShell'
-import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { InsightStrip } from '@/components/ui/insight-strip'
 import { ErrorState, Skeleton } from '@/components/ui/states'
-import { Meter } from '@/components/viz/Meter'
-import { useInsights, useOpportunities, useOverview } from '@/hooks/queries'
+import { useCashPressure, useInsights, useOpportunities, useOverview } from '@/hooks/queries'
 import { cn } from '@/lib/cn'
 import { IMPACT_SHORT } from '@/lib/findings'
 import { date, daysBetween, greeting, monthSpan, mur, murCompact } from '@/lib/format'
-import type { Opportunity, Overview } from '@/lib/types'
+import type { Overview } from '@/lib/types'
 
 /*
- * Overview: how is the business doing, and what needs attention now?
- * Laid out as a Z: the cash position (top left) and the recommended next step
- * (top right), then the last three months (left) and the cash outlook (right),
- * then the two most important findings. Every sentence is built from the
- * figures the API returned; nothing is estimated in the browser.
+ * Overview answers one question: what should I know today?
+ * One dominant section (the 90-day cash projection and its chart), then a short
+ * table of what needs attention, then the last three months in one row.
+ * Every sentence is built from the figures the API returned; nothing is estimated in the browser.
  */
 
 const moved = (v: number) => `${v >= 0 ? 'rose' : 'fell'} ${Math.abs(v).toFixed(1)}%`
 
-/** A change with an arrow and a colour that agree with the words. */
+/** A change with a sign, an arrow and a word, so colour never carries the meaning alone. */
 function Change({
   value,
   goodWhen = 'up',
   unit = '%',
-  chip,
+  suffix,
 }: {
   value: number | null | undefined
   goodWhen?: 'up' | 'down'
   unit?: '%' | 'pp'
-  chip?: boolean
+  suffix?: string
 }) {
   if (value === null || value === undefined) return <span className="text-sm text-ink-3">No earlier period</span>
   const flat = Math.abs(value) < 0.05
@@ -56,30 +42,38 @@ function Change({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1 text-sm font-medium',
-        chip && 'rounded px-1.5 py-0.5',
+        'tnum inline-flex items-center gap-1 text-sm',
         good === null ? 'text-ink-3' : good ? 'text-good-ink' : 'text-bad-ink',
-        chip && (good === null ? 'bg-brand-50' : good ? 'bg-good-bg' : 'bg-bad-bg'),
       )}
     >
       <Icon className="size-4 shrink-0" aria-hidden />
-      {flat ? 'No change' : `${size} ${up ? 'higher' : 'lower'}`}
+      {flat ? 'No change' : `${up ? '+' : '−'}${size}`}
+      {suffix && <span className="text-ink-3">{suffix}</span>}
     </span>
   )
 }
 
-/** Loading placeholder shaped like the card grid, so nothing jumps when data arrives. */
+/** Loading placeholder shaped like the page, so nothing jumps when data arrives. */
 function OverviewSkeleton() {
   return (
     <div role="status" aria-label="Loading your overview">
       <h1 className="sr-only">Overview is loading</h1>
-      <Skeleton className="h-4 w-40" />
-      <Skeleton className="mt-3 h-9 w-[min(520px,90%)]" />
-      <div className="mt-7 grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-        <Skeleton className="h-72 rounded-lg" />
-        <Skeleton className="h-72 rounded-lg" />
-        <Skeleton className="h-80 rounded-lg" />
-        <Skeleton className="h-80 rounded-lg" />
+      <Skeleton className="h-7 w-40" />
+      <Skeleton className="mt-2 h-4 w-72 max-w-full" />
+      <div className="panel mt-6 p-5">
+        <Skeleton className="h-4 w-56" />
+        <Skeleton className="mt-3 h-8 w-40" />
+        <Skeleton className="mt-2 h-4 w-64" />
+        <Skeleton className="mt-6 h-72 w-full" />
+      </div>
+      <div className="panel mt-6 divide-y divide-line">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-4 px-5 py-3">
+            <Skeleton className="h-4 flex-1" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-16" />
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -100,40 +94,40 @@ function FirstSteps({ d, name }: { d: Overview; name: string }) {
       title: 'Review data health',
       body: 'Approve or reject suggested fixes for duplicates, missing payees and categories.',
       to: '/data-health',
-      cta: 'Open Data Health',
+      cta: 'Open data health',
     },
     {
       icon: Target,
       title: 'See what the data says',
       body: 'Risks, opportunities and a 90-day cash projection appear once there is enough history.',
       to: '/opportunities',
-      cta: 'Open Opportunities',
+      cta: 'Open opportunities',
     },
   ]
   return (
     <>
       <PageHeader
-        title={`${greeting()}, ${name}`}
-        meta="No data yet"
-        description="Your business is set up. Valora has nothing to analyse until you import your records."
+        title="Overview"
+        meta={`${greeting()}, ${name}`}
+        description="No sales data is available yet. Import your records to see a cash projection and signals."
       />
-      <dl className="mb-10 flex flex-wrap gap-x-10 gap-y-3 border-y border-line py-4 text-sm">
+      <dl className="mb-8 flex flex-wrap gap-x-10 gap-y-3 border-y border-line py-4 text-sm">
         <div>
           <dt className="text-ink-3">Opening cash balance</dt>
-          <dd className="tnum mt-0.5 text-lg font-semibold text-ink">{mur(d.cash.balance)}</dd>
+          <dd className="tnum mt-0.5 text-lg font-medium text-ink">{mur(d.cash.balance)}</dd>
         </div>
         <div>
           <dt className="text-ink-3">Records start</dt>
-          <dd className="mt-0.5 text-lg font-semibold text-ink">{date(d.data_window[0])}</dd>
+          <dd className="mt-0.5 font-mono text-lg text-ink">{date(d.data_window[0])}</dd>
         </div>
       </dl>
-      <ol className="grid gap-px overflow-hidden rounded-lg border border-line bg-line  md:grid-cols-3">
+      <ol className="panel grid divide-y divide-line md:grid-cols-3 md:divide-x md:divide-y-0">
         {steps.map((s, i) => (
-          <li key={s.title} className="flex flex-col bg-surface p-5">
-            <span className="flex items-center gap-2 text-xs font-medium text-ink-3">
+          <li key={s.title} className="flex flex-col p-5">
+            <span className="flex items-center gap-2 text-xs text-ink-3">
               <s.icon className="size-4 text-accent-600" aria-hidden /> Step {i + 1}
             </span>
-            <span className="mt-2 font-semibold text-ink">{s.title}</span>
+            <span className="mt-2 text-sm font-semibold text-ink">{s.title}</span>
             <span className="mt-1 flex-1 text-sm text-ink-3">{s.body}</span>
             <Link to={s.to} className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline">
               {s.cta} <ArrowRight className="size-3.5" aria-hidden />
@@ -145,10 +139,13 @@ function FirstSteps({ d, name }: { d: Overview; name: string }) {
   )
 }
 
+const BAND_WORD = { LOW: 'Low', MODERATE: 'Moderate', HIGH: 'High', UNKNOWN: 'Unknown' } as const
+
 export function OverviewPage() {
   const ov = useOverview()
   const opps = useOpportunities()
   const ins = useInsights()
+  const cp = useCashPressure()
   const { me } = useAuth()
   if (ov.isLoading) return <OverviewSkeleton />
   if (ov.error || !ov.data)
@@ -166,32 +163,24 @@ export function OverviewPage() {
 
   const k = d.kpis_90d
   const p = d.projection
+  const pred = d.prediction
   const below = p.first_date_below_buffer
   const inDays = below ? daysBetween(d.as_of, below) : null
+  const staleDays = daysBetween(d.as_of, new Date().toISOString().slice(0, 10))
   const open = (opps.data ?? []).filter((o) => o.is_active && ['new', 'reviewed', 'planned'].includes(o.status))
   const urgent = open.filter((o) => o.severity === 'critical' || o.severity === 'high').length
   const ranked = [...open].sort((a, b) => b.priority_score - a.priority_score)
-  const cashFinding = open.find((o) => o.detector === 'cash_pressure')
-  // The recommended next step: the cash finding when cash is the headline, otherwise the top-ranked finding.
-  const next = below && cashFinding ? cashFinding : ranked[0]
-  const top = ranked.filter((o) => o.id !== next?.id).slice(0, 2)
-  const buffer = d.cash.buffer_days
+  const attention = ranked.slice(0, 5)
+  const vsToday = d.cash.balance ? ((p.cash_day_90 - d.cash.balance) / Math.abs(d.cash.balance)) * 100 : null
   const cashChange = d.cash.balance_30d_ago ? ((d.cash.balance - d.cash.balance_30d_ago) / Math.abs(d.cash.balance_30d_ago)) * 100 : null
+  const backtestErr: number | null | undefined = cp.data?.backtest?.median_abs_error_pct_of_monthly_outflow
+  const backtestN: number = cp.data?.backtest?.points?.length ?? 0
 
-  // Where the money went in the same three months (from /insights; hidden until it loads).
-  const cur = ins.data?.comparison_90d?.current as Record<string, number> | undefined
+  // Where margin went in the same three months (from /insights; hidden until it loads).
   const chg = ins.data?.comparison_90d?.change_pct as Record<string, number | null> | undefined
-  const spend = cur
-    ? [
-        { label: 'Stock & supplies', value: cur.cost_of_goods, color: 'bg-[var(--color-series-1)]' },
-        { label: 'Operating costs', value: cur.operating_expenses, color: 'bg-[var(--color-series-2)]' },
-        { label: 'VAT', value: cur.tax, color: 'bg-[var(--color-series-3)]' },
-      ].filter((x) => x.value > 0)
-    : []
-  const spendTotal = spend.reduce((s, x) => s + x.value, 0)
   const supplierFinding = open.find((o) => o.detector === 'supplier_cost_inflation')
   const marginStory =
-    chg && chg.cost_of_goods !== null && chg.revenue !== null && k.gross_margin_change_pp < 0
+    chg && chg.cost_of_goods != null && chg.revenue != null && k.gross_margin_change_pp < 0
       ? `Gross margin fell ${Math.abs(k.gross_margin_change_pp).toFixed(1)} points: stock costs ${moved(chg.cost_of_goods)} while revenue ${moved(chg.revenue)}.`
       : null
 
@@ -200,276 +189,237 @@ export function OverviewPage() {
       <PageHeader
         title="Overview"
         description="Cash forecast and the signals that need attention."
-        meta={<>{greeting()}, {name} · data to <span className="font-mono">{date(d.as_of)}</span></>}
+        actions={
+          <span className="text-xs text-ink-3">
+            Data through <span className="font-mono text-ink-2">{date(d.as_of)}</span>
+          </span>
+        }
       />
 
-      {/* ROW 1 (Z, top): where cash stands  →  what to do about it */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-        <Card aria-labelledby="cash-status" className="flex flex-col">
-          <CardHeader
-            title="Cash position"
-            subtitle="End-of-day balance from recorded transactions"
-            action={
-              <span
-                className={cn(
-                  'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium',
-                  below ? 'bg-serious-bg text-serious-ink' : 'bg-good-bg text-good-ink',
-                )}
-              >
-                {below ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
-                {below ? 'Needs attention' : 'On track'}
-              </span>
-            }
-          />
-          <CardBody className="flex flex-1 flex-col">
-            <p id="cash-status" className="max-w-2xl text-2xl font-semibold leading-snug text-ink sm:text-2xl">
-              {below
-                ? inDays !== null && inDays >= 0
-                  ? `Cash may fall below your safety buffer in ${inDays} ${inDays === 1 ? 'day' : 'days'}.`
-                  : `Cash may fall below your safety buffer on ${date(below)}.`
-                : 'Cash stays above your safety buffer for the next 90 days.'}
-            </p>
-            <div className="mt-6">
-              <div className="text-sm text-ink-3">Cash today, compared with 30 days ago</div>
-              <div className="mt-1 flex flex-wrap items-center gap-3">
-                <span className="tnum text-[28px] font-semibold leading-none text-ink" title={mur(d.cash.balance)}>
-                  {murCompact(d.cash.balance)}
-                </span>
-                <Change value={cashChange} chip />
-              </div>
-            </div>
-            <div className="mt-6">
-              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
-                <span className="font-medium text-ink">{buffer.toFixed(0)} days of outflows covered</span>
-                <span className="text-ink-3">Safety buffer: 14 days (black line)</span>
-              </div>
-              <Meter
-                value={buffer}
-                max={Math.max(30, Math.ceil(buffer * 1.25))}
-                tone={buffer < 14 ? 'bad' : buffer < 21 ? 'warn' : 'good'}
-                marker={{ value: 14 }}
-                label={`Cash covers ${buffer.toFixed(0)} days of outflows; the safety buffer is 14 days`}
-              />
-            </div>
-            <div className="mt-auto">
-              <InsightStrip tone={below ? 'attention' : 'good'} action={{ label: 'View forecast', to: '/insights#cash' }}>
-                Projected low point <strong className="font-semibold">{murCompact(p.lowest_cash)}</strong> on {date(p.lowest_cash_date)}
-                {below && <>, {p.days_below_buffer} of the next 90 days under the buffer</>}. This is a projection at current run-rates, not
-                a recorded value.
-              </InsightStrip>
-            </div>
-          </CardBody>
-        </Card>
-
-        <NextStep o={next} />
-      </div>
-
-      {/* ROW 2 (Z, middle): the last three months  →  the cash outlook */}
-      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.55fr)]">
-        <Card className="flex flex-col">
-          <CardHeader title="Last 3 months" subtitle={`${monthSpan(k.period)} compared with the 3 months before`} />
-          <CardBody className="flex flex-1 flex-col">
-            <div className="text-sm text-ink-3">Revenue</div>
-            <div className="mt-1 flex flex-wrap items-center gap-3">
-              <span className="tnum text-[28px] font-semibold leading-none text-ink" title={mur(k.revenue)}>
-                {murCompact(k.revenue)}
-              </span>
-              <Change value={k.revenue_change_pct} chip />
-            </div>
-
-            <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-5">
-              <div>
-                <dt className="text-sm text-ink-3">Expenses</dt>
-                <dd className="tnum mt-0.5 text-xl font-semibold text-ink" title={mur(k.expenses)}>
-                  {murCompact(k.expenses)}
-                </dd>
-                <dd className="mt-0.5">
-                  <Change value={k.expenses_change_pct} goodWhen="down" />
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm text-ink-3">Gross margin</dt>
-                <dd className="tnum mt-0.5 text-xl font-semibold text-ink">{k.gross_margin_pct.toFixed(1)}%</dd>
-                <dd className="mt-0.5">
-                  <Change value={k.gross_margin_change_pp} unit="pp" />
-                </dd>
-              </div>
-            </dl>
-
-            {spendTotal > 0 && (
-              <figure className="mt-6">
-                <figcaption className="mb-2 text-sm font-medium text-ink">Where the money went</figcaption>
-                <div className="flex h-2 gap-0.5 overflow-hidden rounded" aria-hidden>
-                  {spend.map((x) => (
-                    <span
-                      key={x.label}
-                      className={cn('h-full', x.color)}
-                      style={{ width: `${(x.value / spendTotal) * 100}%` }}
-                    />
-                  ))}
-                </div>
-                <ul className="mt-3 grid grid-cols-3 gap-2">
-                  {spend.map((x) => (
-                    <li key={x.label} className="min-w-0">
-                      <span className="tnum block text-base font-semibold text-ink">{murCompact(x.value)}</span>
-                      <span className="flex items-center gap-1.5 text-xs text-ink-3">
-                        <span className={cn('size-2 shrink-0 rounded-full', x.color)} aria-hidden />
-                        <span className="truncate">{x.label}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </figure>
-            )}
-
-            <div className="mt-auto">
-              {marginStory ? (
-                <InsightStrip
-                  action={{
-                    label: 'Review supplier costs',
-                    to: supplierFinding ? `/opportunities?open=${supplierFinding.id}` : '/insights#trend',
-                  }}
-                >
-                  {marginStory}
-                </InsightStrip>
-              ) : (
-                <InsightStrip action={{ label: 'Open Financial Insights', to: '/insights' }}>
-                  Revenue and costs by month, customers, suppliers and recurring payments are on Financial Insights.
-                </InsightStrip>
-              )}
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader title="Cash outlook" subtitle="Actual cash for the past 180 days, projected for the next 90" />
-          <CardBody>
-            <CashChart actual={d.cash_series} projected={d.projection_series} buffer={p.buffer_threshold} height={280} />
-            <InsightStrip tone="insight" action={{ label: 'View detailed forecast', to: '/insights#cash' }}>
-              {below
-                ? `The projection crosses the 14-day safety buffer (${murCompact(p.buffer_threshold)}) on ${date(below)} and stays under it for ${p.days_below_buffer} of the 90 days.`
-                : `The projection stays above the 14-day safety buffer (${murCompact(p.buffer_threshold)}) for the next 90 days.`}
-            </InsightStrip>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* ROW 3 (Z, bottom): what else deserves a look */}
-      <Card className="mt-5">
-        <CardHeader title="Other important findings" subtitle="Ranked by the opportunity engine from your own records" />
-        <CardBody>
-          {top.length === 0 ? (
-            <div className="rounded-lg border border-line bg-surface-2 px-6 py-8 text-center">
-              <p className="font-medium text-ink">No new opportunities right now</p>
-              <p className="mt-1 text-sm text-ink-3">Valora checks again after every import and will list anything worth reviewing here.</p>
-            </div>
-          ) : (
-            <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {top.map((o) => (
-                <FindingSummary key={o.id} o={o} />
-              ))}
-            </ul>
-          )}
-          {open.length > 0 && (
-            <InsightStrip action={{ label: 'Review all findings', to: '/opportunities' }}>
-              <strong className="font-semibold">{open.length} findings</strong> are waiting for a decision
-              {urgent > 0 && <>, {urgent} of them high priority</>}.
-            </InsightStrip>
-          )}
-        </CardBody>
-      </Card>
-    </>
-  )
-}
-
-/** The highlighted card: one recommended next step, from a real finding. The user decides. */
-function NextStep({ o }: { o?: Opportunity }) {
-  if (!o)
-    return (
-      <section aria-labelledby="next-step" className="panel flex flex-col p-6">
-        <p className="text-xs font-medium text-ink-3">Recommended next step</p>
-        <h2 id="next-step" className="mt-3 text-xl font-semibold text-ink">
-          Nothing needs a decision right now
-        </h2>
-        <p className="mt-2 text-sm text-ink-2">You can still test a change to prices, costs or collections before making it.</p>
-        <Link to="/scenarios" className="mt-auto pt-6 text-sm font-medium text-accent-600 underline underline-offset-2">
-          Open the Scenario Lab
-        </Link>
-      </section>
-    )
-  const action = o.actions[0]?.title ?? o.title
-  return (
-    <section
-      aria-labelledby="next-step"
-      className="panel flex flex-col p-5"
-    >
-      <p className="flex items-center gap-2 text-xs font-medium text-ink-3">
-        <Target className="size-4" aria-hidden /> Recommended next step
-      </p>
-      <h2 id="next-step" className="mt-3 text-lg font-semibold text-ink">
-        {action}
-      </h2>
-      <p className="mt-2 text-sm text-ink-2">Why: {o.title.charAt(0).toLowerCase() + o.title.slice(1)}.</p>
-      {o.impact_low !== null && o.impact_high !== null && (
-        <div className="mt-5 border-t border-line pt-4">
-          <p className="text-xs text-ink-3">{IMPACT_SHORT[o.impact_kind].replace(/^./, (c) => c.toUpperCase())} (estimate)</p>
-          <p className="tnum mt-1 text-[28px] font-medium leading-[34px] text-ink">
-            {murCompact(o.impact_low)} – {murCompact(o.impact_high)}
-          </p>
-        </div>
-      )}
-      <div className="mt-auto flex flex-col gap-2 pt-6">
-        <Link
-          to={`/opportunities?open=${o.id}`}
-          className="flex h-9 items-center justify-center gap-2 rounded-md bg-accent-600 text-sm font-medium text-white transition-colors hover:bg-accent-700"
-        >
-          See what to do <ArrowRight className="size-4" aria-hidden />
-        </Link>
-        <Link
-          to="/scenarios"
-          className="flex h-9 items-center justify-center gap-2 rounded-md border border-line bg-surface text-sm font-medium text-ink transition-colors hover:bg-mist"
-        >
-          <FlaskConical className="size-4" aria-hidden /> Test a fix
-        </Link>
-      </div>
-      <p className="mt-3 text-center text-xs text-ink-3">You decide. Valora never changes your records.</p>
-    </section>
-  )
-}
-
-/** What was found, why it matters, and the next step. */
-function FindingSummary({ o }: { o: Opportunity }) {
-  return (
-    <li className="flex flex-col rounded-lg border border-line bg-white/80 p-5">
-      <div className="flex items-center gap-2">
-        <SeverityBadge severity={o.severity} />
-        <span className="text-sm text-ink-3">{o.kind === 'risk' ? 'Risk' : 'Opportunity'}</span>
-      </div>
-      <h3 className="mt-3 text-base font-semibold leading-snug text-ink">{o.title}</h3>
-      <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-2">{o.summary}</p>
-      <p className="mt-3 text-sm text-ink-2">
-        {o.impact_low !== null && o.impact_high !== null ? (
-          <>
-            <strong className="tnum text-lg font-semibold text-ink">
-              {murCompact(o.impact_low)} – {murCompact(o.impact_high)}
-            </strong>{''}
-            {IMPACT_SHORT[o.impact_kind]} <span className="text-ink-3">(estimate)</span>
-          </>
-        ) : (
-          <span className="text-ink-3">Not sized</span>
-        )}
-      </p>
-      {o.actions[0] && (
-        <p className="mt-2 text-sm text-ink-2">
-          <span className="font-medium text-ink">Next step:</span> {o.actions[0].title}
+      {staleDays > 7 && (
+        <p role="status" className="mb-6 flex items-start gap-2 rounded bg-warn-bg px-3 py-2 text-sm text-ink-2">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warn-ink" aria-hidden />
+          <span>
+            Transactions have not been updated since {date(d.as_of)}. Projections may not reflect recent activity.{' '}
+            <Link to="/data-health?tab=import" className="font-medium text-accent-600 hover:underline">
+              Import new data
+            </Link>
+          </span>
         </p>
       )}
-      <Link
-        to={`/opportunities?open=${o.id}`}
-        className="mt-4 inline-flex w-fit items-center gap-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-medium text-accent-600 transition-colors hover:border-line-strong hover:bg-mist"
-      >
-        Review this finding <ArrowRight className="size-4" aria-hidden />
-      </Link>
-    </li>
+
+      {/* Primary forecast: the dominant section */}
+      <section aria-labelledby="forecast-title" className="panel p-5">
+        <div className="flex flex-wrap items-start justify-between gap-x-10 gap-y-6">
+          <div className="min-w-0">
+            <h2 id="forecast-title" className="text-sm font-semibold text-ink">
+              Projected cash · in 90 days <span className="font-normal text-ink-3">(MUR)</span>
+            </h2>
+            <div className="tnum mt-2 text-[28px] font-medium leading-[34px] text-ink" title={mur(p.cash_day_90)}>
+              {murCompact(p.cash_day_90)}
+            </div>
+            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <Change value={vsToday} suffix="vs cash today" />
+            </div>
+            <p className={cn('mt-3 flex items-start gap-1.5 text-sm', below ? 'text-warn-ink' : 'text-ink-2')}>
+              {below && <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />}
+              {below
+                ? inDays !== null && inDays >= 0
+                  ? `May fall below the 14-day safety buffer in ${inDays} ${inDays === 1 ? 'day' : 'days'} (${date(below)}).`
+                  : `May fall below the 14-day safety buffer on ${date(below)}.`
+                : 'Stays above the 14-day safety buffer for the next 90 days.'}
+            </p>
+          </div>
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-3 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-xs text-ink-3">Cash today</dt>
+              <dd className="tnum mt-0.5 font-medium text-ink">{murCompact(d.cash.balance)}</dd>
+              <dd className="mt-0.5">
+                <Change value={cashChange} suffix="vs 30 days ago" />
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-3">Low point</dt>
+              <dd className="tnum mt-0.5 font-medium text-ink">{murCompact(p.lowest_cash)}</dd>
+              <dd className="mt-0.5 font-mono text-xs text-ink-3">{date(p.lowest_cash_date)}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-ink-3">Cash pressure, 30 days</dt>
+              <dd className="mt-0.5 font-medium text-ink">
+                {BAND_WORD[pred.band]}
+                {pred.probability !== null && <span className="tnum font-normal text-ink-3"> · {Math.round(pred.probability * 100)}% likely</span>}
+              </dd>
+              <dd className="mt-0.5 text-xs text-ink-3">{d.cash.buffer_days.toFixed(0)} days of outflows covered</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div className="mt-6">
+          <CashChart actual={d.cash_series} projected={d.projection_series} buffer={p.buffer_threshold} height={300} />
+        </div>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-line pt-4">
+          <p className="text-sm text-ink-2">
+            {backtestErr != null
+              ? `Recent 30-day projections were within ${backtestErr.toFixed(0)}% of a month's outflows on average (median of ${backtestN} backtests).`
+              : 'A projection at current run-rates, not a recorded value.'}
+          </p>
+          <Link to="/insights#cash" className="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline">
+            View forecast detail <ArrowRight className="size-3.5" aria-hidden />
+          </Link>
+        </div>
+        <p className="mt-2 font-mono text-xs text-ink-3">
+          deterministic projection · pressure model {pred.model_version ?? 'n/a'} · data to {date(d.as_of)}
+        </p>
+      </section>
+
+      {/* Needs attention: a short table, colour only on the signal */}
+      <section aria-labelledby="attention-title" className="mt-8">
+        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 id="attention-title" className="text-lg font-semibold text-ink">
+              Needs attention
+            </h2>
+            <p className="text-sm text-ink-3">
+              {open.length > 0
+                ? `${open.length} findings waiting for a decision${urgent > 0 ? `, ${urgent} high priority` : ''}. You decide; Valora never changes your records.`
+                : 'Ranked by the opportunity engine from your own records.'}
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/scenarios" className="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline">
+              <FlaskConical className="size-4" aria-hidden /> Test a change
+            </Link>
+            {open.length > attention.length && (
+              <Link to="/opportunities" className="inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline">
+                View all {open.length} <ArrowRight className="size-3.5" aria-hidden />
+              </Link>
+            )}
+          </div>
+        </div>
+        <div className="panel overflow-x-auto">
+          {opps.isLoading ? (
+            <div className="divide-y divide-line">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 px-5 py-3">
+                  <Skeleton className="h-4 flex-1" />
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+              ))}
+            </div>
+          ) : attention.length === 0 ? (
+            <p className="px-5 py-6 text-sm text-ink-3">
+              Nothing needs a decision right now. Valora checks again after every import.{' '}
+              <Link to="/scenarios" className="font-medium text-accent-600 hover:underline">
+                Test a change in the scenario lab
+              </Link>
+            </p>
+          ) : (
+            <table className="w-full min-w-[640px] text-sm">
+              <thead className="border-b border-line text-left text-ink-3">
+                <tr>
+                  <th className="px-5 py-2.5 font-medium">Finding</th>
+                  <th className="px-3 py-2.5 font-medium">Next step</th>
+                  <th className="px-3 py-2.5 text-right font-medium">Estimated impact</th>
+                  <th className="px-3 py-2.5 font-medium">Signal</th>
+                  <th className="px-5 py-2.5 text-right font-medium">
+                    <span className="sr-only">Action</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {attention.map((o) => (
+                  <tr key={o.id} className="transition-colors hover:bg-mist">
+                    <td className="max-w-[22rem] px-5 py-2.5">
+                      <div className="truncate text-ink" title={o.title}>
+                        {o.title}
+                      </div>
+                      <div className="text-xs text-ink-3">{o.kind === 'risk' ? 'Risk' : 'Opportunity'}</div>
+                    </td>
+                    <td className="max-w-[16rem] px-3 py-2.5 text-ink-2">
+                      <div className="truncate" title={o.actions[0]?.title}>
+                        {o.actions[0]?.title ?? '—'}
+                      </div>
+                    </td>
+                    <td className="tnum whitespace-nowrap px-3 py-2.5 text-right">
+                      {o.impact_low !== null && o.impact_high !== null ? (
+                        <>
+                          <span className="text-ink">
+                            {murCompact(o.impact_low)} – {murCompact(o.impact_high).replace('MUR ', '')}
+                          </span>
+                          <div className="text-xs text-ink-3">{IMPACT_SHORT[o.impact_kind]}</div>
+                        </>
+                      ) : (
+                        <span className="text-ink-3">Not sized</span>
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap px-3 py-2.5">
+                      <SeverityBadge severity={o.severity} />
+                    </td>
+                    <td className="px-5 py-2.5 text-right">
+                      <Link to={`/opportunities?open=${o.id}`} className="font-medium text-accent-600 hover:underline">
+                        Review
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </section>
+
+      {/* Last three months: one row of figures, no cards */}
+      <section aria-labelledby="period-title" className="mt-8">
+        <h2 id="period-title" className="text-lg font-semibold text-ink">
+          Last 3 months
+        </h2>
+        <p className="text-sm text-ink-3">{monthSpan(k.period)} compared with the 3 months before</p>
+        <dl className="mt-3 grid grid-cols-1 divide-y divide-line border-y border-line sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="py-4 sm:pr-6">
+            <dt className="text-xs text-ink-3">Revenue</dt>
+            <dd className="tnum mt-1 text-lg font-medium text-ink" title={mur(k.revenue)}>
+              {murCompact(k.revenue)}
+            </dd>
+            <dd>
+              <Change value={k.revenue_change_pct} />
+            </dd>
+          </div>
+          <div className="py-4 sm:px-6">
+            <dt className="text-xs text-ink-3">Expenses</dt>
+            <dd className="tnum mt-1 text-lg font-medium text-ink" title={mur(k.expenses)}>
+              {murCompact(k.expenses)}
+            </dd>
+            <dd>
+              <Change value={k.expenses_change_pct} goodWhen="down" />
+            </dd>
+          </div>
+          <div className="py-4 sm:pl-6">
+            <dt className="text-xs text-ink-3">Gross margin</dt>
+            <dd className="tnum mt-1 text-lg font-medium text-ink">{k.gross_margin_pct.toFixed(1)}%</dd>
+            <dd>
+              <Change value={k.gross_margin_change_pp} unit="pp" />
+            </dd>
+          </div>
+        </dl>
+        {marginStory ? (
+          <InsightStrip
+            className="mt-0 border-t-0"
+            tone="attention"
+            action={{
+              label: 'Review supplier costs',
+              to: supplierFinding ? `/opportunities?open=${supplierFinding.id}` : '/insights#trend',
+            }}
+          >
+            {marginStory}
+          </InsightStrip>
+        ) : (
+          <InsightStrip className="mt-0 border-t-0" action={{ label: 'Open financial insights', to: '/insights' }}>
+            Revenue and costs by month, customers, suppliers and recurring payments are on financial insights.
+          </InsightStrip>
+        )}
+      </section>
+    </>
   )
 }

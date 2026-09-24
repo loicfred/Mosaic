@@ -32,7 +32,7 @@ export function PredictionCard({ p }: { p: Prediction }) {
       {p.probability !== null ? (
         <div className="flex items-end justify-between gap-3">
           <div>
-            <div className="text-[28px] font-semibold leading-none text-ink">{Math.round(p.probability * 100)}%</div>
+            <div className="tnum text-[28px] font-medium leading-[34px] text-ink">{Math.round(p.probability * 100)}%</div>
             <div className="mt-1 text-xs text-ink-3">chance of dropping below the buffer</div>
           </div>
           <BandBadge band={p.band} large />

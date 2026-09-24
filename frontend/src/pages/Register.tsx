@@ -187,7 +187,7 @@ export function RegisterPage() {
           <Info className="mt-0.5 size-4 shrink-0 text-accent-600" aria-hidden />
           <span>
             Your business starts empty. Nothing is generated for you: after signing up, import your transactions as a CSV from{''}
-            <strong className="font-medium text-ink">Data Health</strong>. Valora currently works in Mauritian rupees (MUR).
+            <strong className="font-medium text-ink">Data health</strong>. Valora currently works in Mauritian rupees (MUR).
           </span>
         </p>
 

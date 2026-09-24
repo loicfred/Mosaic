@@ -37,7 +37,7 @@ export function MetricStrip({ items, className }: { items: StripMetric[]; classN
           title={m.title}
         >
           <dt className="text-sm text-ink-3">{m.label}</dt>
-          <dd className="whitespace-nowrap text-2xl font-semibold leading-tight text-ink lg:text-[28px]">{m.value}</dd>
+          <dd className="whitespace-nowrap tnum text-2xl font-medium text-ink">{m.value}</dd>
           <dd className="flex min-h-5 flex-wrap items-center gap-x-2 text-xs text-ink-3">
             {m.delta}
             {m.note}

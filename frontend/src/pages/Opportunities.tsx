@@ -63,11 +63,11 @@ function Headline({
     <dl className="panel grid grid-cols-2 gap-y-6 px-6 py-6 lg:grid-cols-[auto_auto_1fr_1fr] lg:divide-x lg:divide-line">
       <div className="pr-8">
         <dt className="text-sm text-ink-3">Open findings</dt>
-        <dd className="mt-1 text-[28px] font-semibold leading-none text-ink">{open.length}</dd>
+        <dd className="mt-1 tnum text-[28px] font-medium leading-[34px] text-ink">{open.length}</dd>
       </div>
       <div className="lg:px-8">
         <dt className="text-sm text-ink-3">Need a decision now</dt>
-        <dd className={cn('mt-1 text-[28px] font-semibold leading-none', urgent ? 'text-serious-ink' : 'text-ink')}>
+        <dd className={cn('mt-1 tnum text-[28px] font-medium leading-[34px]', urgent ? 'text-serious-ink' : 'text-ink')}>
           {urgent}
         </dd>
       </div>
@@ -81,7 +81,7 @@ function Headline({
               <dt className={cn('text-sm font-medium', tone)}>{title}</dt>
               <dd className="mt-1">
                 <button type="button" onClick={() => onOpen(o.id)} className="group block max-w-full text-left">
-                  <span className="text-2xl font-semibold text-ink">{range(o)}</span>
+                  <span className="tnum text-2xl font-medium text-ink">{range(o)}</span>
                   <span className="ml-2 text-sm text-ink-3">{IMPACT_SHORT[o.impact_kind]}</span>
                   <span className="mt-0.5 block truncate text-sm text-ink-2 group-hover:text-ink group-hover:underline">{o.title}</span>
                 </button>
@@ -120,7 +120,7 @@ function WorthColumn({
   return (
     <div className="min-w-0">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="text-[13px] font-semibold text-ink-2">
+        <h3 className="text-sm font-semibold text-ink-2">
           {title} <span className="ml-1 font-normal text-ink-3">{rows.length}</span>
         </h3>
         <span className="text-xs text-ink-3">{hint}</span>
@@ -203,7 +203,7 @@ function PipelineTrack({ all, onPick }: { all: Opportunity[]; onPick: (f: Filter
               className="group flex w-full flex-col items-center rounded-lg px-1 pb-1 text-center"
               aria-label={`${n} ${STATUS_META[s].label}`}
             >
-              <span className={cn('text-2xl font-semibold leading-8', n ? 'text-ink' : 'text-ink-3/60')}>{n}</span>
+              <span className={cn('tnum text-2xl font-medium leading-8', n ? 'text-ink' : 'text-ink-3/60')}>{n}</span>
               <span
                 className={cn('relative z-10 my-2 size-3 rounded-full ring-4 ring-page transition-transform group-hover:scale-125', dot)}
                 aria-hidden
@@ -246,10 +246,10 @@ function FindingCard({ o, overview, featured, onOpen }: { o: Opportunity; overvi
 
       <div className={cn('mt-3 grid gap-6', featured && 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-10')}>
         <div className="min-w-0">
-          <h2 className={cn('font-semibold leading-snug text-ink', featured ? 'text-xl' : 'text-sm')}>{o.title}</h2>
+          <h2 className={cn('font-semibold leading-snug text-ink', featured ? 'text-lg' : 'text-sm')}>{o.title}</h2>
           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-3">{o.summary}</p>
           <div className="mt-5">
-            <div className={cn('font-semibold text-ink', featured ? 'text-2xl' : 'text-2xl')}>
+            <div className={cn('tnum text-2xl font-medium text-ink')}>
               {o.impact_high === null ? 'Not quantified' : `${murCompact(o.impact_low)} – ${axisMur(o.impact_high)}`}
             </div>
             <div className="text-sm text-ink-3">{IMPACT_LABEL[o.impact_kind]}</div>
@@ -434,7 +434,7 @@ export function OpportunitiesPage() {
               </button>
             )}
           </label>
-          <label className="flex h-10 items-center gap-1 rounded-full border border-line bg-surface pl-4 pr-2 text-sm text-ink-3 ">
+          <label className="flex h-10 items-center gap-1 rounded-full border border-line bg-surface pl-4 pr-2 text-sm text-ink-3">
             Sort:
             <select
               value={sort}

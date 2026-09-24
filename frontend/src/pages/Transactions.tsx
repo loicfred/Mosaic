@@ -168,7 +168,7 @@ function Detail({ id, onClose }: { id: string | null; onClose: () => void }) {
                 </p>
               ))}
               <Link to="/data-health" className="text-accent-600 hover:underline">
-                Review in Data Health
+                Review in data health
               </Link>
             </div>
           )}

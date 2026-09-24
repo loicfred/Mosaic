@@ -71,7 +71,7 @@ export function SecurityPage() {
   return (
     <>
       <PageHeader
-        title="Security & Audit"
+        title="Security & audit"
         description="Controls read live from the running system. Only implemented controls are listed."
       />
       <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-3">

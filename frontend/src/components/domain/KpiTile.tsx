@@ -38,15 +38,13 @@ export function KpiTile({
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-ink-3">
           {Icon && (
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-700" aria-hidden>
-              <Icon className="size-4" />
-            </span>
+            <Icon className="size-4 shrink-0 text-ink-3" aria-hidden />
           )}
           <span className="truncate">{label}</span>
         </span>
         {kind}
       </div>
-      <div className="whitespace-nowrap text-lg font-semibold leading-tight text-ink sm:text-2xl">{value}</div>
+      <div className="whitespace-nowrap tnum text-lg font-medium text-ink sm:text-2xl">{value}</div>
       <div className="flex min-h-5 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-3">
         {delta}
         {foot}

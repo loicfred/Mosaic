@@ -447,7 +447,7 @@ export function DataHealthPage() {
   return (
     <>
       <PageHeader
-        title="Data Health"
+        title="Data health"
         description="Is the data good enough to trust? Fixes are proposed, never applied silently: each needs approval and is logged."
       />
       <Tabs value={tab} onValueChange={setTab}>

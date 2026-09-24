@@ -83,7 +83,7 @@ function Figure({
     <div className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-line bg-surface p-4">
       <div className="text-xs font-medium text-ink-3">{label}</div>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <span className="text-xl font-semibold text-ink" title={kind === 'mur' ? mur(scen) : undefined}>
+        <span className="tnum text-lg font-medium text-ink" title={kind === 'mur' ? mur(scen) : undefined}>
           {f(scen)}
         </span>
         <span
@@ -125,7 +125,7 @@ export function ScenarioLabPage() {
   return (
     <>
       <PageHeader
-        title="Scenario Lab"
+        title="Scenario lab"
         description="Try a decision before you make it: see its effect on the next 90 days of cash. Your actual transactions are never modified."
         actions={<DataKind kind="simulated" />}
       />
