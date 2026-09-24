@@ -18,7 +18,7 @@ export interface HBarRow {
 export function HBarList({
   rows,
   format,
-  color = 'var(--color-actual)',
+  color = 'var(--color-series-1)',
   max,
 }: {
   rows: HBarRow[]
@@ -41,7 +41,7 @@ export function HBarList({
             </span>
             <div className="col-span-2 row-start-2 h-2.5 @md:col-span-1 @md:row-start-1 @md:col-start-2 @md:h-3">
               <div
-                className="grow-x h-full rounded-r-[4px]"
+                className="h-full rounded-r-sm"
                 style={{ width: `${Math.max(1, (r.value / m) * 100)}%`, background: color, opacity: r.highlight === false ? 0.45 : 1 }}
               />
             </div>

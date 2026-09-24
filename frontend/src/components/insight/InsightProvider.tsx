@@ -11,7 +11,7 @@ const MIN_THINK_MS = 280
 /** Earlier turns sent with a question so follow-ups ("and last month?") make sense. */
 const HISTORY_TURNS = 6
 
-const asText = (a: Answer) => [a.headline, a.body, ...a.facts.map((f) => `${f.label}: ${f.value}`)].filter(Boolean).join(' ').slice(0, 800)
+const asText = (a: Answer) => [a.headline, a.body, ...a.facts.map((f) => `${f.label}: ${f.value}`)].filter(Boolean).join('').slice(0, 800)
 
 function busy(e: ApiError): Answer {
   const d = (e.details ?? {}) as { retry_after?: number; scope?: string }

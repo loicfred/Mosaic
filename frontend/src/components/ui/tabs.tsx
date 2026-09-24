@@ -4,20 +4,16 @@ import { cn } from '@/lib/cn'
 export const Tabs = T.Root
 export const TabsContent = T.Content
 
+/** Underlined tabs on a hairline: the selected tab is Petrol, the rest stay neutral. */
 export function TabsList({ className, ...p }: T.TabsListProps) {
-  return (
-    <T.List
-      className={cn('inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-line bg-surface p-1 shadow-card', className)}
-      {...p}
-    />
-  )
+  return <T.List className={cn('flex max-w-full gap-6 overflow-x-auto border-b border-line', className)} {...p} />
 }
 
 export function TabsTrigger({ className, ...p }: T.TabsTriggerProps) {
   return (
     <T.Trigger
       className={cn(
-        'shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-ink-2 transition-colors hover:text-ink data-[state=active]:bg-accent-600 data-[state=active]:text-white',
+        '-mb-px shrink-0 whitespace-nowrap border-b-2 border-transparent pb-2.5 pt-1 text-sm font-medium text-ink-3 transition-colors duration-150 hover:text-ink data-[state=active]:border-accent-600 data-[state=active]:text-accent-600',
         className,
       )}
       {...p}

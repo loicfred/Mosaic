@@ -8,7 +8,7 @@ export function InfoTip({ content, label = 'How this is calculated' }: { content
     <Tip content={content}>
       <button
         type="button"
-        className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-ink-3 hover:bg-brand-50 hover:text-ink"
+        className="inline-flex size-5 shrink-0 items-center justify-center rounded-full text-ink-3 hover:bg-mist hover:text-ink"
         aria-label={label}
       >
         <Info className="size-3.5" aria-hidden />

@@ -27,7 +27,7 @@ export function Slider({
       onValueChange={(v) => onChange(v[0])}
       aria-label={label}
     >
-      <S.Track className="relative h-1.5 grow rounded-full bg-brand-100">
+      <S.Track className="relative h-1 grow rounded-full bg-mist">
         <span
           className="absolute h-full rounded-full bg-simulated"
           style={{ left: `${Math.min(zeroPct, valPct)}%`, width: `${Math.abs(valPct - zeroPct)}%` }}
@@ -36,7 +36,7 @@ export function Slider({
       </S.Track>
       <S.Thumb
         aria-label={label}
-        className="block size-5 rounded-full border-2 border-surface bg-simulated shadow ring-1 ring-simulated/40 focus-visible:outline-2 focus-visible:outline-accent-600"
+        className="block size-4 rounded-full border-2 border-surface bg-simulated ring-1 ring-simulated focus-visible:outline-2 focus-visible:outline-accent-500"
       />
     </S.Root>
   )

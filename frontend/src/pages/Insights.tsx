@@ -48,7 +48,7 @@ interface Recurring {
 
 function TraceLink({ to, children }: { to: string; children: ReactNode }) {
   return (
-    <Link to={to} className="inline-flex items-center gap-1 text-xs font-medium text-accent-700 hover:underline">
+    <Link to={to} className="inline-flex items-center gap-1 text-xs font-medium text-accent-600 hover:underline">
       {children} <ArrowRight className="size-3" />
     </Link>
   )
@@ -67,8 +67,8 @@ const SECTIONS = [
 function Group({ id, title, insight }: { id: string; title: string; insight: ReactNode }) {
   return (
     <div id={id} className="mb-4 mt-12 scroll-mt-20">
-      <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-3">{title}</h2>
-      <p className="mt-1.5 max-w-3xl text-xl font-semibold leading-snug tracking-tight text-ink">{insight}</p>
+      <h2 className="text-xs font-medium text-ink-3">{title}</h2>
+      <p className="mt-1.5 max-w-3xl text-xl font-semibold leading-snug text-ink">{insight}</p>
     </div>
   )
 }
@@ -168,7 +168,7 @@ function CashForecast() {
             each customer's recent payment speed, and VAT due dates. It is a projection, not a recorded value.
           </p>
         </div>
-        <div className="border-t border-line bg-periwinkle-50 p-5 lg:border-l lg:border-t-0 lg:p-6">
+        <div className="border-t border-line bg-surface p-5 lg:border-l lg:border-t-0 lg:p-6">
           <PredictionCard p={d.prediction} />
         </div>
       </div>
@@ -215,13 +215,13 @@ export function InsightsPage() {
 
       <nav
         aria-label="Sections"
-        className="no-print mb-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-full border border-line bg-surface p-1 shadow-card"
+        className="no-print mb-6 inline-flex max-w-full gap-1 overflow-x-auto rounded-md border border-line bg-surface p-1"
       >
         {SECTIONS.map(([id, label]) => (
           <a
             key={id}
             href={`#${id}`}
-            className="shrink-0 whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium text-ink-2 transition-colors hover:bg-ink/[0.05] hover:text-ink"
+            className="shrink-0 whitespace-nowrap rounded px-3 py-1 text-sm font-medium text-ink-2 transition-colors hover:bg-mist hover:text-ink"
           >
             {label}
           </a>
@@ -277,7 +277,7 @@ export function InsightsPage() {
         title="Trend"
         insight={
           <>
-            Revenue {change(cmp.change_pct.revenue)} while cost of goods {change(cmp.change_pct.cost_of_goods)} - gross margin is{' '}
+            Revenue {change(cmp.change_pct.revenue)} while cost of goods {change(cmp.change_pct.cost_of_goods)} - gross margin is{''}
             {cmp.current.gross_margin_pct.toFixed(1)}%.
           </>
         }
@@ -345,7 +345,7 @@ export function InsightsPage() {
         title="Costs & sales"
         insight={
           <>
-            {topCost ? `${topCost.category} takes ${topCost.share_pct.toFixed(0)}% of every rupee spent.` : 'Where the money goes.'}{' '}
+            {topCost ? `${topCost.category} takes ${topCost.share_pct.toFixed(0)}% of every rupee spent.` : 'Where the money goes.'}{''}
             {bestLine &&
               bestLine.yoy_change_pct !== null &&
               `${bestLine.line} is the fastest-growing line (+${bestLine.yoy_change_pct.toFixed(0)}% a year).`}
@@ -455,7 +455,7 @@ export function InsightsPage() {
               </ul>
             )}
             <details className="group rounded-lg border border-line">
-              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-medium text-ink-2 hover:bg-surface-2">
+              <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-medium text-ink-2 hover:bg-mist">
                 All {recurring.length} recurring payments
                 <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
               </summary>

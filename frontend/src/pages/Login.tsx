@@ -1,4 +1,4 @@
-import { ArrowRight, Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useAuth } from '@/auth/AuthProvider'
@@ -34,8 +34,8 @@ export function LoginPage() {
 
   return (
     <AuthLayout>
-      <h1 className="text-[28px] font-semibold leading-tight tracking-[-0.02em] text-ink">Welcome back</h1>
-      <p className="mt-1 text-sm text-ink-3">Please enter your email and password.</p>
+      <h1 className="text-2xl font-semibold text-ink">Welcome back</h1>
+      <p className="mt-1 text-sm text-ink-3">Sign in to continue to Valora.</p>
       <form onSubmit={submit} className="mt-6 space-y-4" noValidate>
         <label className="block text-sm">
           <span className="font-medium text-ink-2">Email</span>
@@ -66,7 +66,7 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => setShow(!show)}
-              className="absolute right-1.5 top-[calc(50%+3px)] -translate-y-1/2 rounded-md p-2 text-ink-3 hover:bg-brand-50 hover:text-ink"
+              className="absolute right-1.5 top-[calc(50%+3px)] -translate-y-1/2 rounded-md p-2 text-ink-3 hover:bg-mist hover:text-ink"
               aria-label={show ? 'Hide password' : 'Show password'}
             >
               {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -74,23 +74,23 @@ export function LoginPage() {
           </div>
         </div>
         {error && (
-          <p role="alert" className="rounded-lg border border-bad/20 bg-bad-bg px-3 py-2 text-sm text-bad-ink">
+          <p role="alert" className="rounded bg-bad-bg px-3 py-2 text-sm text-bad-ink">
             {error}
           </p>
         )}
-        <Button type="submit" className="group h-11 w-full text-[15px]" disabled={busy}>
+        <Button type="submit" size="lg" className="w-full" disabled={busy}>
           {busy ? (
             'Signing in…'
           ) : (
             <>
-              Sign in <ArrowRight className="transition-transform group-hover:translate-x-0.5" />
+              Sign in
             </>
           )}
         </Button>
       </form>
       <p className="mt-5 text-center text-sm text-ink-3">
-        Don&apos;t have an account yet?{' '}
-        <Link to="/register" className="font-medium text-accent-700 underline-offset-2 hover:underline">
+        Don&apos;t have an account yet?{''}
+        <Link to="/register" className="font-medium text-accent-600 underline-offset-2 hover:underline">
           Create account
         </Link>
       </p>

@@ -1,232 +1,173 @@
 @import 'tailwindcss';
 
-/* Inter (SIL Open Font License, see assets/fonts/Inter-LICENSE.txt), bundled so the demo works offline. */
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('./assets/fonts/inter-latin-wght-normal.woff2') format('woff2-variations');
-}
-
 /*
- * Valora design tokens.
- * Brand palette (vivid versions of the Valora logo colours):
- *   charcoal   #2C2C2C  text and structure
- *   sage       #7DB356  positive states, secondary accents
- *   gold       #F5B82E  highlights and attention
- *   periwinkle #6770F7  primary interactive colour, charts, selected navigation
- *   coral      #FF6B45  warnings, anomalies, alerts
- * Surfaces stay mostly neutral off-white. Components use semantic names
- * (surface, ink, brand, accent, good, warn, bad), never raw colours.
- * The -600/-700 steps are darker shades of the same hues, used wherever a
- * colour carries text or a thin mark and must clear WCAG contrast.
- * Status colours are reserved for state and always paired with an icon and a
- * text label.
+ * Valora design tokens (Brand & UI Guidelines: Petrol on cool slate neutrals).
+ *   ink-900 #0E1726  headings, key numbers, the "actual" data line
+ *   ink-700 #3B4556  body text, table cells
+ *   ink-500 #6B7585  secondary text, axis labels, captions
+ *   ink-300 #B4BCC8  disabled states and icons at rest, never body text
+ *   petrol  #16586F  the only colour that means "you can click this" or "this is the prediction"
+ * About 80% neutrals, 10-15% Petrol, under 5% semantic colours. Semantic colours
+ * always come with a sign, icon or word. Components use semantic names
+ * (surface, ink, accent, good, warn, bad), never raw colours.
  */
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Consolas, monospace;
 
-  /* Raw brand hues */
-  --color-charcoal: #2c2c2c;
-  --color-sage-50: #eff7e9;
-  --color-sage-100: #dcefd0;
-  --color-sage-500: #7db356;
-  --color-sage-600: #5a9138;
-  --color-sage-700: #3f6e24;
-  --color-gold-50: #fef7e6;
-  --color-gold-100: #fdebc0;
-  --color-gold-500: #f5b82e;
-  --color-gold-600: #b07a06;
-  --color-gold-700: #855a05;
-  --color-periwinkle-50: #f1f2ff;
-  --color-periwinkle-100: #e2e4fe;
-  --color-periwinkle-200: #c7cbfd;
-  --color-periwinkle-500: #6770f7;
-  --color-periwinkle-600: #4f57eb;
-  --color-periwinkle-700: #3f46cf;
-  --color-coral-50: #fff0eb;
-  --color-coral-100: #ffd9cd;
-  --color-coral-500: #ff6b45;
-  --color-coral-600: #e04e28;
-  --color-coral-700: #b0361a;
+  /* Radii: 4px inputs and tags, 6px buttons, 8px cards and modals. Nothing larger except avatars. */
+  --radius-sm: 4px;
+  --radius: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 6px;
+  --radius-2xl: 8px;
+  --radius-3xl: 8px;
+  --radius-card: 8px;
 
-  /* Surfaces and text */
-  --color-page: #eef0fb; /* flat fallback of the app background */
+  /* Neutrals */
+  --color-page: #f6f7f9; /* canvas */
   --color-surface: #ffffff;
-  --color-surface-2: #f6f7fb;
-  --color-line: #e7e7ec;
-  --color-line-strong: #d3d3db;
+  --color-surface-2: #f6f7f9; /* subtle fills: table headers, insets */
+  --color-mist: #eef1f4; /* row hover, gridlines */
+  --color-line: #dde2e8;
+  --color-line-strong: #b4bcc8;
 
-  --color-ink: #2c2c2c;
-  --color-ink-2: #4a4a47;
-  --color-ink-3: #5c5c58;
+  --color-ink: #0e1726;
+  --color-ink-2: #3b4556;
+  --color-ink-3: #6b7585;
+  --color-ink-4: #b4bcc8;
 
-  /* "brand" = charcoal structure */
-  --color-brand-950: #1c1c1c;
-  --color-brand-900: #2c2c2c;
-  --color-brand-800: #333331;
-  --color-brand-700: #4a4a47;
-  --color-brand-100: #ececf1;
-  --color-brand-50: #f3f3f7;
+  /* "brand" = slate structure */
+  --color-brand-950: #0e1726;
+  --color-brand-900: #0e1726;
+  --color-brand-800: #1f2937;
+  --color-brand-700: #3b4556;
+  --color-brand-100: #eef1f4;
+  --color-brand-50: #f6f7f9;
 
-  /* "accent" = periwinkle, the interactive colour */
-  --color-accent-700: #3f46cf;
-  --color-accent-600: #4f57eb;
-  --color-accent-500: #6770f7;
-  --color-accent-100: #e2e4fe;
-  --color-accent-50: #f1f2ff;
+  /* "accent" = Petrol, the interactive and prediction colour */
+  --color-accent-700: #10445a;
+  --color-accent-600: #16586f;
+  --color-accent-500: #2b7f9c;
+  --color-accent-100: #e4eff3;
+  --color-accent-50: #e4eff3;
 
-  /* Status: sage (good), gold (watch), coral (serious), deep coral (bad) */
-  --color-good: #7db356;
-  --color-good-ink: #3f6e24;
-  --color-good-bg: #eff7e9;
-  --color-warn: #f5b82e;
-  --color-warn-ink: #855a05;
-  --color-warn-bg: #fef6e3;
-  --color-serious: #ff6b45;
-  --color-serious-ink: #b0361a;
-  --color-serious-bg: #fff0eb;
-  --color-bad: #d93a1f;
-  --color-bad-ink: #a92e14;
-  --color-bad-bg: #fdebe6;
+  /* Legacy hue names, mapped onto the new palette so nothing renders off-brand */
+  --color-periwinkle-50: #e4eff3;
+  --color-periwinkle-100: #e4eff3;
+  --color-periwinkle-200: #a9cad6;
+  --color-periwinkle-500: #16586f;
+  --color-periwinkle-600: #16586f;
+  --color-periwinkle-700: #10445a;
+  --color-sage-50: #e8f3ed;
+  --color-sage-100: #e8f3ed;
+  --color-sage-500: #1e7a4f;
+  --color-sage-600: #1e7a4f;
+  --color-sage-700: #1e7a4f;
+  --color-gold-50: #fbf1e3;
+  --color-gold-100: #fbf1e3;
+  --color-gold-500: #d08c2b;
+  --color-gold-600: #a15c07;
+  --color-gold-700: #a15c07;
+  --color-coral-50: #fbecea;
+  --color-coral-100: #fbecea;
+  --color-coral-500: #b4553d;
+  --color-coral-600: #b4553d;
+  --color-coral-700: #b42318;
 
-  /* Data kinds: actual, projected (deterministic), simulated (scenario), predicted (model).
-     actual = periwinkle; simulated = gold (deepened to #b07a06 so a thin line clears 3:1);
-     the pair passes the dataviz palette validator (CVD and contrast). */
-  --color-actual: #6770f7;
-  --color-projected: #75746f;
-  --color-simulated: #b07a06;
-  --color-series-3: #5a9138;
-  /* Expenses/outflows on actual charts: charcoal-grey against periwinkle revenue.
-     Separated by lightness (not hue) so it survives every colour-vision type; gold
-     stays reserved for "simulated" and coral for warnings. */
-  --color-expense: #5e5e5a;
-  --color-gain: #5a9138; /* sage-600: positive money (gains) as a mark */
-  --color-before: #c9c9d2; /* "before"/baseline marks in before-after comparisons */
-  --color-track: #eeeef3; /* empty part of meters and bars */
-  --color-grid: #ebebf0;
-  --color-axis: #a3a29c;
+  /* Semantic: success, warning (stale data, low confidence), danger. "serious" sits between warning and danger. */
+  --color-good: #1e7a4f;
+  --color-good-ink: #1e7a4f;
+  --color-good-bg: #e8f3ed;
+  --color-warn: #a15c07;
+  --color-warn-ink: #a15c07;
+  --color-warn-bg: #fbf1e3;
+  --color-serious: #b4553d;
+  --color-serious-ink: #9a4430;
+  --color-serious-bg: #fbecea;
+  --color-bad: #b42318;
+  --color-bad-ink: #b42318;
+  --color-bad-bg: #fbecea;
 
-  --radius-card: 20px;
-  --shadow-card: 0 1px 2px rgba(20, 22, 48, 0.04), 0 8px 24px -16px rgba(20, 22, 48, 0.12);
+  /* Data: actuals in ink-900 solid, projections/forecasts in Petrol dashed, simulations in Ochre. */
+  --color-actual: #0e1726;
+  --color-projected: #16586f;
+  --color-simulated: #d08c2b;
+  --color-band: rgba(22, 88, 111, 0.14);
+  /* Categorical series, in order (max 6) */
+  --color-series-1: #16586f;
+  --color-series-2: #d08c2b;
+  --color-series-3: #5c6fae;
+  --color-series-4: #b4553d;
+  --color-series-5: #4f8a6b;
+  --color-series-6: #8a5a8c;
+  --color-expense: #b4bcc8; /* outflow bars next to Petrol revenue: separated by lightness */
+  --color-gain: #1e7a4f;
+  --color-before: #b4bcc8;
+  --color-track: #eef1f4;
+  --color-grid: #eef1f4;
+  --color-axis: #b4bcc8;
+
+  --shadow-float: 0 4px 16px rgba(14, 23, 38, 0.08);
 }
 
-/* A white rounded panel: the one card style used across the app. */
+/* The one bordered panel style: surface, 1px line, 8px radius, no shadow. */
 @utility panel {
   border-radius: var(--radius-card);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  /* White at the top-left, fading into a soft tint (set per card with fade-*). */
-  background: linear-gradient(160deg, #ffffff 0%, #ffffff 28%, var(--fade, #e7eaff) 100%);
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-line);
+  background: var(--color-surface);
 }
-/* Card fade tints: each stays light enough that all text keeps AA contrast. */
-@utility fade-periwinkle {
-  --fade: #e7eaff;
-}
-@utility fade-sage {
-  --fade: #e5f2dc;
-}
-@utility fade-gold {
-  --fade: #fcefd2;
-}
-@utility fade-coral {
-  --fade: #ffe7dd;
-}
-/* One uniform, soft background for the whole app (fixed, so it never repeats while scrolling). */
 @utility app-bg {
-  background-color: #eef0fb;
-  background-image: linear-gradient(135deg, #e9ecff 0%, #f1edfb 38%, #f6f1f6 62%, #ecf5ef 100%);
-  background-attachment: fixed;
+  background-color: var(--color-page);
+}
+@utility shadow-float {
+  box-shadow: var(--shadow-float);
+}
+@utility tnum {
+  font-variant-numeric: tabular-nums;
 }
 
 @layer base {
   html {
-    font-feature-settings: 'cv11', 'ss03';
-    color: var(--color-ink);
-    background-color: #eef0fb;
-    background-image: linear-gradient(135deg, #e9ecff 0%, #f1edfb 38%, #f6f1f6 62%, #ecf5ef 100%);
-    background-attachment: fixed;
+    font-family: var(--font-sans);
+    font-size: 100%;
+    color: var(--color-ink-2);
+    background-color: var(--color-page);
     -webkit-font-smoothing: antialiased;
+    font-variant-numeric: tabular-nums;
   }
   body {
     min-height: 100vh;
+    font-size: 14px;
+    line-height: 20px;
   }
   :focus-visible {
-    outline: 2px solid var(--color-accent-600);
+    outline: 2px solid var(--color-accent-500);
     outline-offset: 2px;
-    border-radius: 4px;
+  }
+  /* One outline icon set (Lucide) at a 1.5px stroke everywhere. */
+  svg.lucide {
+    stroke-width: 1.5;
+  }
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
   }
 }
 
-@keyframes grow-x {
-  from {
-    transform: scaleX(0);
-  }
-}
-/* Bars and meters grow once on first paint (fast, and disabled for reduced motion). */
-.grow-x {
-  transform-origin: left;
-  animation: grow-x 450ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-}
-.fade-up {
-  animation: fade-up 220ms ease-out both;
-}
-
-/* Valora Insight orb */
-@keyframes orbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes core-pulse {
-  40% {
-    transform: scale(1.18);
-  }
-}
-/* Still by default; it only moves on hover and while reading data (no constant motion). */
-.orb .orb-ring {
-  transform-origin: 24px 24px;
-}
-.orb[data-state='hover'] .orb-ring {
-  animation: orbit 6s linear infinite;
-}
-.orb[data-state='thinking'] .orb-ring {
-  animation: orbit 1.1s linear infinite;
-}
-.orb .orb-core {
-  transform-origin: 24px 24px;
-}
-.orb[data-state='answer'] .orb-core {
-  animation: core-pulse 520ms ease-out 1;
-}
-
+/* Opening a floating panel: a short fade that confirms the state change. */
 @keyframes panel-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
 }
 .panel-in {
-  animation: panel-in 200ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.tnum {
-  font-variant-numeric: tabular-nums;
+  animation: panel-in 160ms ease-out both;
 }
 
 @media print {
-  /* Print is a new layout pass: never capture a bar mid-animation. */
-  .grow-x,
-  .fade-up {
-    animation: none !important;
-  }
   .no-print {
     display: none !important;
   }
@@ -258,21 +199,12 @@ html[data-text='larger'] {
 }
 /* Higher contrast: darker secondary text, stronger lines, underlined links, thicker focus. */
 html[data-contrast='high'] {
-  --color-ink-2: #1f1f1f;
-  --color-ink-3: #3a3a38;
-  --color-line: #9a9aa6;
-  --color-line-strong: #6b6b77;
+  --color-ink-2: #0e1726;
+  --color-ink-3: #3b4556;
+  --color-line: #6b7585;
+  --color-line-strong: #3b4556;
   --color-page: #ffffff;
   --color-surface-2: #ffffff;
-}
-html[data-contrast='high'],
-html[data-contrast='high'] .app-bg {
-  background-image: none;
-  background-color: #ffffff;
-}
-html[data-contrast='high'] .panel {
-  background: #ffffff;
-  border-color: var(--color-line);
 }
 html[data-contrast='high'] a {
   text-decoration: underline;

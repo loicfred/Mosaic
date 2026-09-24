@@ -46,7 +46,7 @@ export function Meter({
         aria-valuemax={max}
         aria-valuenow={Math.round(value * 100) / 100}
       >
-        <div className={cn('grow-x h-full rounded-full', FILL[tone])} style={{ width: `${w}%` }} />
+        <div className={cn('h-full rounded-full', FILL[tone])} style={{ width: `${w}%` }} />
         {marker && (
           <span
             className="absolute -top-1 h-[calc(100%+8px)] w-0.5 -translate-x-1/2 rounded-full bg-ink"

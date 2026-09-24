@@ -1,4 +1,4 @@
-import { Area, CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { CartesianGrid, ComposedChart, Line, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { axisMur, shortDate } from '@/lib/format'
 import { ChartTooltipBox, LegendKey } from './ChartTooltip'
 import { axisTick, C, dateTitle } from './theme'
@@ -25,7 +25,7 @@ export function CashChart({ actual, projected = [], buffer, height = 280 }: Prop
         <LegendKey
           items={[
             { label: 'Actual cash', color: C.actual },
-            ...(projected.length ? [{ label: 'Projected (current run-rates)', color: C.projected, dashed: true }] : []),
+            ...(projected.length ? [{ label: 'Projected, current run-rates', color: C.projected, dashed: true }] : []),
             ...(buffer ? [{ label: '14-day safety buffer', color: C.bad }] : []),
           ]}
         />
@@ -61,11 +61,10 @@ export function CashChart({ actual, projected = [], buffer, height = 280 }: Prop
                 x={last.date}
                 stroke={C.axis}
                 strokeWidth={1}
-                label={{ value: 'Today', position: 'insideTopRight', fill: '#6b6b67', fontSize: 12 }}
+                label={{ value: 'Today', position: 'insideTopRight', fill: '#6B7585', fontSize: 12 }}
               />
             ) : null}
-            <Area type="monotone" dataKey="actual" stroke="none" fill={C.actual} fillOpacity={0.08} isAnimationActive={false} />
-            <Line
+                        <Line
               type="monotone"
               dataKey="actual"
               stroke={C.actual}

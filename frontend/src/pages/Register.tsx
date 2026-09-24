@@ -98,12 +98,12 @@ export function RegisterPage() {
 
   return (
     <AuthLayout>
-      <h1 className="text-[24px] font-semibold leading-tight tracking-[-0.02em] text-ink">Create your Valora business account</h1>
+      <h1 className="text-[24px] font-semibold leading-tight text-ink">Create your Valora business account</h1>
       <p className="mt-1 text-sm text-ink-3">You become the owner of the new business in Valora.</p>
 
       <form onSubmit={submit} className="mt-8 space-y-8" noValidate>
         <fieldset className="space-y-5">
-          <legend className="mb-4 text-xs font-semibold uppercase tracking-wider text-ink-3">You</legend>
+          <legend className="mb-4 text-xs font-medium text-ink-3">You</legend>
           <Field label="Full name">
             <input autoComplete="name" required value={f.full_name} onChange={set('full_name')} className={inputClass} />
           </Field>
@@ -128,7 +128,7 @@ export function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setShow(!show)}
-                className="absolute right-1.5 top-[calc(50%+3px)] -translate-y-1/2 rounded-md p-2 text-ink-3 hover:bg-brand-50 hover:text-ink"
+                className="absolute right-1.5 top-[calc(50%+3px)] -translate-y-1/2 rounded-md p-2 text-ink-3 hover:bg-mist hover:text-ink"
                 aria-label={show ? 'Hide password' : 'Show password'}
               >
                 {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -147,7 +147,7 @@ export function RegisterPage() {
         </fieldset>
 
         <fieldset className="space-y-5">
-          <legend className="mb-4 text-xs font-semibold uppercase tracking-wider text-ink-3">Your business</legend>
+          <legend className="mb-4 text-xs font-medium text-ink-3">Your business</legend>
           <Field label="Business name">
             <input autoComplete="organization" required value={f.business_name} onChange={set('business_name')} className={inputClass} />
           </Field>
@@ -186,7 +186,7 @@ export function RegisterPage() {
         <p className="flex gap-2.5 rounded-lg border border-line bg-surface px-3.5 py-3 text-xs leading-relaxed text-ink-2">
           <Info className="mt-0.5 size-4 shrink-0 text-accent-600" aria-hidden />
           <span>
-            Your business starts empty. Nothing is generated for you: after signing up, import your transactions as a CSV from{' '}
+            Your business starts empty. Nothing is generated for you: after signing up, import your transactions as a CSV from{''}
             <strong className="font-medium text-ink">Data Health</strong>. Valora currently works in Mauritian rupees (MUR).
           </span>
         </p>
@@ -196,13 +196,13 @@ export function RegisterPage() {
             {error}
           </p>
         )}
-        <Button type="submit" className="h-11 w-full text-[15px]" disabled={busy}>
+        <Button type="submit" className="h-11 w-full text-sm" disabled={busy}>
           {busy ? 'Creating your account…' : 'Create account'}
         </Button>
       </form>
       <p className="mt-5 text-center text-sm text-ink-3">
-        Already have an account?{' '}
-        <Link to="/login" className="font-medium text-accent-700 hover:underline">
+        Already have an account?{''}
+        <Link to="/login" className="font-medium text-accent-600 hover:underline">
           Sign in
         </Link>
       </p>

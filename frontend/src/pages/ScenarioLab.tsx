@@ -80,7 +80,7 @@ function Figure({
   const good = diff === 0 ? null : goodWhen === 'up' ? diff > 0 : diff < 0
   const f = (v: number) => (kind === 'mur' ? murCompact(v) : `${v} days`)
   return (
-    <div className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-line bg-surface p-4 shadow-[var(--shadow-card)]">
+    <div className="flex flex-col gap-2 rounded-[var(--radius-card)] border border-line bg-surface p-4">
       <div className="text-xs font-medium text-ink-3">{label}</div>
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <span className="text-xl font-semibold text-ink" title={kind === 'mur' ? mur(scen) : undefined}>
@@ -154,7 +154,7 @@ export function ScenarioLabPage() {
                   type="button"
                   aria-pressed={Object.entries({ ...ZERO, ...p.a }).every(([k, v]) => a[k as keyof Assumptions] === v)}
                   onClick={() => setA({ ...ZERO, ...p.a })}
-                  className="rounded-full border border-line-strong px-2.5 py-1 text-xs text-ink-2 transition-colors hover:border-serious hover:bg-serious-bg/40 aria-pressed:border-serious aria-pressed:bg-serious-bg aria-pressed:font-medium aria-pressed:text-serious-ink"
+                  className="rounded border border-line px-2 py-1 text-xs text-ink-2 transition-colors hover:border-serious hover:bg-serious-bg/40 aria-pressed:border-serious aria-pressed:bg-serious-bg aria-pressed:font-medium aria-pressed:text-serious-ink"
                 >
                   {p.name}
                 </button>
@@ -228,9 +228,9 @@ export function ScenarioLabPage() {
                     </InsightStrip>
                   ) : (
                     <InsightStrip tone={r.scenario.cash_day_90 >= r.baseline.cash_day_90 ? 'good' : 'attention'}>
-                      With these assumptions, cash in 90 days would be{' '}
-                      <strong className="font-semibold">{murCompact(r.scenario.cash_day_90)}</strong> instead of{' '}
-                      {murCompact(r.baseline.cash_day_90)} ({murCompact(r.scenario.cash_day_90 - r.baseline.cash_day_90, true)}), with{' '}
+                      With these assumptions, cash in 90 days would be{''}
+                      <strong className="font-semibold">{murCompact(r.scenario.cash_day_90)}</strong> instead of{''}
+                      {murCompact(r.baseline.cash_day_90)} ({murCompact(r.scenario.cash_day_90 - r.baseline.cash_day_90, true)}), with{''}
                       {r.scenario.days_below_buffer} of 90 days under the buffer instead of {r.baseline.days_below_buffer}. This is a
                       simulation, not a forecast.
                     </InsightStrip>
@@ -253,7 +253,7 @@ export function ScenarioLabPage() {
                       format={(v) => murCompact(v, true)}
                     />
                     <details className="group rounded-lg border border-line">
-                      <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-medium text-ink-2 hover:bg-surface-2">
+                      <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5 text-sm font-medium text-ink-2 hover:bg-mist">
                         90-day totals by driver
                         <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
                       </summary>
@@ -301,7 +301,7 @@ export function ScenarioLabPage() {
                       <p className="text-ink-3">No changes - this is the baseline projection.</p>
                     )}
                     <details className="group">
-                      <summary className="flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-accent-700">
+                      <summary className="flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-accent-600">
                         How the projection works
                         <ChevronDown className="size-3.5 transition-transform group-open:rotate-180" aria-hidden />
                       </summary>
@@ -312,7 +312,7 @@ export function ScenarioLabPage() {
                         <li>Selling-price changes assume sales volume stays the same unless you also change volume.</li>
                         {r.backtest_median_error_pct !== null && (
                           <li>
-                            Back-test: 30-day projections from past dates missed actual cash by a median of{' '}
+                            Back-test: 30-day projections from past dates missed actual cash by a median of{''}
                             {r.backtest_median_error_pct.toFixed(1)}% of monthly outflows.
                           </li>
                         )}

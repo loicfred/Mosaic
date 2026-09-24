@@ -43,20 +43,20 @@ export function ValoraLogo({
   /** On a coloured background: the mark sits on a white tile and the word is white. */
   onColor?: boolean
 }) {
-  const mark = { sm: 'size-7', md: 'size-8', lg: 'size-11' }[size]
-  const word = { sm: 'text-[17px]', md: 'text-[19px]', lg: 'text-[26px]' }[size]
+  const mark = { sm: 'size-6', md: 'size-8', lg: 'size-10' }[size]
+  const word = { sm: 'text-base', md: 'text-lg', lg: 'text-2xl' }[size]
   return (
     <div className={cn('flex items-center gap-2', className)}>
       {onColor ? (
-        <span className="flex size-10 items-center justify-center rounded-xl bg-white">
+        <span className="flex size-10 items-center justify-center rounded-md bg-white">
           <ValoraMark className="size-8" />
         </span>
       ) : (
         <ValoraMark className={mark} orbit={size !== 'sm'} />
       )}
       <div className="leading-none">
-        <span className={cn('block font-semibold tracking-[-0.03em]', onColor ? 'text-white' : 'text-ink', word)}>Valora</span>
-        {tagline && <span className="mt-1.5 block text-xs font-medium text-ink-3">Turning Financial Data into Opportunity</span>}
+        <span className={cn('block font-semibold', onColor ? 'text-white' : 'text-ink', word)}>Valora</span>
+        {tagline && <span className="mt-1 block text-xs text-ink-3">Turning financial data into opportunity</span>}
       </div>
     </div>
   )

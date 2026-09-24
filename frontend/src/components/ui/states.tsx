@@ -1,41 +1,51 @@
-import { AlertTriangle, Inbox, RefreshCw } from 'lucide-react'
+import { AlertTriangle, RefreshCw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { ApiError } from '@/lib/api'
 import { cn } from '@/lib/cn'
 import { Button } from './button'
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse rounded-md bg-ink/[0.07]', className)} aria-hidden />
+  return <div className={cn('animate-pulse rounded bg-mist', className)} aria-hidden />
 }
 
+/** Shaped like a page: header, a primary panel with a chart area, then table rows. */
 export function PageSkeleton() {
   return (
-    <div className="space-y-4" role="status" aria-label="Loading">
+    <div role="status" aria-label="Loading">
       <h1 className="sr-only">Loading</h1>
-      <Skeleton className="h-8 w-64" />
-      <div className="grid gap-4 md:grid-cols-4">
+      <Skeleton className="h-7 w-56" />
+      <Skeleton className="mt-2 h-4 w-80 max-w-full" />
+      <div className="panel mt-6 p-5">
+        <Skeleton className="h-4 w-40" />
+        <Skeleton className="mt-3 h-8 w-48" />
+        <Skeleton className="mt-6 h-56 w-full" />
+      </div>
+      <div className="panel mt-6 divide-y divide-line">
         {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={i} className="h-28" />
+          <div key={i} className="flex items-center gap-4 px-5 py-3">
+            <Skeleton className="h-4 flex-1" />
+            <Skeleton className="h-4 w-24" />
+          </div>
         ))}
       </div>
-      <Skeleton className="h-72" />
     </div>
   )
 }
 
+/** Says why there is nothing to show and, through children, what to do next. */
 export function EmptyState({ title, children, icon }: { title: string; children?: ReactNode; icon?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-      <div className="mb-3 rounded-full bg-brand-50 p-3 text-ink-3">{icon ?? <Inbox className="size-5" />}</div>
-      <p className="font-medium text-ink">{title}</p>
+    <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
+      {icon && <div className="mb-2 text-ink-4 [&_svg]:size-5">{icon}</div>}
+      <p className="text-sm font-medium text-ink">{title}</p>
       {children && <div className="mt-1 max-w-md text-sm text-ink-3">{children}</div>}
     </div>
   )
 }
 
 /**
- * Says what happened, what it means, and what to do. The server's own message is
- * shown only as a small reference line, never as the headline.
+ * Says what failed and what to do next. The server's own message is shown only
+ * as a small reference line, never as the headline.
  */
 export function ErrorState({
   error,
@@ -50,24 +60,23 @@ export function ErrorState({
 }) {
   const e = error instanceof ApiError ? error : null
   return (
-    <div
-      role="alert"
-      className="flex flex-col items-center justify-center rounded-xl border border-bad/20 bg-bad-bg/50 px-6 py-10 text-center"
-    >
-      <AlertTriangle className="mb-2 size-6 text-bad" aria-hidden />
-      <p className="font-semibold text-ink">{title}</p>
-      <p className="mt-1 max-w-md text-sm text-ink-2">{meaning}</p>
-      {e && (
-        <p className="mt-2 text-xs text-ink-3">
-          {e.message}
-          {e.requestId && <> · reference {e.requestId}</>}
-        </p>
-      )}
-      {onRetry && (
-        <Button variant="secondary" className="mt-4" onClick={onRetry}>
-          <RefreshCw /> Try again
-        </Button>
-      )}
+    <div role="alert" className="panel flex items-start gap-3 px-5 py-5">
+      <AlertTriangle className="mt-0.5 size-5 shrink-0 text-bad" aria-hidden />
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-ink">{title}</p>
+        <p className="mt-0.5 text-sm text-ink-2">{meaning}</p>
+        {e && (
+          <p className="mt-2 font-mono text-xs text-ink-3">
+            {e.message}
+            {e.requestId && <> · reference {e.requestId}</>}
+          </p>
+        )}
+        {onRetry && (
+          <Button variant="secondary" size="sm" className="mt-3" onClick={onRetry}>
+            <RefreshCw /> Try again
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

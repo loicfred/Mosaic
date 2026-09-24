@@ -84,7 +84,7 @@ export function Dumbbell({
               <span className="tnum text-right text-xs whitespace-nowrap text-ink-3 @md:col-start-3 @md:row-start-1 @md:w-24">
                 {has ? (
                   <>
-                    {Math.round(r.from as number)} →{' '}
+                    {Math.round(r.from as number)} →{''}
                     <strong className={cn('text-sm', worse ? 'text-serious-ink' : 'text-ink')}>{Math.round(r.to as number)}</strong> {unit}
                   </>
                 ) : (

@@ -44,37 +44,38 @@ export function AccessibilityMenu() {
   return (
     <M.Root>
       <M.Trigger
-        className="relative flex size-10 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors hover:border-accent-500 hover:text-ink data-[state=open]:border-accent-500"
+        className="relative flex h-8 items-center justify-center gap-2 rounded-md border border-line bg-surface px-2 text-sm font-medium text-ink-2 transition-colors hover:bg-mist hover:text-ink data-[state=open]:bg-mist sm:px-3"
         aria-label="Accessibility settings: text size, contrast and motion"
       >
-        <Accessibility className="size-5" aria-hidden />
-        {changed && <span className="absolute right-1.5 top-1.5 size-2 rounded-full bg-accent-600" aria-hidden />}
+        <Accessibility className="size-4" aria-hidden />
+        <span className="hidden sm:inline">Display</span>
+        {changed && <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-accent-600" aria-hidden />}
       </M.Trigger>
       <M.Portal>
         <M.Content
           align="end"
           sideOffset={8}
-          className="z-50 w-64 rounded-2xl border border-line bg-surface p-2 text-sm text-ink shadow-[0_18px_48px_-18px_rgba(20,22,48,0.35)]"
+          className="panel-in shadow-float z-50 w-64 rounded-lg border border-line bg-surface p-2 text-sm text-ink"
         >
           <M.Label className="px-2 pb-1 pt-1.5 text-sm font-semibold">Display settings</M.Label>
           <p className="px-2 pb-2 text-xs text-ink-3">Saved in this browser only.</p>
           {GROUPS.map((g, i) => (
             <div key={g.key}>
               {i > 0 && <M.Separator className="my-1.5 h-px bg-line" />}
-              <M.Label className="px-2 pb-1 pt-1 text-xs font-semibold uppercase tracking-wider text-ink-3">{g.label}</M.Label>
+              <M.Label className="px-2 pb-1 pt-1 text-xs font-medium text-ink-3">{g.label}</M.Label>
               <M.RadioGroup value={prefs[g.key]} onValueChange={(v) => set(g.key, v)}>
                 {g.options.map((o) => (
                   <M.RadioItem
                     key={o.value}
                     value={o.value}
                     className={cn(
-                      'flex min-h-10 cursor-pointer items-center justify-between rounded-lg px-2 outline-none',
-                      'data-[highlighted]:bg-accent-50 data-[state=checked]:font-semibold',
+                      'flex h-9 cursor-pointer items-center justify-between rounded-md px-2 outline-none',
+                      'data-[highlighted]:bg-mist data-[state=checked]:font-medium data-[state=checked]:text-accent-600',
                     )}
                   >
                     {o.label}
                     <M.ItemIndicator>
-                      <Check className="size-4 text-accent-700" aria-hidden />
+                      <Check className="size-4 text-accent-600" aria-hidden />
                     </M.ItemIndicator>
                   </M.RadioItem>
                 ))}

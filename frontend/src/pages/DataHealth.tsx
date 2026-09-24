@@ -486,7 +486,7 @@ export function DataHealthPage() {
                     'No changes waiting for a decision'
                   )}
                 </span>
-                {(proposals.data?.length ?? 0) > 0 && <span className="text-xs font-medium text-accent-700">Review ↓</span>}
+                {(proposals.data?.length ?? 0) > 0 && <span className="text-xs font-medium text-accent-600">Review ↓</span>}
               </a>
             </div>
             <Card>
@@ -508,7 +508,7 @@ export function DataHealthPage() {
                     {c.status !== 'ok' && c.key !== 'valid' && (
                       <Link
                         to={`/transactions?flag=${c.key === 'coverage' ? 'uncategorised' : c.key === 'duplicates' ? 'duplicate' : 'anomaly'}`}
-                        className="shrink-0 self-center text-xs font-medium text-accent-700 hover:underline"
+                        className="shrink-0 self-center text-xs font-medium text-accent-600 hover:underline"
                       >
                         View
                       </Link>
@@ -554,10 +554,10 @@ export function DataHealthPage() {
                   <li key={b.id}>
                     <button
                       onClick={() => setBatch(b.id)}
-                      className="flex w-full flex-wrap items-center justify-between gap-2 px-5 py-3 text-left text-sm hover:bg-surface-2"
+                      className="flex w-full flex-wrap items-center justify-between gap-2 px-5 py-3 text-left text-sm hover:bg-mist"
                     >
                       <span>
-                        <span className="font-medium text-ink">{b.filename}</span>{' '}
+                        <span className="font-medium text-ink">{b.filename}</span>{''}
                         <span className="text-ink-3">
                           · {dateTime(b.created_at)} · {b.uploaded_by}
                         </span>

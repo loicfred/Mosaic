@@ -34,7 +34,7 @@ export function KpiTile({
   className?: string
 }) {
   return (
-    <Card className={cn('flex flex-col gap-1.5 p-4 transition-shadow hover:shadow-md', className)}>
+    <Card className={cn('flex flex-col gap-1.5 p-4 transition- ', className)}>
       <div className="flex items-center justify-between gap-2">
         <span className="flex min-w-0 items-center gap-2 text-sm font-medium text-ink-3">
           {Icon && (
@@ -46,7 +46,7 @@ export function KpiTile({
         </span>
         {kind}
       </div>
-      <div className="whitespace-nowrap text-[21px] font-semibold leading-tight tracking-tight text-ink sm:text-[26px]">{value}</div>
+      <div className="whitespace-nowrap text-lg font-semibold leading-tight text-ink sm:text-2xl">{value}</div>
       <div className="flex min-h-5 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-3">
         {delta}
         {foot}

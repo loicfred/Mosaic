@@ -185,7 +185,7 @@ export function FindingVisual({ o, overview, large }: { o: Opportunity; overview
       return (
         <Figure caption="Monthly cost of each tool">
           <Compare
-            rows={rows.map((e, i) => ({ label: e.label.split(' ')[0], value: e.value as number, tone: i === 0 ? 'ink' : 'before' }))}
+            rows={rows.map((e, i) => ({ label: e.label.split('')[0], value: e.value as number, tone: i === 0 ? 'ink' : 'before' }))}
             format={(v) => murCompact(v)}
           />
         </Figure>
@@ -225,7 +225,7 @@ function Compare({
           <span className="truncate text-ink-3">{r.label}</span>
           <span className="relative h-2">
             <span
-              className={cn('grow-x block h-full rounded-r-[3px]', TONE[r.tone])}
+              className={cn('block h-full rounded-r-[3px]', TONE[r.tone])}
               style={{ width: `${Math.max(2, (r.value / max) * 100)}%` }}
             />
             {marker && (

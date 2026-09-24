@@ -40,7 +40,7 @@ export function BeforeAfter({
           <span className="text-ink-3">{r.label}</span>
           <span className="h-2.5 rounded-r-[4px] bg-transparent">
             <span
-              className="grow-x block h-full rounded-r-[4px]"
+              className="block h-full rounded-r-[4px]"
               style={{ width: `${Math.max(1.5, (Math.abs(r.value) / m) * 100)}%`, background: r.color }}
             />
           </span>

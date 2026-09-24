@@ -63,11 +63,11 @@ function Headline({
     <dl className="panel grid grid-cols-2 gap-y-6 px-6 py-6 lg:grid-cols-[auto_auto_1fr_1fr] lg:divide-x lg:divide-line">
       <div className="pr-8">
         <dt className="text-sm text-ink-3">Open findings</dt>
-        <dd className="mt-1 text-[32px] font-semibold leading-none tracking-tight text-ink">{open.length}</dd>
+        <dd className="mt-1 text-[28px] font-semibold leading-none text-ink">{open.length}</dd>
       </div>
       <div className="lg:px-8">
         <dt className="text-sm text-ink-3">Need a decision now</dt>
-        <dd className={cn('mt-1 text-[32px] font-semibold leading-none tracking-tight', urgent ? 'text-serious-ink' : 'text-ink')}>
+        <dd className={cn('mt-1 text-[28px] font-semibold leading-none', urgent ? 'text-serious-ink' : 'text-ink')}>
           {urgent}
         </dd>
       </div>
@@ -81,7 +81,7 @@ function Headline({
               <dt className={cn('text-sm font-medium', tone)}>{title}</dt>
               <dd className="mt-1">
                 <button type="button" onClick={() => onOpen(o.id)} className="group block max-w-full text-left">
-                  <span className="text-2xl font-semibold tracking-tight text-ink">{range(o)}</span>
+                  <span className="text-2xl font-semibold text-ink">{range(o)}</span>
                   <span className="ml-2 text-sm text-ink-3">{IMPACT_SHORT[o.impact_kind]}</span>
                   <span className="mt-0.5 block truncate text-sm text-ink-2 group-hover:text-ink group-hover:underline">{o.title}</span>
                 </button>
@@ -120,7 +120,7 @@ function WorthColumn({
   return (
     <div className="min-w-0">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="text-[13px] font-semibold uppercase tracking-wider text-ink-2">
+        <h3 className="text-[13px] font-semibold text-ink-2">
           {title} <span className="ml-1 font-normal text-ink-3">{rows.length}</span>
         </h3>
         <span className="text-xs text-ink-3">{hint}</span>
@@ -132,7 +132,7 @@ function WorthColumn({
               type="button"
               onClick={() => onOpen(o.id)}
               aria-label={`${o.title}: ${range(o)} ${IMPACT_SHORT[o.impact_kind]}`}
-              className="group grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-surface-2 @sm:grid-cols-[minmax(0,1.3fr)_minmax(5rem,1fr)_8.5rem]"
+              className="group grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 rounded-lg px-2 py-2.5 text-left transition-colors hover:bg-mist @sm:grid-cols-[minmax(0,1.3fr)_minmax(5rem,1fr)_8.5rem]"
             >
               <span className="min-w-0">
                 <span className="line-clamp-2 text-[14.5px] font-medium leading-snug text-ink">{o.title}</span>
@@ -142,7 +142,7 @@ function WorthColumn({
                 <span className="absolute inset-x-0 top-1/2 h-px bg-line" />
                 <span className="absolute top-1/2 h-px bg-ink-3/40" style={{ width: x(o.impact_low ?? 0) }} />
                 <span
-                  className="grow-x absolute inset-y-0 rounded-full transition-[filter] group-hover:brightness-90"
+                  className="absolute inset-y-0 rounded-full transition-[filter] group-hover:brightness-90"
                   style={{
                     left: x(o.impact_low ?? 0),
                     width: `max(6px, calc(${x(o.impact_high ?? 0)} - ${x(o.impact_low ?? 0)}))`,
@@ -203,7 +203,7 @@ function PipelineTrack({ all, onPick }: { all: Opportunity[]; onPick: (f: Filter
               className="group flex w-full flex-col items-center rounded-lg px-1 pb-1 text-center"
               aria-label={`${n} ${STATUS_META[s].label}`}
             >
-              <span className={cn('text-2xl font-semibold leading-8 tracking-tight', n ? 'text-ink' : 'text-ink-3/60')}>{n}</span>
+              <span className={cn('text-2xl font-semibold leading-8', n ? 'text-ink' : 'text-ink-3/60')}>{n}</span>
               <span
                 className={cn('relative z-10 my-2 size-3 rounded-full ring-4 ring-page transition-transform group-hover:scale-125', dot)}
                 aria-hidden
@@ -226,13 +226,13 @@ function FindingCard({ o, overview, featured, onOpen }: { o: Opportunity; overvi
   return (
     <article
       className={cn(
-        'panel flex flex-col p-6 transition-shadow hover:shadow-[0_12px_32px_-18px_rgba(20,22,48,0.3)]',
-        o.kind === 'risk' ? 'fade-coral' : 'fade-sage',
+        'panel flex flex-col p-6 transition- hover:',
+        o.kind === 'risk' ? '' : '',
         featured && 'lg:col-span-2',
       )}
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+        <span className="flex items-center gap-2 text-xs font-medium">
           <span className={cn('size-2 rounded-full', sev.dot)} aria-hidden />
           <span className={sev.ink}>{sev.label}</span>
           <span className="font-medium text-ink-3">· {o.kind === 'risk' ? 'Risk' : 'Opportunity'}</span>
@@ -246,10 +246,10 @@ function FindingCard({ o, overview, featured, onOpen }: { o: Opportunity; overvi
 
       <div className={cn('mt-3 grid gap-6', featured && 'lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] lg:gap-10')}>
         <div className="min-w-0">
-          <h2 className={cn('font-semibold leading-snug tracking-tight text-ink', featured ? 'text-xl' : 'text-[17px]')}>{o.title}</h2>
+          <h2 className={cn('font-semibold leading-snug text-ink', featured ? 'text-xl' : 'text-sm')}>{o.title}</h2>
           <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-3">{o.summary}</p>
           <div className="mt-5">
-            <div className={cn('font-semibold tracking-tight text-ink', featured ? 'text-[30px]' : 'text-2xl')}>
+            <div className={cn('font-semibold text-ink', featured ? 'text-2xl' : 'text-2xl')}>
               {o.impact_high === null ? 'Not quantified' : `${murCompact(o.impact_low)} – ${axisMur(o.impact_high)}`}
             </div>
             <div className="text-sm text-ink-3">{IMPACT_LABEL[o.impact_kind]}</div>
@@ -271,7 +271,7 @@ function FindingCard({ o, overview, featured, onOpen }: { o: Opportunity; overvi
       <div className="mt-auto pt-5">
         {o.actions[0] && (
           <p className="border-t border-line pt-4 text-sm">
-            <span className="mr-2 text-xs font-semibold uppercase tracking-wider text-ink-3">Next</span>
+            <span className="mr-2 text-xs font-medium text-ink-3">Next</span>
             <span className="text-ink">{o.actions[0].title}</span>
           </p>
         )}
@@ -377,7 +377,7 @@ export function OpportunitiesPage() {
 
       <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
         <div
-          className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-line bg-surface p-1 shadow-card"
+          className="flex max-w-full gap-1 overflow-x-auto rounded-md border border-line bg-surface p-1"
           role="tablist"
           aria-label="Filter by stage"
         >
@@ -397,7 +397,7 @@ export function OpportunitiesPage() {
           ))}
         </div>
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <div className="flex rounded-full border border-line bg-surface p-1 text-sm shadow-card" role="group" aria-label="Filter by type">
+          <div className="flex rounded-md border border-line bg-surface p-1 text-sm" role="group" aria-label="Filter by type">
             {(['all', 'risk', 'opportunity'] as const).map((k) => (
               <button
                 key={k}
@@ -406,7 +406,7 @@ export function OpportunitiesPage() {
                 onClick={() => setKind(k)}
                 className={cn(
                   'min-h-8 rounded-full px-3',
-                  kind === k ? 'bg-accent-50 font-semibold text-accent-700' : 'text-ink-2 hover:text-ink',
+                  kind === k ? 'bg-accent-50 font-semibold text-accent-600' : 'text-ink-2 hover:text-ink',
                 )}
               >
                 {k === 'all' ? 'All' : k === 'risk' ? 'Risks' : 'Opportunities'}
@@ -421,7 +421,7 @@ export function OpportunitiesPage() {
               onChange={(e) => setText(e.target.value)}
               placeholder="Search"
               maxLength={60}
-              className="h-10 w-40 rounded-full border border-line bg-surface pl-9 pr-8 text-sm shadow-card outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100 sm:w-48"
+              className="h-10 w-40 rounded-full border border-line bg-surface pl-9 pr-8 text-sm  outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100 sm:w-48"
             />
             {text && (
               <button
@@ -434,7 +434,7 @@ export function OpportunitiesPage() {
               </button>
             )}
           </label>
-          <label className="flex h-10 items-center gap-1 rounded-full border border-line bg-surface pl-4 pr-2 text-sm text-ink-3 shadow-card">
+          <label className="flex h-10 items-center gap-1 rounded-full border border-line bg-surface pl-4 pr-2 text-sm text-ink-3 ">
             Sort:
             <select
               value={sort}

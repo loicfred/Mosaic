@@ -57,7 +57,7 @@ function Change({
     <span
       className={cn(
         'inline-flex items-center gap-1 text-sm font-medium',
-        chip && 'rounded-full px-2.5 py-1',
+        chip && 'rounded px-1.5 py-0.5',
         good === null ? 'text-ink-3' : good ? 'text-good-ink' : 'text-bad-ink',
         chip && (good === null ? 'bg-brand-50' : good ? 'bg-good-bg' : 'bg-bad-bg'),
       )}
@@ -76,10 +76,10 @@ function OverviewSkeleton() {
       <Skeleton className="h-4 w-40" />
       <Skeleton className="mt-3 h-9 w-[min(520px,90%)]" />
       <div className="mt-7 grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-        <Skeleton className="h-72 rounded-[20px]" />
-        <Skeleton className="h-72 rounded-[20px]" />
-        <Skeleton className="h-80 rounded-[20px]" />
-        <Skeleton className="h-80 rounded-[20px]" />
+        <Skeleton className="h-72 rounded-lg" />
+        <Skeleton className="h-72 rounded-lg" />
+        <Skeleton className="h-80 rounded-lg" />
+        <Skeleton className="h-80 rounded-lg" />
       </div>
     </div>
   )
@@ -127,7 +127,7 @@ function FirstSteps({ d, name }: { d: Overview; name: string }) {
           <dd className="mt-0.5 text-lg font-semibold text-ink">{date(d.data_window[0])}</dd>
         </div>
       </dl>
-      <ol className="grid gap-px overflow-hidden rounded-[20px] border border-line bg-line shadow-card md:grid-cols-3">
+      <ol className="grid gap-px overflow-hidden rounded-lg border border-line bg-line  md:grid-cols-3">
         {steps.map((s, i) => (
           <li key={s.title} className="flex flex-col bg-surface p-5">
             <span className="flex items-center gap-2 text-xs font-medium text-ink-3">
@@ -135,7 +135,7 @@ function FirstSteps({ d, name }: { d: Overview; name: string }) {
             </span>
             <span className="mt-2 font-semibold text-ink">{s.title}</span>
             <span className="mt-1 flex-1 text-sm text-ink-3">{s.body}</span>
-            <Link to={s.to} className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent-700 hover:underline">
+            <Link to={s.to} className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:underline">
               {s.cta} <ArrowRight className="size-3.5" aria-hidden />
             </Link>
           </li>
@@ -183,9 +183,9 @@ export function OverviewPage() {
   const chg = ins.data?.comparison_90d?.change_pct as Record<string, number | null> | undefined
   const spend = cur
     ? [
-        { label: 'Stock & supplies', value: cur.cost_of_goods, color: 'bg-periwinkle-500' },
-        { label: 'Operating costs', value: cur.operating_expenses, color: 'bg-sage-500' },
-        { label: 'VAT', value: cur.tax, color: 'bg-gold-500' },
+        { label: 'Stock & supplies', value: cur.cost_of_goods, color: 'bg-[var(--color-series-1)]' },
+        { label: 'Operating costs', value: cur.operating_expenses, color: 'bg-[var(--color-series-2)]' },
+        { label: 'VAT', value: cur.tax, color: 'bg-[var(--color-series-3)]' },
       ].filter((x) => x.value > 0)
     : []
   const spendTotal = spend.reduce((s, x) => s + x.value, 0)
@@ -198,21 +198,21 @@ export function OverviewPage() {
   return (
     <>
       <PageHeader
-        title={`${greeting()}, ${name}`}
-        meta={`Overview · data to ${date(d.as_of)}`}
-        description="Here's what needs your attention this week."
+        title="Overview"
+        description="Cash forecast and the signals that need attention."
+        meta={<>{greeting()}, {name} · data to <span className="font-mono">{date(d.as_of)}</span></>}
       />
 
       {/* ROW 1 (Z, top): where cash stands  →  what to do about it */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-        <Card aria-labelledby="cash-status" className="fade-coral flex flex-col">
+        <Card aria-labelledby="cash-status" className="flex flex-col">
           <CardHeader
             title="Cash position"
             subtitle="End-of-day balance from recorded transactions"
             action={
               <span
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold',
+                  'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium',
                   below ? 'bg-serious-bg text-serious-ink' : 'bg-good-bg text-good-ink',
                 )}
               >
@@ -222,7 +222,7 @@ export function OverviewPage() {
             }
           />
           <CardBody className="flex flex-1 flex-col">
-            <p id="cash-status" className="max-w-2xl text-2xl font-semibold leading-snug tracking-tight text-ink sm:text-[26px]">
+            <p id="cash-status" className="max-w-2xl text-2xl font-semibold leading-snug text-ink sm:text-2xl">
               {below
                 ? inDays !== null && inDays >= 0
                   ? `Cash may fall below your safety buffer in ${inDays} ${inDays === 1 ? 'day' : 'days'}.`
@@ -232,7 +232,7 @@ export function OverviewPage() {
             <div className="mt-6">
               <div className="text-sm text-ink-3">Cash today, compared with 30 days ago</div>
               <div className="mt-1 flex flex-wrap items-center gap-3">
-                <span className="tnum text-[40px] font-semibold leading-none tracking-tight text-ink" title={mur(d.cash.balance)}>
+                <span className="tnum text-[28px] font-semibold leading-none text-ink" title={mur(d.cash.balance)}>
                   {murCompact(d.cash.balance)}
                 </span>
                 <Change value={cashChange} chip />
@@ -266,12 +266,12 @@ export function OverviewPage() {
 
       {/* ROW 2 (Z, middle): the last three months  →  the cash outlook */}
       <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.55fr)]">
-        <Card className="fade-sage flex flex-col">
+        <Card className="flex flex-col">
           <CardHeader title="Last 3 months" subtitle={`${monthSpan(k.period)} compared with the 3 months before`} />
           <CardBody className="flex flex-1 flex-col">
             <div className="text-sm text-ink-3">Revenue</div>
             <div className="mt-1 flex flex-wrap items-center gap-3">
-              <span className="tnum text-[36px] font-semibold leading-none tracking-tight text-ink" title={mur(k.revenue)}>
+              <span className="tnum text-[28px] font-semibold leading-none text-ink" title={mur(k.revenue)}>
                 {murCompact(k.revenue)}
               </span>
               <Change value={k.revenue_change_pct} chip />
@@ -299,11 +299,11 @@ export function OverviewPage() {
             {spendTotal > 0 && (
               <figure className="mt-6">
                 <figcaption className="mb-2 text-sm font-medium text-ink">Where the money went</figcaption>
-                <div className="flex h-3 gap-1 overflow-hidden rounded-full" aria-hidden>
+                <div className="flex h-2 gap-0.5 overflow-hidden rounded" aria-hidden>
                   {spend.map((x) => (
                     <span
                       key={x.label}
-                      className={cn('grow-x h-full rounded-full', x.color)}
+                      className={cn('h-full', x.color)}
                       style={{ width: `${(x.value / spendTotal) * 100}%` }}
                     />
                   ))}
@@ -355,11 +355,11 @@ export function OverviewPage() {
       </div>
 
       {/* ROW 3 (Z, bottom): what else deserves a look */}
-      <Card className="fade-gold mt-5">
+      <Card className="mt-5">
         <CardHeader title="Other important findings" subtitle="Ranked by the opportunity engine from your own records" />
         <CardBody>
           {top.length === 0 ? (
-            <div className="rounded-2xl border border-line bg-surface-2 px-6 py-8 text-center">
+            <div className="rounded-lg border border-line bg-surface-2 px-6 py-8 text-center">
               <p className="font-medium text-ink">No new opportunities right now</p>
               <p className="mt-1 text-sm text-ink-3">Valora checks again after every import and will list anything worth reviewing here.</p>
             </div>
@@ -387,12 +387,12 @@ function NextStep({ o }: { o?: Opportunity }) {
   if (!o)
     return (
       <section aria-labelledby="next-step" className="panel flex flex-col p-6">
-        <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Recommended next step</p>
+        <p className="text-xs font-medium text-ink-3">Recommended next step</p>
         <h2 id="next-step" className="mt-3 text-xl font-semibold text-ink">
           Nothing needs a decision right now
         </h2>
         <p className="mt-2 text-sm text-ink-2">You can still test a change to prices, costs or collections before making it.</p>
-        <Link to="/scenarios" className="mt-auto pt-6 text-sm font-medium text-accent-700 underline underline-offset-2">
+        <Link to="/scenarios" className="mt-auto pt-6 text-sm font-medium text-accent-600 underline underline-offset-2">
           Open the Scenario Lab
         </Link>
       </section>
@@ -401,19 +401,19 @@ function NextStep({ o }: { o?: Opportunity }) {
   return (
     <section
       aria-labelledby="next-step"
-      className="flex flex-col rounded-[20px] bg-[#4f57eb] bg-[linear-gradient(150deg,#5b63f5_0%,#4f57eb_50%,#4148d6_100%)] p-6 text-white shadow-[0_18px_40px_-24px_rgba(63,70,207,0.9)]"
+      className="panel flex flex-col p-5"
     >
-      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+      <p className="flex items-center gap-2 text-xs font-medium text-ink-3">
         <Target className="size-4" aria-hidden /> Recommended next step
       </p>
-      <h2 id="next-step" className="mt-4 text-[22px] font-semibold leading-snug">
+      <h2 id="next-step" className="mt-3 text-lg font-semibold text-ink">
         {action}
       </h2>
-      <p className="mt-2 text-[15px] leading-relaxed">Why: {o.title.charAt(0).toLowerCase() + o.title.slice(1)}.</p>
+      <p className="mt-2 text-sm text-ink-2">Why: {o.title.charAt(0).toLowerCase() + o.title.slice(1)}.</p>
       {o.impact_low !== null && o.impact_high !== null && (
-        <div className="mt-5 rounded-2xl bg-[#3f46cf] px-4 py-3">
-          <p className="text-sm">{IMPACT_SHORT[o.impact_kind].replace(/^./, (c) => c.toUpperCase())} (estimate)</p>
-          <p className="tnum mt-0.5 text-2xl font-semibold">
+        <div className="mt-5 border-t border-line pt-4">
+          <p className="text-xs text-ink-3">{IMPACT_SHORT[o.impact_kind].replace(/^./, (c) => c.toUpperCase())} (estimate)</p>
+          <p className="tnum mt-1 text-[28px] font-medium leading-[34px] text-ink">
             {murCompact(o.impact_low)} – {murCompact(o.impact_high)}
           </p>
         </div>
@@ -421,18 +421,18 @@ function NextStep({ o }: { o?: Opportunity }) {
       <div className="mt-auto flex flex-col gap-2 pt-6">
         <Link
           to={`/opportunities?open=${o.id}`}
-          className="flex h-11 items-center justify-center gap-2 rounded-xl bg-white text-[15px] font-semibold text-[#3f46cf] transition-colors hover:bg-periwinkle-50"
+          className="flex h-9 items-center justify-center gap-2 rounded-md bg-accent-600 text-sm font-medium text-white transition-colors hover:bg-accent-700"
         >
           See what to do <ArrowRight className="size-4" aria-hidden />
         </Link>
         <Link
           to="/scenarios"
-          className="flex h-11 items-center justify-center gap-2 rounded-xl text-[15px] font-medium text-white ring-1 ring-inset ring-white/70 bg-[#3f46cf] transition-colors hover:bg-[#353bb5]"
+          className="flex h-9 items-center justify-center gap-2 rounded-md border border-line bg-surface text-sm font-medium text-ink transition-colors hover:bg-mist"
         >
           <FlaskConical className="size-4" aria-hidden /> Test a fix
         </Link>
       </div>
-      <p className="mt-3 text-center text-xs">You decide. Valora never changes your records.</p>
+      <p className="mt-3 text-center text-xs text-ink-3">You decide. Valora never changes your records.</p>
     </section>
   )
 }
@@ -440,7 +440,7 @@ function NextStep({ o }: { o?: Opportunity }) {
 /** What was found, why it matters, and the next step. */
 function FindingSummary({ o }: { o: Opportunity }) {
   return (
-    <li className="flex flex-col rounded-2xl border border-line bg-white/80 p-5">
+    <li className="flex flex-col rounded-lg border border-line bg-white/80 p-5">
       <div className="flex items-center gap-2">
         <SeverityBadge severity={o.severity} />
         <span className="text-sm text-ink-3">{o.kind === 'risk' ? 'Risk' : 'Opportunity'}</span>
@@ -452,7 +452,7 @@ function FindingSummary({ o }: { o: Opportunity }) {
           <>
             <strong className="tnum text-lg font-semibold text-ink">
               {murCompact(o.impact_low)} – {murCompact(o.impact_high)}
-            </strong>{' '}
+            </strong>{''}
             {IMPACT_SHORT[o.impact_kind]} <span className="text-ink-3">(estimate)</span>
           </>
         ) : (
@@ -466,7 +466,7 @@ function FindingSummary({ o }: { o: Opportunity }) {
       )}
       <Link
         to={`/opportunities?open=${o.id}`}
-        className="mt-4 inline-flex w-fit items-center gap-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-medium text-accent-700 transition-colors hover:border-accent-500 hover:bg-accent-50"
+        className="mt-4 inline-flex w-fit items-center gap-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-medium text-accent-600 transition-colors hover:border-line-strong hover:bg-mist"
       >
         Review this finding <ArrowRight className="size-4" aria-hidden />
       </Link>

@@ -8,6 +8,7 @@ export const C = {
   actual: 'var(--color-actual)',
   projected: 'var(--color-projected)',
   simulated: 'var(--color-simulated)',
+  series1: 'var(--color-series-1)',
   series3: 'var(--color-series-3)',
   expense: 'var(--color-expense)',
   before: 'var(--color-before)',
@@ -19,4 +20,4 @@ export const C = {
   bad: 'var(--color-bad)',
   ink3: 'var(--color-ink-3)',
 }
-export const axisTick = { fill: '#6b6b67', fontSize: 12 }
+export const axisTick = { fill: '#6B7585', fontSize: 12 }

@@ -26,7 +26,7 @@ export function Sparkline({
   const H = 32
   const pad = 3
   const xy = pts.map((v, i) => [(i / (pts.length - 1)) * W, pad + (1 - (v - min) / span) * (H - pad * 2)] as const)
-  const line = xy.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`).join(' ')
+  const line = xy.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(2)},${y.toFixed(2)}`).join('')
   const last = xy[xy.length - 1]
   return (
     <div className={cn('relative h-8 w-full', className)} role="img" aria-label={label}>

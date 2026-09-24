@@ -26,12 +26,12 @@ export function AskValora({
       type="button"
       onClick={() => ins.ask(question, context)}
       className={cn(
-        'no-print group inline-flex items-center gap-1.5 rounded-full py-1 pl-1 pr-2.5 text-xs font-medium text-ink-2 transition-colors hover:bg-accent-50 hover:text-accent-700',
+        'no-print group inline-flex items-center gap-1.5 rounded-md py-1 pl-1.5 pr-2 text-xs font-medium text-ink-2 transition-colors hover:bg-mist hover:text-accent-600',
         className,
       )}
       title={question}
     >
-      <InsightOrb state="static" className="size-5 text-ink" />
+      <InsightOrb className="size-4 text-accent-600" />
       {label}
     </button>
   )
