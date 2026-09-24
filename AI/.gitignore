@@ -1,6 +1,15 @@
-.venv/
+# secrets
+backend/.env
+*.env
+!.env.example
+# python
 __pycache__/
-.pytest_cache/
 *.pyc
-datasets/external/*
-!datasets/external/README.md
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+# node
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
