@@ -45,6 +45,8 @@ export interface Answer {
   via?: 'llm' | 'rules'
   /** LLM model id, shown on the answer. */
   model?: string
+  /** Total tokens the LLM call used, shown next to the model. */
+  tokens?: number
   /** True when the rules answered because the AI could not be reached (not by the user's choice). */
   fallback?: boolean
   retryAfter?: number

@@ -79,6 +79,11 @@ export function num(v: number | null | undefined) {
   return nf0.format(v)
 }
 
+/** A count in full under 1,000, then in thousands with one decimal: 842, 1k, 1.1k, 2.6k. */
+export function countCompact(v: number) {
+  return v < 1000 ? nf0.format(v) : `${Number((v / 1000).toFixed(1))}k`
+}
+
 export function percent01(v: number | null | undefined) {
   if (v === null || v === undefined) return '—'
   return `${Math.round(v * 100)}%`

@@ -57,10 +57,13 @@ def chat_json(messages: list[dict[str, str]], max_tokens: int = 2000) -> dict[st
                 raise LLMRateLimited(20) from None
         raise LLMError(f"status {r.status_code}")
     try:
-        content = r.json()["choices"][0]["message"]["content"]
+        body = r.json()
+        content = body["choices"][0]["message"]["content"]
         out = json.loads(content)
     except (KeyError, IndexError, TypeError, ValueError):
         raise LLMError("response was not valid JSON") from None
     if not isinstance(out, dict):
         raise LLMError("response was not a JSON object")
+    # Total tokens for this call (prompt + completion), under a reserved key the caller pops.
+    out["_tokens"] = (body.get("usage") or {}).get("total_tokens")
     return out

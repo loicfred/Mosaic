@@ -278,6 +278,7 @@ def ask(body: AskIn, a: Analysis, opps: list[Opportunity], business_name: str, p
     messages.append({"role": "user", "content": f"{line}\n{body.question}" if line else body.question})
 
     raw = groq.chat_json(messages)
+    tokens = raw.pop("_tokens", None)
 
     status = raw.get("status") if raw.get("status") in ("answer", "refusal", "empty") else "answer"
     headline = _clip(raw.get("headline"), 300)
@@ -297,4 +298,4 @@ def ask(body: AskIn, a: Analysis, opps: list[Opportunity], business_name: str, p
         visual=visual,
         sources=[SourceOut(label=sources[k][0], detail=sources[k][1], to=sources[k][2])
                  for k in dict.fromkeys(keys)] if status != "refusal" else [],
-        followUps=follow, model=get_settings().groq_model)
+        followUps=follow, model=get_settings().groq_model, tokens=tokens if isinstance(tokens, int) else None)

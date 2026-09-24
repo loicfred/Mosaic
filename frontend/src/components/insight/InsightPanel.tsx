@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { DataKind } from '@/components/domain/labels'
 import { Sparkline } from '@/components/viz/Sparkline'
 import { cn } from '@/lib/cn'
+import { countCompact, num } from '@/lib/format'
 import { suggestionsFor, type Answer, type Visual } from '@/lib/insight/engine'
 import { InsightOrb } from './InsightOrb'
 import { useInsight, type Entry } from './context'
@@ -44,10 +45,16 @@ function AnsweredBy({ a }: { a: Answer }) {
         'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium',
         ai ? 'border-accent-500/40 bg-accent-50 text-accent-700' : 'border-line bg-page text-ink-3',
       )}
-      title={ai ? `Written by the AI model ${a.model ?? ''} from Valora’s figures` : 'Written by Valora’s built-in rules'}
+      title={
+        ai
+          ? `Written by the AI model ${a.model ?? ''} from Valora’s figures${a.tokens != null ? ` (${num(a.tokens)} tokens)` : ''}`
+          : 'Written by Valora’s built-in rules'
+      }
     >
       {ai && <Sparkles className="size-3" aria-hidden />}
-      {ai ? `AI${a.model ? ` · ${a.model.replace(/^[^/]+\//, '')}` : ''}` : 'Built-in rules'}
+      {ai
+        ? `AI${a.model ? ` · ${a.model.replace(/^[^/]+\//, '')}` : ''}${a.tokens != null ? ` · ${countCompact(a.tokens)} tokens` : ''}`
+        : 'Built-in rules'}
     </span>
   )
 }

@@ -1,4 +1,4 @@
-import { axisMur, date, monthSpan, mur, murCompact, pct } from '@/lib/format'
+import { axisMur, countCompact, date, monthSpan, mur, murCompact, pct } from '@/lib/format'
 
 describe('formatting', () => {
   it('formats MUR consistently', () => {
@@ -15,5 +15,11 @@ describe('formatting', () => {
     expect(monthSpan(['2026-06-01', '2026-08-31'])).toBe('Jun – Aug 2026')
     expect(pct(7.81)).toBe('+7.8%')
     expect(pct(-3)).toBe('−3.0%')
+  })
+  it('formats token counts: full under 1,000, then k', () => {
+    expect(countCompact(842)).toBe('842')
+    expect(countCompact(1000)).toBe('1k')
+    expect(countCompact(1100)).toBe('1.1k')
+    expect(countCompact(2640)).toBe('2.6k')
   })
 })

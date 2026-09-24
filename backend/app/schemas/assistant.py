@@ -51,3 +51,4 @@ class AnswerOut(BaseModel):
     followUps: list[str] = Field(default_factory=list)  # noqa: N815 - matches the frontend field name
     via: Literal["llm"] = "llm"
     model: str | None = None
+    tokens: int | None = None  # total tokens the LLM call used (prompt + completion)

@@ -22,14 +22,15 @@ def test_ask_answers_from_computed_figures(client: TestClient, owner: dict, monk
     def fake(messages: list[dict[str, str]], max_tokens: int = 900) -> dict[str, Any]:
         seen["messages"] = messages
         return {"status": "answer", "headline": "Cash is MUR 1.2M.", "facts": [{"label": "Cash", "value": "MUR 1.2M"}],
-                "kind": "actual", "visual": "cash_90d", "sources": ["cash", "made-up"], "follow_ups": ["Why?"]}
+                "kind": "actual", "visual": "cash_90d", "sources": ["cash", "made-up"], "follow_ups": ["Why?"],
+                "_tokens": 1234}
 
     monkeypatch.setattr(groq, "chat_json", fake)
     r = client.post("/api/v1/insight/ask", headers=owner,
                     json={"question": "How much cash do we have?", "history": [{"question": "Hi", "answer": "Hello"}]})
     assert r.status_code == 200
     a = r.json()
-    assert a["via"] == "llm" and a["headline"] == "Cash is MUR 1.2M."
+    assert a["via"] == "llm" and a["headline"] == "Cash is MUR 1.2M." and a["tokens"] == 1234
     assert [s["label"] for s in a["sources"]] == ["Cash balance"]  # unknown source keys are dropped
     assert a["visual"]["type"] == "spark" and len(a["visual"]["values"]) == 90
     data = next(m["content"] for m in seen["messages"] if m["content"].startswith("DATA = "))
