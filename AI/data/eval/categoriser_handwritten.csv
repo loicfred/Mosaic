@@ -1,0 +1,62 @@
+description,direction,category
+Juice transfer to CEB account 4471,outflow,Utilities
+ELEC BILL SEPT,outflow,Utilities
+Water bill Aug CWA,outflow,Utilities
+Paid landlord shop Rose Hill Oct,outflow,Rent
+Monthly rent - Port Louis unit,outflow,Rent
+Lease instalment store premises,outflow,Rent
+Wages end of month staff,outflow,Payroll
+Salary transfer A. Ramdin,outflow,Payroll
+NPF/CSG contributions,outflow,Payroll
+PAYE remittance MRA,outflow,Payroll
+Bonus 13th month staff,outflow,Payroll
+Stock replenishment - kitchenware,outflow,Inventory & supplies
+Purchase of goods from wholesaler,outflow,Inventory & supplies
+Payment supplier invoice 2231,outflow,Inventory & supplies
+Restock tableware container,outflow,Inventory & supplies
+Packaging materials order,outflow,Inventory & supplies
+Import duties & goods clearance,outflow,Inventory & supplies
+Internet fibre monthly,outflow,Telecom & internet
+Mobile phone plan business,outflow,Telecom & internet
+Broadband & landline bill,outflow,Telecom & internet
+Accounting software monthly,outflow,Software & subscriptions
+Google Workspace subscription,outflow,Software & subscriptions
+POS licence renewal,outflow,Software & subscriptions
+Cloud storage plan,outflow,Software & subscriptions
+Instagram boosted posts,outflow,Marketing
+Newspaper advert weekend edition,outflow,Marketing
+Printing of promotional leaflets,outflow,Marketing
+Insurance premium shop contents,outflow,Insurance
+Fire & theft cover renewal,outflow,Insurance
+Fridge repair technician,outflow,Repairs & maintenance
+Fixing broken shutter,outflow,Repairs & maintenance
+Electrician call out,outflow,Repairs & maintenance
+Accountant fees quarter,outflow,Professional fees
+Legal advice on lease,outflow,Professional fees
+Audit fee annual,outflow,Professional fees
+Delivery van fuel,outflow,Transport & logistics
+Courier charges customers,outflow,Transport & logistics
+Freight local delivery,outflow,Transport & logistics
+Bank service charges,outflow,Bank fees
+Card terminal commission,outflow,Bank fees
+New cash register purchase,outflow,Equipment
+Laptop for office,outflow,Equipment
+VAT payable quarter 3,outflow,Taxes (VAT)
+MRA value added tax,outflow,Taxes (VAT)
+Loan monthly instalment bank,outflow,Loan repayment
+Leasing repayment vehicle loan,outflow,Loan repayment
+Owner withdrawal,outflow,Owner drawings
+Dividend to director,outflow,Owner drawings
+Card sales settlement,inflow,Sales
+Daily takings cash banked,inflow,Sales
+Customer payment invoice 1043,inflow,Sales
+Transfer from hotel client settlement,inflow,Sales
+POS takings Saturday,inflow,Sales
+Online shop payout,inflow,Sales
+Owner capital added,inflow,Owner contribution
+Director loan to company,inflow,Owner contribution
+Bank loan disbursement,inflow,Loan proceeds
+Interest received savings,inflow,Other income
+Refund from supplier overpayment,inflow,Other income
+Miscellaneous office supplies,outflow,Other expenses
+Cleaning services,outflow,Other expenses

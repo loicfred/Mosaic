@@ -1,0 +1,16 @@
+# Exact versions used to build and test this release (Python 3.11).
+fastapi==0.141.1
+uvicorn[standard]==0.46.0
+SQLAlchemy==2.0.54
+alembic==1.20.0
+psycopg[binary]==3.3.6
+pydantic==2.13.3
+pydantic-settings==2.14.0
+email-validator==2.3.0
+argon2-cffi==25.1.0
+PyJWT==2.12.1
+python-multipart==0.0.26
+pandas==3.0.2
+numpy==2.4.4
+scikit-learn==1.8.0
+joblib==1.5.3

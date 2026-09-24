@@ -1,205 +1,184 @@
-# AI backend — analytics and prediction API
+# Valora
 
-Python backend for the Mosaic hackathon app. It turns the Olist CSVs in `datasets/` into
-monthly series and an order-level feature table, trains four small models, and serves
-observed statistics, forecasts and risk scores over a FastAPI JSON API.
+**Turn raw financial data into evidence-backed decisions for small businesses.**
+Finnovate Web & AI Hackathon 2026 · Challenge 3 "Turning Financial Data into Opportunity".
 
-Designs: `../docs/superpowers/specs/2026-09-22-sales-forecast-design.md` and
-`../docs/superpowers/specs/2026-09-22-risk-and-category-models-design.md`.
+> Existing financial software can tell a business what happened. Valora
+> connects what happened to what should be investigated, what could be done,
+> what the financial impact could be, and whether the action actually worked.
+
+```
+DATA -> CLEAN -> UNDERSTAND -> DETECT -> EXPLAIN -> QUANTIFY -> SIMULATE -> ACT -> MEASURE
+```
+
+## The problem
+
+SME owners have bank exports and spreadsheets, not analysts. Dashboards show
+totals, but they do not say *which* supplier is eroding the margin, *how much*
+it is worth fixing, *what happens* to cash if they act, or *whether* the action
+they took last quarter paid off. Data usually arrives messy, and owners are right
+to be wary of sending their books to an AI service.
+
+## The solution
+
+| Stage | What Valora does |
+|---|---|
+| Clean | CSV import with validation, a Data Health score, duplicate detection, category suggestions from a local model. Every fix is a proposal that needs approval and is logged. |
+| Understand | A deterministic engine computes revenue, costs, margin, cash, recurring commitments, concentration and collection behaviour. |
+| Detect + explain | The **Opportunity Engine** turns metrics into findings (cash pressure, supplier cost inflation, slow collections, cost creep, overlapping tools, concentration risk, unusual payments, growing product lines), each with evidence, supporting transactions, confidence and a narrative written only from computed numbers. |
+| Predict | A logistic-regression model estimates the probability of cash pressure in the next 30 days, with per-feature drivers, evaluated against a rule-of-thumb baseline. |
+| Quantify | Every finding carries an impact range with its stated basis. |
+| Simulate | The Scenario Lab changes supplier prices, selling prices, volume, collection speed, recurring costs, marketing, staffing and inventory and re-projects 90 days of cash. Actual records are never modified. |
+| Act + measure | Findings move through New -> Reviewed -> Planned -> In progress -> Completed. When an action starts, the target metric's baseline is frozen and re-measured on later data ("Outcome achieved", "Partly achieved", "Too early"...). |
+| Ask | **Valora Insight** ("Ask Valora") answers questions about the business from figures Valora already computed, shows the source of every figure, and refuses what the data cannot answer. It is a deterministic router, not a chatbot. |
+| Onboard | A new business can sign up (owner account + empty business), then import its own CSV. |
+| Trust | RBAC, PostgreSQL row-level security, Argon2id, rotating refresh tokens, an append-only audit log, and no external AI calls. |
+
+## Architecture
+
+React + TypeScript (Vite, Tailwind, Radix/shadcn-style components, Recharts,
+TanStack Query) -> FastAPI (`/api/v1`, Pydantic, service and repository layers)
+-> PostgreSQL 16 with row-level security. Analytics and ML use pandas, NumPy and
+scikit-learn and run locally. Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+```
+backend/    FastAPI app, Alembic migrations, pytest suite
+frontend/   React app and Vitest tests
+ml/         model training and evaluation scripts
+scripts/    synthetic data, seeding, bootstrap, training
+data/       public/ (provided dataset), synthetic/, demo/, reference/, eval/
+models/     trained artefacts + evaluation metadata
+notebooks/  model_evaluation.ipynb
+docs/       architecture, threat model, security, model card, data dictionary, API, demo script
+tests/e2e/  browser walkthrough of the demo
+```
 
 ## Setup
 
-Requires Python 3.13 and the Olist CSVs in `datasets/`.
+Requirements: **Python 3.10-3.13**, **Node.js 20+**, **PostgreSQL 14+** (16 recommended).
 
-`datasets/small_business_cashflow.csv` (a separate, synthetic small-business practice dataset,
-unrelated to Olist) is optional: put it in `datasets/` to train and serve the cash-flow-stress
-model, or leave it out — the API still starts and every other endpoint works, `cashflow_stress`
-just stays untrained. It is gitignored; see "Cash-flow stress" under Models and honest evaluation, below, for provenance.
+### 1. Database
 
-```powershell
-cd AI
-.\.venv\Scripts\Activate.ps1          # or: python -m venv .venv
-pip install -r requirements.txt       # exact versions used: requirements.lock
+Either install PostgreSQL and run, as the `postgres` superuser:
+
+```bash
+psql -U postgres -f scripts/create_database.sql
 ```
 
-## Train
+or use Docker: `docker compose up -d db`.
 
-Train once, then only use: the API never trains at startup or per request (`create_app` defaults to
-`auto_train=False`). Run each trainer by hand, once, after placing its dataset file:
+The application role must **not** be a superuser (row-level security does not
+apply to superusers). The Security page warns you if it is.
 
-```powershell
-python -m app.forecast.train          # sales forecast      -> models/sales_forecast.*
-python -m app.models.train_risk       # late-delivery + low-review classifiers (~30 s)
-python -m app.models.train_cashflow   # cash-flow-stress classifier (~1 s, needs the CSV above)
+### 2. Backend
+
+```bash
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\activate      macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
+cd ..
+python scripts/bootstrap.py
 ```
 
-Every model stores the SHA-256 of the CSV(s) it was trained on; an endpoint refuses to serve a model
-whose data changed since (HTTP 409) or that was never trained (HTTP 503). Observed statistics keep
-working without any model. Retrain only when the dataset file changes or the model code/features change.
+`bootstrap.py` creates `backend/.env` with random secrets (edit `DATABASE_URL`
+if your database password differs from `change-me-locally`), applies the
+migrations, retrains the models if your scikit-learn version differs from the
+one used for the shipped artefacts, and seeds the demo.
 
-## Run
+Run the API:
 
-```powershell
-uvicorn app.main:app --reload --port 8000
+```bash
+cd backend
+python -m uvicorn app.main:app --port 8000
 ```
 
-Startup builds all series and the order feature table once and loads whatever models were already
-trained (see Train, above); it does not train anything itself. Interactive docs at http://127.0.0.1:8000/docs. CORS allows `http://localhost:5173` (Vite) by default;
-override with `MOSAIC_CORS_ORIGINS`. `MOSAIC_DATASETS_DIR` / `MOSAIC_MODELS_DIR` override paths.
+OpenAPI docs: http://127.0.0.1:8000/docs
 
-## Test
+### 3. Frontend
 
-```powershell
-python -m pytest tests -q  # active suite, using a small synthetic fixture
+```bash
+cd frontend
+npm install
+npm run dev          # http://localhost:5173 (proxies /api to :8000)
 ```
 
-## Endpoints
+For a production-like build with a strict Content-Security-Policy:
+`npm run build && npm run preview` (http://localhost:4173).
 
-| Endpoint | Returns | Needs model |
-| --- | --- | --- |
-| `GET /api/health` | status and which models are loaded | – |
-| `GET /api/sales/history` | monthly `orders`, `sales`, `freight` (2017-01..2018-08) + exclusion counts | – |
-| `GET /api/sales/forecast?horizon=3` | 1–6 month sales forecast with interval, two baselines, backtest metrics | sales_forecast |
-| `GET /api/sales/categories?limit=20&flag=` | per category: recent vs previous 3 months, share change, flags with evidence, 3-month forecast | – |
-| `GET /api/sales/categories/{category}` | the same plus the monthly series; 404 if unknown | – |
-| `GET /api/risk/delivery/summary` | observed monthly late rate + model evaluation (`model: null` if untrained) | – |
-| `GET /api/risk/delivery/open-orders?limit=50` | in-flight orders ranked by late-delivery risk score | late_delivery |
-| `GET /api/risk/delivery/sellers?min_orders=30&limit=50` | per seller: late and handover-late rates, recent (last 3 months) vs earlier | – |
-| `GET /api/risk/reviews/summary` | observed low-review rate by month and late vs on-time + model evaluation | – |
-| `GET /api/risk/reviews/unreviewed?limit=50` | delivered orders with no review yet, ranked by low-review risk score | low_review |
-| `GET /api/risk/cashflow/summary` | observed stress rate by sector and month from the practice cash-flow dataset + model evaluation (`available: false` if the CSV isn't present) | – |
-| `GET /api/risk/cashflow/records?limit=50` | held-out business-month snapshots (test months only) ranked by predicted next-month stress risk; 503 while the model's held-out ROC-AUC is below 0.6, which it currently is | cashflow_stress |
-| `POST /api/scenarios/sales-impact` | what a sales change would do to orders, late deliveries, low reviews, seller capacity and sales exposed to late delivery | – |
+### Demo accounts (synthetic data)
 
-Errors: `422` invalid query, `503` model not trained, `409` model trained on different data.
+Password for all: `Coastal-Demo-2026!`
 
-## Scenario: what a sales change would do
+| Email | Role | Business |
+|---|---|---|
+| owner@coastal.demo | Owner | Coastal Home & Kitchen Ltd (main demo) |
+| accountant@coastal.demo | Accountant | Coastal Home & Kitchen Ltd |
+| viewer@coastal.demo | Viewer (read-only) | Coastal Home & Kitchen Ltd |
+| owner@tamarind.demo | Owner | Tamarind Cafe (shows tenant isolation) |
 
-`POST /api/scenarios/sales-impact` with `{"horizon": 1-6, "sales_change_pct": -50..100}`.
-It needs no trained model — everything comes from observed history.
+Reset the demo at any time with `python scripts/seed_demo.py`. The walkthrough is
+in [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
 
-Worked example, +20% over 3 months (real data):
+## Data
 
-| Figure | Value | How |
-| --- | --- | --- |
-| Projected orders | 7,520/month (+1,253) | projected sales ÷ AOV of BRL 137.78 |
-| Expected late, rate held | 272/month | recent 3-month late rate 3.61% |
-| Expected late, if the volume link holds | 672/month | fitted line, +1.12 pp per 1,000 orders, **R² = 0.26** |
-| Expected 1-2 star reviews | ~840/month | late × 62.4% + on-time × 9.2% |
-| Sales exposed to late delivery | BRL 37,426/month | expected late × AOV — **exposure, not loss** |
-| Sellers past their busiest month ever | 41 of 1,810 | each seller's recent 3-month average × 1.2 vs their peak month |
+| Dataset | Label |
+|---|---|
+| `data/public/small_business_cashflow.csv` | Hackathon-provided dataset - used only as an external benchmark |
+| `data/synthetic/` | **Synthetic** training panel: 210 fictional SMEs, 7 archetypes |
+| Demo tenants in the database | **Synthetic** fictional businesses, labelled in the UI |
+| `data/demo/coastal_petty_cash_sep2026.csv` | **Synthetic**, deliberately messy import file |
 
-Both late-delivery variants are always returned. The fitted one is an **association over 20
-months with R² = 0.26**, never a cause, and the response carries `assumptions` and
-`limitations` saying so.
+No real business or personal data is used. Definitions:
+[`docs/DATA_DICTIONARY.md`](docs/DATA_DICTIONARY.md).
 
-## Plain-language explanation (Java)
+### Regenerating data and models
 
-The Python API returns calculated figures only. Scenario narration and the contextual
-assistant live in `Java/OpportunityImpl/src/main/java/mu/mosaic/opportunity/service/ai/`.
-They use SolarFramework's configured chatbots through `LocalAi`; the model configuration
-is in `Java/OpportunityApp/config/ai/agents.json`.
-
-The scenario page asks `ScenarioNarrator` for the explanation. It checks numbers in the
-model's reply against the evidence and falls back to a deterministic template when the
-model is unavailable or supplies unsupported figures. Python analytics work independently
-of that service. The former Python LLM implementation is archived in `old/`.
-
-## Definitions
-
-- **Sales**: sum of order-item `price` by purchase month, BRL; `canceled`/`unavailable`
-  orders excluded; freight reported separately. Gross merchandise sales — **not profit**
-  (no costs in Olist) and **not cash received**.
-- **Late**: delivered to the customer after `order_estimated_delivery_date` (calendar days).
-  **Handover late**: seller passed the parcel to the carrier after `shipping_limit_date`.
-- **Low review**: latest review for the order (by answer timestamp) has score ≤ 2.
-- **Category** of an order: category of its highest-priced item. Category series count each
-  item once, so category totals equal the business total.
-- One row per order everywhere: items and reviews are aggregated before joining.
-
-## Models and honest evaluation (real data)
-
-**Sales forecast** — ridge regression on lags (`trend, lag_1..3, mean_last_3`), rolling-origin
-backtest over the last 6 months:
-
-| Method | MAE (BRL) | MAPE |
-| --- | --- | --- |
-| model (ridge) | 92,045 | 10.4% |
-| naive_last | 54,998 | 6.0% |
-| mean_last_3 | 87,833 | 9.5% |
-
-The model does **not** beat "same as last month": it learned 2017's growth and kept projecting
-it while sales fell ~13% in June 2018 and stayed flat. Both baselines are returned so the UI
-shows the comparison.
-
-**Risk classifiers** — `HistGradientBoostingClassifier` (class-balanced), trained on purchases
-before 2018-06-01, evaluated on Jun–Aug 2018:
-
-| Model | Test n | Base rate | ROC-AUC | Avg precision | Top-10% precision / recall |
-| --- | --- | --- | --- | --- | --- |
-| late_delivery (at purchase) | 18,603 | 3.6% | 0.68 | 0.07 | 7.1% / 19.6% |
-| low_review (after delivery) | 18,873 | 10.9% | 0.74 | 0.41 | 44.4% / 40.6% |
-
-Late-delivery risk is a modest signal (2× lift over the base rate; `promised_days` dominates,
-then the seller's past late rate). Low-review risk is a strong one (4× lift; driven by
-`n_items`, `days_late`, `category`, `delivery_days`). Scores are **ranking signals, not
-calibrated probabilities**. The test window has an unusually low late rate, and late orders
-purchased in August 2018 may still be undelivered in the data.
-
-**Cash-flow stress** (separate profile, not Olist) — `HistGradientBoostingClassifier`
-(class-balanced) on `datasets/small_business_cashflow.csv`, a synthetic practice dataset for
-this hackathon (1,600 business-month rows, 6 sectors, Jan 2024–Aug 2025, no provenance/licence
-attached — treat it as a method demonstration, not real data). Each row is independent (no
-business id links rows across months), so the split is chronological: trained on Jan 2024–Apr
-2025, evaluated on the last 4 months held out:
-
-| Test n | Base rate | ROC-AUC | Avg precision | Top-10% precision / recall |
-| --- | --- | --- | --- | --- |
-| 312 | 15.7% | 0.53 | 0.17 | 25.0% / 16.3% |
-
-An ROC-AUC of 0.53 is barely above the 0.50 a coin flip would score — this dataset carries
-very little learnable signal for this label, and the model should be read as a demonstration
-of the method (loader → temporal split → classifier → honest evaluation → API), not as a
-usable risk score. Per-feature importances are not computed for this model (empty list).
-
-**Category health** is deterministic: `underperforming_total` fires when a category's
-recent-3-months change is ≥10 pp worse than the whole business (with ≥ BRL 10k support);
-`latest_month_anomaly` fires when the latest month deviates more than 2σ of the category's
-usual month-to-month noise from the mean of the previous three. Every flag carries its inputs
-under `evidence`. On the real data 18 categories are underperforming the −12.7% total.
-
-## Layout
-
-```
-app/config.py              paths, file names, data range, split dates, excluded statuses
-app/data/loaders.py        CSV loaders (only the columns used)
-app/data/olist.py          monthly business sales series, dataset hashes
-app/data/categories.py     monthly category sales series
-app/data/orders.py         order-grain feature table and labels
-app/data/category_names.py shared category translation
-app/data/geo.py            zip centroids, haversine distance
-app/data/records.py        DataFrame -> JSON-safe records
-app/forecast/sales.py      ridge forecast, baselines, backtest (pure functions)
-app/forecast/train.py      sales forecast training CLI
-app/models/risk.py         classifier specs, temporal split, fit/evaluate/predict
-app/models/train_risk.py   risk model training CLI
-app/data/cashflow.py       cash-flow snapshot loader (separate profile, not Olist)
-app/models/cashflow.py     cash-flow split, fit/evaluate/predict
-app/models/train_cashflow.py cash-flow model training CLI
-app/models/prepare.py      trains missing or stale Olist models; only used when a test calls `create_app(auto_train=True)`
-app/analysis/categories.py category change, flags, evidence, short forecasts
-app/analysis/delivery.py   observed late rates, seller table, open-order scoring
-app/analysis/reviews.py    observed low-review rates, unreviewed-order scoring
-app/analysis/impact.py     sales-change consequences (orders, lateness, reviews, capacity)
-app/analysis/populations.py shared date and known-outcome filtering
-app/api/deps.py            artifact loading, 503/409 guards, model summaries
-app/api/get_*.py           one endpoint per file: validate, delegate, serialise
-app/api/__init__.py        explicit route registration
-app/main.py                app assembly and startup cache
-tests/                     pytest suite with a synthetic fixture dataset
-datasets/external/         downloaded candidate datasets (gitignored; see its README)
+```bash
+python scripts/generate_synthetic.py      # ~5 min, writes data/synthetic/
+python scripts/train_all.py               # trains and evaluates all models (~1 min)
+python scripts/train_all.py --regenerate  # both
+python scripts/make_demo_import.py        # rewrites the messy demo CSV
 ```
 
-See [code organisation](../docs/code-organisation.md) for the endpoint-to-file mapping
-and the Python/Java responsibility boundary. `old/` holds the archived Python LLM code;
-the active LLM integration is in the Java application.
+## Model evaluation (held-out synthetic businesses)
+
+| Model | Result |
+|---|---|
+| 30-day cash pressure (logistic regression) | ROC-AUC **0.943** vs 0.911 for a buffer-only rule; PR-AUC 0.702 vs 0.603; F1 at HIGH 0.686 vs 0.602; Brier 0.057 |
+| Same approach on the provided CSV | ROC-AUC 0.52-0.57 (no history per business) - reported, not used |
+| Unusual payments (Isolation Forest + 4x rule + materiality) | precision 0.694, recall 0.783 on injected anomalies |
+| Category suggestions | 86.9% accuracy on a hand-written set never used in training |
+| 90-day cash projection | median 30-day back-test error 13.3% of monthly outflows (demo business) |
+
+Full details, limitations and responsible use: [`docs/ML_MODEL_CARD.md`](docs/ML_MODEL_CARD.md)
+and `notebooks/model_evaluation.ipynb`. The same figures appear in the app under
+Settings -> Models & data.
+
+## Tests and quality checks
+
+```bash
+# backend (uses database opportunityos_test; override with TEST_DATABASE_URL)
+cd backend && python -m pytest && ruff check app tests ../scripts ../ml
+
+# frontend
+cd frontend && npm test && npm run typecheck && npm run lint && npm run build
+
+# end-to-end demo in a real browser (servers running, demo freshly seeded)
+pip install playwright && python -m playwright install chromium
+python tests/e2e/demo_flow.py
+```
+
+Backend tests cover authentication (Argon2id, lockout, rate limiting, refresh
+rotation and reuse detection), RBAC, cross-tenant access (API and row-level
+security), malformed CSVs, SQL-injection attempts, analytics, scenarios,
+opportunity lifecycle and outcomes, ML inference and error hygiene.
+
+## Security
+
+See [`docs/SECURITY.md`](docs/SECURITY.md) and [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md).
+Only implemented controls are listed there and on the in-app Security page.
+
+## API
+
+[`docs/API.md`](docs/API.md) - versioned under `/api/v1`.
