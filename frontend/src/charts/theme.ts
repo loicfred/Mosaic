@@ -19,4 +19,4 @@ export const C = {
   bad: 'var(--color-bad)',
   ink3: 'var(--color-ink-3)',
 }
-export const axisTick = { fill: '#6b6b67', fontSize: 11 }
+export const axisTick = { fill: '#6b6b67', fontSize: 12 }

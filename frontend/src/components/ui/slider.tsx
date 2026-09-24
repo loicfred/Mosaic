@@ -34,7 +34,10 @@ export function Slider({
         />
         <span className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-ink-3" style={{ left: `${zeroPct}%` }} />
       </S.Track>
-      <S.Thumb className="block size-4 rounded-full border-2 border-surface bg-simulated shadow ring-1 ring-simulated/40 focus-visible:outline-2 focus-visible:outline-accent-600" />
+      <S.Thumb
+        aria-label={label}
+        className="block size-5 rounded-full border-2 border-surface bg-simulated shadow ring-1 ring-simulated/40 focus-visible:outline-2 focus-visible:outline-accent-600"
+      />
     </S.Root>
   )
 }

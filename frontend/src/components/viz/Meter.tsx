@@ -56,7 +56,7 @@ export function Meter({
         )}
       </div>
       {marker?.label && (
-        <div className="relative mt-1 h-4 text-[11px] text-ink-3">
+        <div className="relative mt-1 h-4 text-xs text-ink-3">
           <span
             className="absolute whitespace-nowrap"
             style={{

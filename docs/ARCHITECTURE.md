@@ -141,36 +141,52 @@ tests/e2e/         browser walkthrough of the demo
 
 ## Interface principles
 
-Every page follows the same order: one headline answer (what needs attention),
-3-5 KPI tiles with a trend or meter, one or two primary charts, then detail
-(tables, evidence) behind a click, a collapsible section or a side panel.
+Guiding rule: show what the owner needs to know now; keep everything else one
+click away. "Simplify the presentation, not the product."
 
-* **Insight, then evidence, then detail.** Each page opens with a sentence or a
-  handful of facts in plain type, then one visual that carries the story, then
-  cards or tables for the evidence. Cards are used for charts and findings, not for
-  every number; related numbers share one panel separated by hairlines.
-* **One typeface, a clear scale.** Inter (bundled locally, SIL OFL), 28-30 px page
-  titles, 18 px section titles, 14-15 px body, 11-12 px labels.
-* **Meaning, not decoration.** A visual is used only when it answers a question
-  faster than the number alone: a meter against the 14-day buffer, a band scale
-  for the cash-pressure probability, before-and-after bars for tracked outcomes, a
-  dumbbell for days-to-pay, a composition bar for receivables ageing.
-* **Colour carries one meaning.** The Valora palette: charcoal `#2C2C2C` for text
-  and structure, periwinkle `#7A80F0` for interaction, selected navigation and
-  actual figures, sage `#8CA573` for positive states and gains, gold `#E1BA58` for
-  highlights (simulated figures use its deeper shade `#B5871D` so a thin line
-  clears 3:1), coral `#EA7957` for warnings and risks. Projected is dashed grey,
-  expenses are charcoal grey. Surfaces stay neutral off-white. Status colours
-  (good, watch, serious, critical) are only used for state, always with an icon
-  and a text label. Chart pairs were checked with a colour-vision validator.
-* **No decoration.** No gradients, glass effects, glows or "AI" labels.
-* **Nothing is colour-only or hover-only.** Every bar prints its value; meters
-  expose `role="meter"` with values; method notes sit behind a focusable (i).
-* **Responsive by container.** Bar lists switch layout with container queries,
-  so a bar is never squeezed to nothing in a narrow card; the transaction table
-  becomes a card list on phones.
-* **Motion is brief and optional.** Bars grow once (450 ms); animations are
-  disabled for `prefers-reduced-motion` and in print.
+**Card style.** Every page is built from white rounded panels (20 px radius, soft
+shadow) on a cool grey page. A card has a title and one-line subtitle, one large
+figure where there is one, supporting detail, and at most one *insight strip* at
+its foot: a single sentence built from real figures plus one next step
+(`components/ui/insight-strip.tsx`). Tabs, filters and search are pill-shaped;
+the active tab or menu item is a charcoal pill.
+
+**Overview as a Z.** The eye travels: logo (top left) → profile and display
+settings (top right) → cash position (left) → recommended next step (right, the
+one highlighted periwinkle card with the primary action) → last 3 months (left) →
+cash outlook chart (right) → other important findings (full width). On phones the
+same order becomes one column.
+
+* **One primary action per screen.** On the Overview it is "See what to do" in
+  the highlighted card; everything else is a secondary button or a text link.
+* **One AI entry point.** "Ask Valora" is a single labelled button, bottom right,
+  on every page; its suggested questions follow the page you are on.
+* **Numbers always have context** in words ("18 days of outflows covered",
+  "2.6% lower"); changes carry an arrow, a colour and the words, never colour alone.
+* **Actual, projected, predicted, simulated** are named in the text or a label;
+  synthetic demo data is disclosed in the header.
+* **Colour.** Charcoal `#2C2C2C` text and structure; periwinkle `#6770F7`
+  interaction (buttons `#4F57EB`, highlighted card `#4F57EB`); sage `#7DB356`
+  positive; gold `#F5B82E` highlights and simulated figures (`#B07A06` on charts);
+  coral `#FF6B45` warnings and risks.
+* **States.** Loading placeholders have the page's shape; errors say what
+  happened, what it means and offer "Try again"; empty sections say what will
+  appear there and when.
+
+**Accessibility, for every kind of user.**
+
+* *Display settings* (header, accessibility icon): text size Standard / Large /
+  Larger (the whole interface scales, sizes are in rem), High contrast (darker
+  secondary text, stronger borders, underlined links, thicker focus ring) and
+  Reduce motion. Saved in the browser only (`lib/a11y.ts`); the operating
+  system's reduced-motion setting is also honoured.
+* "Skip to main content" link as the first focusable element; landmarks (nav,
+  main, aside); one h1 per page and ordered h2/h3; visible focus everywhere; all
+  menus, tabs and sliders work from the keyboard; 40-44 px touch targets for
+  primary controls; no text under 12 px.
+* Checked with axe-core (WCAG 2 A/AA + best practice): no violations on login,
+  Overview, Opportunities, Scenario Lab, Transactions, Data Health and the
+  Ask Valora panel, including with Larger text and High contrast switched on.
 
 ## Valora Insight
 

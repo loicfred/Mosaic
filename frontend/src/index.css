@@ -52,15 +52,15 @@
   --color-coral-700: #b0361a;
 
   /* Surfaces and text */
-  --color-page: #f7f7f9;
+  --color-page: #eef0fb; /* flat fallback of the app background */
   --color-surface: #ffffff;
-  --color-surface-2: #fafafc;
+  --color-surface-2: #f6f7fb;
   --color-line: #e7e7ec;
   --color-line-strong: #d3d3db;
 
   --color-ink: #2c2c2c;
   --color-ink-2: #4a4a47;
-  --color-ink-3: #6b6b67;
+  --color-ink-3: #5c5c58;
 
   /* "brand" = charcoal structure */
   --color-brand-950: #1c1c1c;
@@ -108,15 +108,45 @@
   --color-grid: #ebebf0;
   --color-axis: #a3a29c;
 
-  --radius-card: 12px;
-  --shadow-card: none;
+  --radius-card: 20px;
+  --shadow-card: 0 1px 2px rgba(20, 22, 48, 0.04), 0 8px 24px -16px rgba(20, 22, 48, 0.12);
+}
+
+/* A white rounded panel: the one card style used across the app. */
+@utility panel {
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  /* White at the top-left, fading into a soft tint (set per card with fade-*). */
+  background: linear-gradient(160deg, #ffffff 0%, #ffffff 28%, var(--fade, #e7eaff) 100%);
+  box-shadow: var(--shadow-card);
+}
+/* Card fade tints: each stays light enough that all text keeps AA contrast. */
+@utility fade-periwinkle {
+  --fade: #e7eaff;
+}
+@utility fade-sage {
+  --fade: #e5f2dc;
+}
+@utility fade-gold {
+  --fade: #fcefd2;
+}
+@utility fade-coral {
+  --fade: #ffe7dd;
+}
+/* One uniform, soft background for the whole app (fixed, so it never repeats while scrolling). */
+@utility app-bg {
+  background-color: #eef0fb;
+  background-image: linear-gradient(135deg, #e9ecff 0%, #f1edfb 38%, #f6f1f6 62%, #ecf5ef 100%);
+  background-attachment: fixed;
 }
 
 @layer base {
   html {
     font-feature-settings: 'cv11', 'ss03';
     color: var(--color-ink);
-    background: var(--color-page);
+    background-color: #eef0fb;
+    background-image: linear-gradient(135deg, #e9ecff 0%, #f1edfb 38%, #f6f1f6 62%, #ecf5ef 100%);
+    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
   }
   body {
@@ -160,19 +190,15 @@
     transform: scale(1.18);
   }
 }
+/* Still by default; it only moves on hover and while reading data (no constant motion). */
 .orb .orb-ring {
   transform-origin: 24px 24px;
-  animation: orbit 16s linear infinite;
 }
-.orb[data-state='hover'] .orb-ring,
-.orb[data-state='open'] .orb-ring {
-  animation-duration: 7s;
-}
-.orb[data-state='static'] .orb-ring {
-  animation: none;
+.orb[data-state='hover'] .orb-ring {
+  animation: orbit 6s linear infinite;
 }
 .orb[data-state='thinking'] .orb-ring {
-  animation-duration: 1.1s;
+  animation: orbit 1.1s linear infinite;
 }
 .orb .orb-core {
   transform-origin: 24px 24px;
@@ -220,4 +246,46 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* ---- Accessibility preferences (set from the Accessibility menu, stored per browser) ---- */
+/* Text size: everything is sized in rem, so the whole interface scales. */
+html[data-text='large'] {
+  font-size: 112.5%;
+}
+html[data-text='larger'] {
+  font-size: 125%;
+}
+/* Higher contrast: darker secondary text, stronger lines, underlined links, thicker focus. */
+html[data-contrast='high'] {
+  --color-ink-2: #1f1f1f;
+  --color-ink-3: #3a3a38;
+  --color-line: #9a9aa6;
+  --color-line-strong: #6b6b77;
+  --color-page: #ffffff;
+  --color-surface-2: #ffffff;
+}
+html[data-contrast='high'],
+html[data-contrast='high'] .app-bg {
+  background-image: none;
+  background-color: #ffffff;
+}
+html[data-contrast='high'] .panel {
+  background: #ffffff;
+  border-color: var(--color-line);
+}
+html[data-contrast='high'] a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+html[data-contrast='high'] :focus-visible {
+  outline-width: 3px;
+}
+/* Reduce motion on request, even if the operating system does not ask for it. */
+html[data-motion='reduce'] *,
+html[data-motion='reduce'] *::before,
+html[data-motion='reduce'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
 }

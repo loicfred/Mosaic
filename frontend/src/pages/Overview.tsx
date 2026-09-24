@@ -1,45 +1,89 @@
-import { AlertTriangle, ArrowRight, CheckCircle2, Database, FileUp, FlaskConical, Target } from 'lucide-react'
-import { useState } from 'react'
+import {
+  AlertTriangle,
+  ArrowDownRight,
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  Database,
+  FileUp,
+  FlaskConical,
+  Minus,
+  Target,
+} from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/auth/AuthProvider'
 import { CashChart } from '@/charts/CashChart'
-import { MonthlyChart } from '@/charts/MonthlyChart'
-import { C } from '@/charts/theme'
-import { DataKind, Delta, OutcomeBadge } from '@/components/domain/labels'
-import { MetricStrip } from '@/components/domain/MetricStrip'
-import { PredictionCard } from '@/components/domain/PredictionCard'
-import { AskValora } from '@/components/insight/AskValora'
+import { SeverityBadge } from '@/components/domain/labels'
 import { PageHeader } from '@/components/layout/AppShell'
-import { Button } from '@/components/ui/button'
-import { ErrorState, PageSkeleton } from '@/components/ui/states'
-import { BeforeAfter } from '@/components/viz/BeforeAfter'
-import { InfoTip } from '@/components/viz/InfoTip'
+import { Card, CardBody, CardHeader } from '@/components/ui/card'
+import { InsightStrip } from '@/components/ui/insight-strip'
+import { ErrorState, Skeleton } from '@/components/ui/states'
 import { Meter } from '@/components/viz/Meter'
-import { useOpportunities, useOverview } from '@/hooks/queries'
+import { useInsights, useOpportunities, useOverview } from '@/hooks/queries'
 import { cn } from '@/lib/cn'
 import { IMPACT_SHORT } from '@/lib/findings'
-import { axisMur, date, daysBetween, greeting, metric, monthSpan, mur, murCompact } from '@/lib/format'
+import { date, daysBetween, greeting, monthSpan, mur, murCompact } from '@/lib/format'
 import type { Opportunity, Overview } from '@/lib/types'
 
-const DOT: Record<Opportunity['severity'], string> = { critical: 'bg-bad', high: 'bg-serious', medium: 'bg-warn', low: 'bg-before' }
+/*
+ * Overview: how is the business doing, and what needs attention now?
+ * Laid out as a Z: the cash position (top left) and the recommended next step
+ * (top right), then the last three months (left) and the cash outlook (right),
+ * then the two most important findings. Every sentence is built from the
+ * figures the API returned; nothing is estimated in the browser.
+ */
 
-function SectionTitle({ children, action, info }: { children: React.ReactNode; action?: React.ReactNode; info?: React.ReactNode }) {
+const moved = (v: number) => `${v >= 0 ? 'rose' : 'fell'} ${Math.abs(v).toFixed(1)}%`
+
+/** A change with an arrow and a colour that agree with the words. */
+function Change({
+  value,
+  goodWhen = 'up',
+  unit = '%',
+  chip,
+}: {
+  value: number | null | undefined
+  goodWhen?: 'up' | 'down'
+  unit?: '%' | 'pp'
+  chip?: boolean
+}) {
+  if (value === null || value === undefined) return <span className="text-sm text-ink-3">No earlier period</span>
+  const flat = Math.abs(value) < 0.05
+  const up = value > 0
+  const good = flat ? null : goodWhen === 'up' ? up : !up
+  const Icon = flat ? Minus : up ? ArrowUpRight : ArrowDownRight
+  const size = unit === '%' ? `${Math.abs(value).toFixed(1)}%` : `${Math.abs(value).toFixed(1)} pts`
   return (
-    <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-      <h2 className="flex items-center gap-1.5 text-lg font-semibold tracking-tight text-ink">
-        {children}
-        {info && <InfoTip content={info} />}
-      </h2>
-      {action}
-    </div>
+    <span
+      className={cn(
+        'inline-flex items-center gap-1 text-sm font-medium',
+        chip && 'rounded-full px-2.5 py-1',
+        good === null ? 'text-ink-3' : good ? 'text-good-ink' : 'text-bad-ink',
+        chip && (good === null ? 'bg-brand-50' : good ? 'bg-good-bg' : 'bg-bad-bg'),
+      )}
+    >
+      <Icon className="size-4 shrink-0" aria-hidden />
+      {flat ? 'No change' : `${size} ${up ? 'higher' : 'lower'}`}
+    </span>
   )
 }
 
-const RANGES = [
-  { key: 3, label: '3 months' },
-  { key: 6, label: '6 months' },
-  { key: 12, label: '12 months' },
-] as const
+/** Loading placeholder shaped like the card grid, so nothing jumps when data arrives. */
+function OverviewSkeleton() {
+  return (
+    <div role="status" aria-label="Loading your overview">
+      <h1 className="sr-only">Overview is loading</h1>
+      <Skeleton className="h-4 w-40" />
+      <Skeleton className="mt-3 h-9 w-[min(520px,90%)]" />
+      <div className="mt-7 grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <Skeleton className="h-72 rounded-[20px]" />
+        <Skeleton className="h-72 rounded-[20px]" />
+        <Skeleton className="h-80 rounded-[20px]" />
+        <Skeleton className="h-80 rounded-[20px]" />
+      </div>
+    </div>
+  )
+}
 
 /** A brand-new business: no transactions yet, so no figures are shown, only the way in. */
 function FirstSteps({ d, name }: { d: Overview; name: string }) {
@@ -83,7 +127,7 @@ function FirstSteps({ d, name }: { d: Overview; name: string }) {
           <dd className="mt-0.5 text-lg font-semibold text-ink">{date(d.data_window[0])}</dd>
         </div>
       </dl>
-      <ol className="grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-3">
+      <ol className="grid gap-px overflow-hidden rounded-[20px] border border-line bg-line shadow-card md:grid-cols-3">
         {steps.map((s, i) => (
           <li key={s.title} className="flex flex-col bg-surface p-5">
             <span className="flex items-center gap-2 text-xs font-medium text-ink-3">
@@ -104,293 +148,328 @@ function FirstSteps({ d, name }: { d: Overview; name: string }) {
 export function OverviewPage() {
   const ov = useOverview()
   const opps = useOpportunities()
+  const ins = useInsights()
   const { me } = useAuth()
-  const [range, setRange] = useState<(typeof RANGES)[number]['key']>(12)
-  if (ov.isLoading) return <PageSkeleton />
-  if (ov.error || !ov.data) return <ErrorState error={ov.error} onRetry={() => ov.refetch()} />
+  if (ov.isLoading) return <OverviewSkeleton />
+  if (ov.error || !ov.data)
+    return (
+      <ErrorState
+        error={ov.error}
+        title="Your overview could not be loaded."
+        meaning="The latest figures are temporarily unavailable. Nothing in your records has changed."
+        onRetry={() => ov.refetch()}
+      />
+    )
   const d = ov.data
   const name = me?.business.name ?? 'there'
   if (d.monthly.length === 0) return <FirstSteps d={d} name={name} />
+
   const k = d.kpis_90d
+  const p = d.projection
+  const below = p.first_date_below_buffer
+  const inDays = below ? daysBetween(d.as_of, below) : null
   const open = (opps.data ?? []).filter((o) => o.is_active && ['new', 'reviewed', 'planned'].includes(o.status))
   const urgent = open.filter((o) => o.severity === 'critical' || o.severity === 'high').length
-  const tracked = (opps.data ?? []).filter((o) => ['in_progress', 'completed'].includes(o.status))
-  const cashDelta = ((d.cash.balance - d.cash.balance_30d_ago) / Math.abs(d.cash.balance_30d_ago || 1)) * 100
-  const full = d.monthly.filter((m) => !m.partial)
-  const below = d.projection.first_date_below_buffer
-  const inDays = below ? daysBetween(d.as_of, below) : null
-  const bufferTone = d.cash.buffer_days < 14 ? 'bad' : d.cash.buffer_days < 21 ? 'warn' : 'good'
+  const ranked = [...open].sort((a, b) => b.priority_score - a.priority_score)
+  const cashFinding = open.find((o) => o.detector === 'cash_pressure')
+  // The recommended next step: the cash finding when cash is the headline, otherwise the top-ranked finding.
+  const next = below && cashFinding ? cashFinding : ranked[0]
+  const top = ranked.filter((o) => o.id !== next?.id).slice(0, 2)
+  const buffer = d.cash.buffer_days
+  const cashChange = d.cash.balance_30d_ago ? ((d.cash.balance - d.cash.balance_30d_ago) / Math.abs(d.cash.balance_30d_ago)) * 100 : null
+
+  // Where the money went in the same three months (from /insights; hidden until it loads).
+  const cur = ins.data?.comparison_90d?.current as Record<string, number> | undefined
+  const chg = ins.data?.comparison_90d?.change_pct as Record<string, number | null> | undefined
+  const spend = cur
+    ? [
+        { label: 'Stock & supplies', value: cur.cost_of_goods, color: 'bg-periwinkle-500' },
+        { label: 'Operating costs', value: cur.operating_expenses, color: 'bg-sage-500' },
+        { label: 'VAT', value: cur.tax, color: 'bg-gold-500' },
+      ].filter((x) => x.value > 0)
+    : []
+  const spendTotal = spend.reduce((s, x) => s + x.value, 0)
+  const supplierFinding = open.find((o) => o.detector === 'supplier_cost_inflation')
+  const marginStory =
+    chg && chg.cost_of_goods !== null && chg.revenue !== null && k.gross_margin_change_pp < 0
+      ? `Gross margin fell ${Math.abs(k.gross_margin_change_pp).toFixed(1)} points: stock costs ${moved(chg.cost_of_goods)} while revenue ${moved(chg.revenue)}.`
+      : null
 
   return (
     <>
       <PageHeader
         title={`${greeting()}, ${name}`}
         meta={`Overview · data to ${date(d.as_of)}`}
-        description="How the business is doing, and what needs you this week."
+        description="Here's what needs your attention this week."
       />
 
-      {/* Level 1: one sentence and the three things waiting for a decision. */}
-      <section className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-12">
-        <div className={cn('rounded-xl border-l-4 p-5 sm:p-6', below ? 'border-coral-500 bg-coral-50' : 'border-sage-500 bg-sage-50')}>
-          <div
-            className={cn(
-              'flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider',
-              below ? 'text-bad-ink' : 'text-good-ink',
-            )}
-          >
-            {below ? <AlertTriangle className="size-3.5" aria-hidden /> : <CheckCircle2 className="size-3.5" aria-hidden />}
-            {below ? 'Needs attention' : 'On track'}
-          </div>
-          <p className="mt-2 max-w-3xl text-[22px] font-semibold leading-snug tracking-tight text-ink md:text-2xl">
-            {below ? (
-              <>
-                Cash is projected to fall below your safety buffer on {date(below)}
-                {inDays !== null && inDays >= 0 && <span className="text-bad-ink"> - in {inDays} days</span>}.
-              </>
-            ) : (
-              'Cash stays above your 14-day safety buffer for the next 90 days.'
-            )}
-          </p>
-          <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[15px] text-ink-3">
-            Lowest point {murCompact(d.projection.lowest_cash)} on {date(d.projection.lowest_cash_date)}
-            {below && (
-              <>
-                {' '}
-                · {d.projection.days_below_buffer} of the next 90 days below {murCompact(d.projection.buffer_threshold)}
-              </>
-            )}
-            <DataKind kind="projected" />
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Button asChild>
-              <Link to="/opportunities">
-                See what to do <ArrowRight />
-              </Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/scenarios">
-                <FlaskConical /> Test a fix
-              </Link>
-            </Button>
-          </div>
-        </div>
-
-        <ul aria-label="Waiting for you" className="divide-y divide-line self-start border-y border-line text-sm">
-          <li>
-            <Link to="/opportunities" className="flex items-baseline gap-3 py-3 hover:bg-surface-2/60">
-              <span className="w-10 text-2xl font-semibold tracking-tight text-ink">{open.length}</span>
-              <span className="text-ink-2">
-                findings to decide
-                {urgent > 0 && <span className="block text-xs text-serious-ink">{urgent} high or critical</span>}
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/data-health" className="flex items-baseline gap-3 py-3 hover:bg-surface-2/60">
-              <span className={cn('w-10 text-2xl font-semibold tracking-tight', d.data_health.issues ? 'text-warn-ink' : 'text-ink')}>
-                {d.data_health.issues}
-              </span>
-              <span className="text-ink-2">
-                data items to review
-                <span className="block text-xs text-ink-3">data health {d.data_health.score}/100</span>
-              </span>
-            </Link>
-          </li>
-          <li>
-            <Link to="/opportunities" className="flex items-baseline gap-3 py-3 hover:bg-surface-2/60">
-              <span className="w-10 text-2xl font-semibold tracking-tight text-ink">{tracked.length}</span>
-              <span className="text-ink-2">
-                actions being measured
-                <span className="block text-xs text-ink-3">{tracked.filter((o) => o.outcome?.status === 'achieved').length} achieved</span>
-              </span>
-            </Link>
-          </li>
-        </ul>
-      </section>
-
-      {/* Level 2: the four numbers that describe the business, with how they got here. */}
-      <section className="mt-12">
-        <SectionTitle
-          info={`Revenue, expenses and margin compare ${monthSpan(k.period)} with ${monthSpan(k.previous_period)}. Trend lines show each complete month.`}
-          action={<AskValora question="How did revenue change recently?" context={{ type: 'chart', chart: 'kpis' }} />}
-        >
-          Last three months
-        </SectionTitle>
-        <MetricStrip
-          items={[
-            {
-              label: 'Cash today',
-              title: mur(d.cash.balance),
-              value: murCompact(d.cash.balance),
-              delta: <Delta value={cashDelta} unit="vs 30 days ago" />,
-              visual: (
-                <div>
-                  <div className="mb-1 text-xs text-ink-2">
-                    <strong className="font-semibold text-ink">{d.cash.buffer_days.toFixed(0)} days</strong> of outflows covered
-                  </div>
-                  <Meter
-                    value={d.cash.buffer_days}
-                    max={Math.max(30, Math.ceil(d.cash.buffer_days * 1.25))}
-                    tone={bufferTone}
-                    size="sm"
-                    marker={{ value: 14, label: '14-day buffer' }}
-                    label={`Cash covers ${d.cash.buffer_days.toFixed(0)} days of outflows; the safety buffer is 14 days`}
-                  />
-                </div>
-              ),
-            },
-            {
-              label: 'Revenue',
-              value: murCompact(k.revenue),
-              delta: <Delta value={k.revenue_change_pct} unit="vs previous 3" />,
-              spark: full.map((m) => m.revenue),
-              sparkLabel: `Monthly revenue over ${full.length} months`,
-            },
-            {
-              label: 'Expenses',
-              value: murCompact(k.expenses),
-              delta: <Delta value={k.expenses_change_pct} goodWhen="down" unit="vs previous 3" />,
-              spark: full.map((m) => m.expenses),
-              sparkColor: C.expense,
-              sparkLabel: `Monthly expenses over ${full.length} months`,
-            },
-            {
-              label: 'Gross margin',
-              value: `${k.gross_margin_pct.toFixed(1)}%`,
-              delta: <Delta value={k.gross_margin_change_pp} suffix=" pp" unit="vs previous 3" />,
-              spark: full.map((m) => m.gross_margin_pct),
-              sparkLabel: `Monthly gross margin over ${full.length} months`,
-            },
-          ]}
-        />
-      </section>
-
-      {/* The cash story: what happened, what is projected, and the model's read on it. */}
-      <section className="mt-12">
-        <SectionTitle
-          info="Actual: end-of-day balance from recorded transactions. Projected: deterministic projection at current run-rates. The red line is 14 days of committed outflows."
-          action={<AskValora question="What does the cash chart show?" context={{ type: 'chart', chart: 'cash' }} />}
-        >
-          Cash, past 180 days and next 90
-        </SectionTitle>
-        <div className="grid grid-cols-1 overflow-hidden rounded-xl border border-line bg-surface lg:grid-cols-[minmax(0,1fr)_340px]">
-          <div className="min-w-0 p-5 lg:p-6">
-            <CashChart actual={d.cash_series} projected={d.projection_series} buffer={d.projection.buffer_threshold} height={330} />
-          </div>
-          <div className="border-t border-line bg-periwinkle-50 p-5 lg:border-l lg:border-t-0 lg:p-6">
-            <PredictionCard p={d.prediction} />
-          </div>
-        </div>
-      </section>
-
-      <div className="mt-12 grid gap-12 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <section>
-          <SectionTitle
+      {/* ROW 1 (Z, top): where cash stands  →  what to do about it */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <Card aria-labelledby="cash-status" className="fade-coral flex flex-col">
+          <CardHeader
+            title="Cash position"
+            subtitle="End-of-day balance from recorded transactions"
             action={
-              <Link to="/opportunities" className="inline-flex items-center gap-1 text-sm font-medium text-accent-700 hover:underline">
-                All {open.length} findings <ArrowRight className="size-4" />
-              </Link>
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold',
+                  below ? 'bg-serious-bg text-serious-ink' : 'bg-good-bg text-good-ink',
+                )}
+              >
+                {below ? <AlertTriangle className="size-4" aria-hidden /> : <CheckCircle2 className="size-4" aria-hidden />}
+                {below ? 'Needs attention' : 'On track'}
+              </span>
             }
-          >
-            What needs attention
-          </SectionTitle>
-          <ul className="divide-y divide-line border-y border-line">
-            {open.slice(0, 5).map((o) => (
-              <li key={o.id}>
-                <Link
-                  to={`/opportunities?open=${o.id}`}
-                  className="group grid grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-x-3 py-3.5 transition-colors hover:bg-surface-2/60 sm:gap-x-4"
-                >
-                  <span className={cn('size-2 translate-y-[-1px] rounded-full', DOT[o.severity])} aria-label={`${o.severity} severity`} />
-                  <span className="min-w-0">
-                    <span className="block font-medium text-ink group-hover:underline">{o.title}</span>
-                    <span className="block truncate text-sm text-ink-3">{o.summary}</span>
-                  </span>
-                  <span className="text-right">
-                    <span className="tnum block text-sm font-semibold text-ink">
-                      {o.impact_high === null ? '—' : `${murCompact(o.impact_low)}–${axisMur(o.impact_high)}`}
-                    </span>
-                    <span className="block text-xs text-ink-3">{IMPACT_SHORT[o.impact_kind]}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-            {open.length === 0 && (
-              <li className="py-6 text-sm text-ink-3">Nothing waiting for a decision. New findings appear after each import.</li>
-            )}
-          </ul>
-        </section>
-
-        <section>
-          <SectionTitle info="When an action starts, its target metric is frozen and re-measured on later data. Evidence, not proof of cause.">
-            Did the actions work?
-          </SectionTitle>
-          {tracked.length === 0 ? (
-            <p className="border-y border-line py-6 text-sm text-ink-3">
-              No actions started yet. Start one from a finding and its result is measured here.
+          />
+          <CardBody className="flex flex-1 flex-col">
+            <p id="cash-status" className="max-w-2xl text-2xl font-semibold leading-snug tracking-tight text-ink sm:text-[26px]">
+              {below
+                ? inDays !== null && inDays >= 0
+                  ? `Cash may fall below your safety buffer in ${inDays} ${inDays === 1 ? 'day' : 'days'}.`
+                  : `Cash may fall below your safety buffer on ${date(below)}.`
+                : 'Cash stays above your safety buffer for the next 90 days.'}
             </p>
-          ) : (
-            <ul className="divide-y divide-line border-y border-line">
-              {tracked.map((o) => {
-                const oc = o.outcome
-                return (
-                  <li key={o.id}>
-                    <Link to={`/opportunities?open=${o.id}`} className="block space-y-3 py-4 hover:bg-surface-2/60">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="font-medium text-ink">{o.title}</span>
-                        {oc && <OutcomeBadge outcome={oc} />}
-                      </div>
-                      {oc && oc.baseline !== undefined && oc.current !== undefined && (
-                        <>
-                          <BeforeAfter
-                            before={oc.baseline}
-                            after={oc.current}
-                            format={(v) => metric(v, oc.unit)}
-                            afterColor={oc.status === 'achieved' ? 'var(--color-good)' : 'var(--color-actual)'}
-                          />
-                          <p className="text-xs text-ink-3">{oc.metric_label}</p>
-                        </>
-                      )}
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </section>
+            <div className="mt-6">
+              <div className="text-sm text-ink-3">Cash today, compared with 30 days ago</div>
+              <div className="mt-1 flex flex-wrap items-center gap-3">
+                <span className="tnum text-[40px] font-semibold leading-none tracking-tight text-ink" title={mur(d.cash.balance)}>
+                  {murCompact(d.cash.balance)}
+                </span>
+                <Change value={cashChange} chip />
+              </div>
+            </div>
+            <div className="mt-6">
+              <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 text-sm">
+                <span className="font-medium text-ink">{buffer.toFixed(0)} days of outflows covered</span>
+                <span className="text-ink-3">Safety buffer: 14 days (black line)</span>
+              </div>
+              <Meter
+                value={buffer}
+                max={Math.max(30, Math.ceil(buffer * 1.25))}
+                tone={buffer < 14 ? 'bad' : buffer < 21 ? 'warn' : 'good'}
+                marker={{ value: 14 }}
+                label={`Cash covers ${buffer.toFixed(0)} days of outflows; the safety buffer is 14 days`}
+              />
+            </div>
+            <div className="mt-auto">
+              <InsightStrip tone={below ? 'attention' : 'good'} action={{ label: 'View forecast', to: '/insights#cash' }}>
+                Projected low point <strong className="font-semibold">{murCompact(p.lowest_cash)}</strong> on {date(p.lowest_cash_date)}
+                {below && <>, {p.days_below_buffer} of the next 90 days under the buffer</>}. This is a projection at current run-rates, not
+                a recorded value.
+              </InsightStrip>
+            </div>
+          </CardBody>
+        </Card>
+
+        <NextStep o={next} />
       </div>
 
-      <section className="mt-12">
-        <SectionTitle
-          action={
-            <div className="flex flex-wrap items-center gap-3">
-              <AskValora question="What happened month by month?" context={{ type: 'chart', chart: 'monthly' }} />
-              <div role="group" aria-label="Months shown" className="inline-flex rounded-lg border border-line bg-surface p-0.5">
-                {RANGES.map((r) => (
-                  <button
-                    key={r.key}
-                    type="button"
-                    aria-pressed={range === r.key}
-                    onClick={() => setRange(r.key)}
-                    className={cn(
-                      'rounded-md px-2.5 py-1 text-xs font-medium transition-colors',
-                      range === r.key ? 'bg-accent-50 text-accent-700' : 'text-ink-3 hover:text-ink',
-                    )}
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
-              <DataKind kind="actual" />
+      {/* ROW 2 (Z, middle): the last three months  →  the cash outlook */}
+      <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.55fr)]">
+        <Card className="fade-sage flex flex-col">
+          <CardHeader title="Last 3 months" subtitle={`${monthSpan(k.period)} compared with the 3 months before`} />
+          <CardBody className="flex flex-1 flex-col">
+            <div className="text-sm text-ink-3">Revenue</div>
+            <div className="mt-1 flex flex-wrap items-center gap-3">
+              <span className="tnum text-[36px] font-semibold leading-none tracking-tight text-ink" title={mur(k.revenue)}>
+                {murCompact(k.revenue)}
+              </span>
+              <Change value={k.revenue_change_pct} chip />
             </div>
-          }
-        >
-          Revenue and expenses by month
-        </SectionTitle>
-        <div className="rounded-xl border border-line bg-surface p-5 lg:p-6">
-          <MonthlyChart months={d.monthly.slice(-range)} />
-        </div>
-      </section>
+
+            <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-5">
+              <div>
+                <dt className="text-sm text-ink-3">Expenses</dt>
+                <dd className="tnum mt-0.5 text-xl font-semibold text-ink" title={mur(k.expenses)}>
+                  {murCompact(k.expenses)}
+                </dd>
+                <dd className="mt-0.5">
+                  <Change value={k.expenses_change_pct} goodWhen="down" />
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm text-ink-3">Gross margin</dt>
+                <dd className="tnum mt-0.5 text-xl font-semibold text-ink">{k.gross_margin_pct.toFixed(1)}%</dd>
+                <dd className="mt-0.5">
+                  <Change value={k.gross_margin_change_pp} unit="pp" />
+                </dd>
+              </div>
+            </dl>
+
+            {spendTotal > 0 && (
+              <figure className="mt-6">
+                <figcaption className="mb-2 text-sm font-medium text-ink">Where the money went</figcaption>
+                <div className="flex h-3 gap-1 overflow-hidden rounded-full" aria-hidden>
+                  {spend.map((x) => (
+                    <span
+                      key={x.label}
+                      className={cn('grow-x h-full rounded-full', x.color)}
+                      style={{ width: `${(x.value / spendTotal) * 100}%` }}
+                    />
+                  ))}
+                </div>
+                <ul className="mt-3 grid grid-cols-3 gap-2">
+                  {spend.map((x) => (
+                    <li key={x.label} className="min-w-0">
+                      <span className="tnum block text-base font-semibold text-ink">{murCompact(x.value)}</span>
+                      <span className="flex items-center gap-1.5 text-xs text-ink-3">
+                        <span className={cn('size-2 shrink-0 rounded-full', x.color)} aria-hidden />
+                        <span className="truncate">{x.label}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </figure>
+            )}
+
+            <div className="mt-auto">
+              {marginStory ? (
+                <InsightStrip
+                  action={{
+                    label: 'Review supplier costs',
+                    to: supplierFinding ? `/opportunities?open=${supplierFinding.id}` : '/insights#trend',
+                  }}
+                >
+                  {marginStory}
+                </InsightStrip>
+              ) : (
+                <InsightStrip action={{ label: 'Open Financial Insights', to: '/insights' }}>
+                  Revenue and costs by month, customers, suppliers and recurring payments are on Financial Insights.
+                </InsightStrip>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="Cash outlook" subtitle="Actual cash for the past 180 days, projected for the next 90" />
+          <CardBody>
+            <CashChart actual={d.cash_series} projected={d.projection_series} buffer={p.buffer_threshold} height={280} />
+            <InsightStrip tone="insight" action={{ label: 'View detailed forecast', to: '/insights#cash' }}>
+              {below
+                ? `The projection crosses the 14-day safety buffer (${murCompact(p.buffer_threshold)}) on ${date(below)} and stays under it for ${p.days_below_buffer} of the 90 days.`
+                : `The projection stays above the 14-day safety buffer (${murCompact(p.buffer_threshold)}) for the next 90 days.`}
+            </InsightStrip>
+          </CardBody>
+        </Card>
+      </div>
+
+      {/* ROW 3 (Z, bottom): what else deserves a look */}
+      <Card className="fade-gold mt-5">
+        <CardHeader title="Other important findings" subtitle="Ranked by the opportunity engine from your own records" />
+        <CardBody>
+          {top.length === 0 ? (
+            <div className="rounded-2xl border border-line bg-surface-2 px-6 py-8 text-center">
+              <p className="font-medium text-ink">No new opportunities right now</p>
+              <p className="mt-1 text-sm text-ink-3">Valora checks again after every import and will list anything worth reviewing here.</p>
+            </div>
+          ) : (
+            <ul className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {top.map((o) => (
+                <FindingSummary key={o.id} o={o} />
+              ))}
+            </ul>
+          )}
+          {open.length > 0 && (
+            <InsightStrip action={{ label: 'Review all findings', to: '/opportunities' }}>
+              <strong className="font-semibold">{open.length} findings</strong> are waiting for a decision
+              {urgent > 0 && <>, {urgent} of them high priority</>}.
+            </InsightStrip>
+          )}
+        </CardBody>
+      </Card>
     </>
+  )
+}
+
+/** The highlighted card: one recommended next step, from a real finding. The user decides. */
+function NextStep({ o }: { o?: Opportunity }) {
+  if (!o)
+    return (
+      <section aria-labelledby="next-step" className="panel flex flex-col p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-ink-3">Recommended next step</p>
+        <h2 id="next-step" className="mt-3 text-xl font-semibold text-ink">
+          Nothing needs a decision right now
+        </h2>
+        <p className="mt-2 text-sm text-ink-2">You can still test a change to prices, costs or collections before making it.</p>
+        <Link to="/scenarios" className="mt-auto pt-6 text-sm font-medium text-accent-700 underline underline-offset-2">
+          Open the Scenario Lab
+        </Link>
+      </section>
+    )
+  const action = o.actions[0]?.title ?? o.title
+  return (
+    <section
+      aria-labelledby="next-step"
+      className="flex flex-col rounded-[20px] bg-[#4f57eb] bg-[linear-gradient(150deg,#5b63f5_0%,#4f57eb_50%,#4148d6_100%)] p-6 text-white shadow-[0_18px_40px_-24px_rgba(63,70,207,0.9)]"
+    >
+      <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
+        <Target className="size-4" aria-hidden /> Recommended next step
+      </p>
+      <h2 id="next-step" className="mt-4 text-[22px] font-semibold leading-snug">
+        {action}
+      </h2>
+      <p className="mt-2 text-[15px] leading-relaxed">Why: {o.title.charAt(0).toLowerCase() + o.title.slice(1)}.</p>
+      {o.impact_low !== null && o.impact_high !== null && (
+        <div className="mt-5 rounded-2xl bg-[#3f46cf] px-4 py-3">
+          <p className="text-sm">{IMPACT_SHORT[o.impact_kind].replace(/^./, (c) => c.toUpperCase())} (estimate)</p>
+          <p className="tnum mt-0.5 text-2xl font-semibold">
+            {murCompact(o.impact_low)} – {murCompact(o.impact_high)}
+          </p>
+        </div>
+      )}
+      <div className="mt-auto flex flex-col gap-2 pt-6">
+        <Link
+          to={`/opportunities?open=${o.id}`}
+          className="flex h-11 items-center justify-center gap-2 rounded-xl bg-white text-[15px] font-semibold text-[#3f46cf] transition-colors hover:bg-periwinkle-50"
+        >
+          See what to do <ArrowRight className="size-4" aria-hidden />
+        </Link>
+        <Link
+          to="/scenarios"
+          className="flex h-11 items-center justify-center gap-2 rounded-xl text-[15px] font-medium text-white ring-1 ring-inset ring-white/70 bg-[#3f46cf] transition-colors hover:bg-[#353bb5]"
+        >
+          <FlaskConical className="size-4" aria-hidden /> Test a fix
+        </Link>
+      </div>
+      <p className="mt-3 text-center text-xs">You decide. Valora never changes your records.</p>
+    </section>
+  )
+}
+
+/** What was found, why it matters, and the next step. */
+function FindingSummary({ o }: { o: Opportunity }) {
+  return (
+    <li className="flex flex-col rounded-2xl border border-line bg-white/80 p-5">
+      <div className="flex items-center gap-2">
+        <SeverityBadge severity={o.severity} />
+        <span className="text-sm text-ink-3">{o.kind === 'risk' ? 'Risk' : 'Opportunity'}</span>
+      </div>
+      <h3 className="mt-3 text-base font-semibold leading-snug text-ink">{o.title}</h3>
+      <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-ink-2">{o.summary}</p>
+      <p className="mt-3 text-sm text-ink-2">
+        {o.impact_low !== null && o.impact_high !== null ? (
+          <>
+            <strong className="tnum text-lg font-semibold text-ink">
+              {murCompact(o.impact_low)} – {murCompact(o.impact_high)}
+            </strong>{' '}
+            {IMPACT_SHORT[o.impact_kind]} <span className="text-ink-3">(estimate)</span>
+          </>
+        ) : (
+          <span className="text-ink-3">Not sized</span>
+        )}
+      </p>
+      {o.actions[0] && (
+        <p className="mt-2 text-sm text-ink-2">
+          <span className="font-medium text-ink">Next step:</span> {o.actions[0].title}
+        </p>
+      )}
+      <Link
+        to={`/opportunities?open=${o.id}`}
+        className="mt-4 inline-flex w-fit items-center gap-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm font-medium text-accent-700 transition-colors hover:border-accent-500 hover:bg-accent-50"
+      >
+        Review this finding <ArrowRight className="size-4" aria-hidden />
+      </Link>
+    </li>
   )
 }

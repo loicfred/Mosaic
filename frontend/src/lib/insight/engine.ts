@@ -107,6 +107,42 @@ export const SUGGESTED: string[] = [
   'How reliable is the data?',
 ]
 
+/** Suggested questions for the page the user is on; every one is answerable from loaded data. */
+const BY_PAGE: [string, string[]][] = [
+  [
+    '/insights',
+    ['How did revenue change recently?', 'Why did gross margin change?', 'Where does most of the money go?', 'What was our best month?'],
+  ],
+  [
+    '/transactions',
+    [
+      'Where does most of the money go?',
+      'What are our recurring costs?',
+      'How dependent are we on one supplier?',
+      'Which customers owe us the most?',
+    ],
+  ],
+  [
+    '/opportunities',
+    ['What is the biggest opportunity?', 'What is the biggest risk?', 'What should I look at first?', 'Did the actions work?'],
+  ],
+  ['/scenarios', ['Will cash fall below the safety buffer?', 'What is the 30-day cash pressure risk?', 'How much cash do we have?']],
+  ['/data-health', ['How reliable is the data?', 'How much cash do we have?']],
+  [
+    '/',
+    [
+      'How much cash do we have?',
+      'Will cash fall below the safety buffer?',
+      'What should I look at first?',
+      'How did revenue change recently?',
+    ],
+  ],
+]
+
+export function suggestionsFor(pathname: string): string[] {
+  return BY_PAGE.find(([path]) => (path === '/' ? pathname === '/' : pathname.startsWith(path)))?.[1] ?? SUGGESTED
+}
+
 /* ---------- intent matching ---------- */
 
 type Intent =

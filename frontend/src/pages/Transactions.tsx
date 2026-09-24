@@ -15,7 +15,7 @@ import { date, dateTime, mur } from '@/lib/format'
 import type { Transaction } from '@/lib/types'
 
 const input =
-  'h-9 rounded-lg border border-line-strong bg-surface px-3 text-sm outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100'
+  'h-10 rounded-full border border-line bg-surface px-4 text-sm shadow-card outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100'
 
 function Flags({ t }: { t: Transaction }) {
   return (
@@ -261,7 +261,7 @@ export function TransactionsPage() {
               aria-pressed={on}
               onClick={() => reset(() => setFlag(on ? '' : f.key))}
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 transition-colors',
+                'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 py-1.5 shadow-card transition-colors',
                 on ? 'border-ink bg-ink text-white' : 'border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink',
               )}
             >
@@ -272,15 +272,15 @@ export function TransactionsPage() {
         })}
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2 border-y border-line py-3">
+      <div className="mb-5 flex flex-wrap items-center gap-2">
         <div className="relative min-w-0 flex-1 basis-60">
-          <Search className="pointer-events-none absolute left-2.5 top-2.5 size-4 text-ink-3" aria-hidden />
+          <Search className="pointer-events-none absolute left-3.5 top-3 size-4 text-ink-3" aria-hidden />
           <input
             value={q}
             onChange={(e) => reset(() => setQ(e.target.value))}
             placeholder="Search description, payee, reference"
             aria-label="Search"
-            className={cn(input, 'w-full pl-8')}
+            className={cn(input, 'w-full pl-10')}
             maxLength={80}
           />
         </div>
@@ -314,7 +314,7 @@ export function TransactionsPage() {
             type="date"
             value={from}
             onChange={(e) => reset(() => setFrom(e.target.value))}
-            className={cn(input, 'w-36 px-2')}
+            className={cn(input, 'w-40 px-3')}
             aria-label="From date"
             min={facets.data?.date_min ?? undefined}
             max={facets.data?.date_max ?? undefined}
@@ -324,7 +324,7 @@ export function TransactionsPage() {
             type="date"
             value={to}
             onChange={(e) => reset(() => setTo(e.target.value))}
-            className={cn(input, 'w-36 px-2')}
+            className={cn(input, 'w-40 px-3')}
             aria-label="To date"
             min={facets.data?.date_min ?? undefined}
             max={facets.data?.date_max ?? undefined}

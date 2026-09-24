@@ -37,14 +37,14 @@ export function AuthLayout({ children }: { children: ReactNode }) {
             </NavLink>
             <NavLink
               to="/register"
-              className={({ isActive }) => cn(pill, isActive ? 'bg-white text-[#3f46cf]' : 'bg-white/15 text-white hover:bg-white/25')}
+              className={({ isActive }) => cn(pill, isActive ? 'bg-white text-[#3f46cf]' : 'bg-[#3f46cf] text-white hover:bg-[#353bb5]')}
             >
               Create account
             </NavLink>
           </nav>
         </header>
 
-        <div className="flex flex-1 items-center gap-6 px-4 pb-10 sm:px-10 lg:items-stretch lg:gap-4 lg:pb-[96px]">
+        <main className="flex flex-1 items-center gap-6 px-4 pb-10 sm:px-10 lg:items-stretch lg:gap-4 lg:pb-[96px]">
           {/* The illustration fills everything left of the card and hugs its edge. */}
           <div className="relative hidden min-w-0 flex-1 lg:block">
             {/* Sticky, so on the taller sign-up form the drawing stays in view while scrolling. */}
@@ -57,14 +57,17 @@ export function AuthLayout({ children }: { children: ReactNode }) {
               {children}
             </div>
           </div>
-        </div>
+        </main>
 
-        <footer className="px-5 pb-6 text-xs text-white/75 sm:px-10 lg:absolute lg:bottom-0 lg:right-0 lg:pb-7">
+        <footer className="px-5 pb-6 text-xs text-white sm:px-10 lg:absolute lg:bottom-0 lg:right-0 lg:pb-7">
           © 2026 Valora · Finnovate Web &amp; AI Hackathon 2026 · Challenge 3
         </footer>
 
         {/* Bottom-left tab, cut out of the panel. */}
-        <div className="absolute bottom-0 left-0 hidden h-[88px] w-[360px] rounded-tr-[28px] bg-page lg:block">
+        <aside
+          aria-label="About Valora Insight"
+          className="absolute bottom-0 left-0 hidden h-[88px] w-[360px] rounded-tr-[28px] bg-page lg:block"
+        >
           <Corner className="-top-7 left-0" />
           <Corner className="-right-7 bottom-0" />
           <div className="flex h-full items-center gap-3 pl-6 pr-5 text-ink">
@@ -76,7 +79,7 @@ export function AuthLayout({ children }: { children: ReactNode }) {
               <span className="block text-xs leading-snug text-ink-3">After you sign in, ask questions about your own business data.</span>
             </span>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   )

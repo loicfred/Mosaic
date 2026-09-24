@@ -3,7 +3,7 @@ import { InfoTip } from '@/components/viz/InfoTip'
 import { cn } from '@/lib/cn'
 
 export function Card({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
-  return <section className={cn('rounded-xl border border-line bg-surface', className)} {...p} />
+  return <section className={cn('panel', className)} {...p} />
 }
 
 export function CardHeader({
@@ -24,9 +24,9 @@ export function CardHeader({
   plain?: boolean
 }) {
   return (
-    <header className={cn('flex flex-wrap items-start justify-between gap-3 px-5 pb-4 pt-5', plain && 'pt-4', className)}>
+    <header className={cn('flex flex-wrap items-start justify-between gap-3 px-6 pb-4 pt-6', plain && 'pt-5', className)}>
       <div className="min-w-0">
-        <h2 className="flex items-center gap-1.5 text-base font-semibold tracking-tight text-ink">
+        <h2 className="flex items-center gap-1.5 text-[17px] font-semibold tracking-tight text-ink">
           {title}
           {info && <InfoTip content={info} />}
         </h2>
@@ -38,5 +38,5 @@ export function CardHeader({
 }
 
 export function CardBody({ className, ...p }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('p-5 [header+&]:pt-0', className)} {...p} />
+  return <div className={cn('p-6 [header+&]:pt-0', className)} {...p} />
 }

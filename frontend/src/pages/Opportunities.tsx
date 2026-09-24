@@ -6,9 +6,9 @@ import { FindingVisual } from '@/components/domain/FindingVisual'
 import { ConfidenceNote, OutcomeBadge, StatusBadge } from '@/components/domain/labels'
 import { IMPACT_LABEL, STATUS_META } from '@/components/domain/meta'
 import { OpportunityDetail } from '@/components/domain/OpportunityDetail'
-import { AskValora } from '@/components/insight/AskValora'
 import { PageHeader } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/button'
+import { Card, CardBody, CardHeader } from '@/components/ui/card'
 import { EmptyState, ErrorState, PageSkeleton } from '@/components/ui/states'
 import { useOpportunities, useOverview, useRefreshEngine } from '@/hooks/queries'
 import { cn } from '@/lib/cn'
@@ -60,7 +60,7 @@ function Headline({
 }) {
   const urgent = open.filter((o) => o.severity === 'critical' || o.severity === 'high').length
   return (
-    <dl className="grid grid-cols-2 gap-y-6 rounded-xl border border-line bg-surface px-5 py-6 lg:grid-cols-[auto_auto_1fr_1fr] lg:divide-x lg:divide-line lg:px-6">
+    <dl className="panel grid grid-cols-2 gap-y-6 px-6 py-6 lg:grid-cols-[auto_auto_1fr_1fr] lg:divide-x lg:divide-line">
       <div className="pr-8">
         <dt className="text-sm text-ink-3">Open findings</dt>
         <dd className="mt-1 text-[32px] font-semibold leading-none tracking-tight text-ink">{open.length}</dd>
@@ -160,7 +160,7 @@ function WorthColumn({
       <div className="@container">
         <div className="hidden grid-cols-[minmax(0,1.3fr)_minmax(5rem,1fr)_8.5rem] gap-x-4 px-2 pt-1 @sm:grid" aria-hidden>
           <span />
-          <span className="relative h-4 border-t border-line text-[10px] text-ink-3">
+          <span className="relative h-4 border-t border-line text-xs text-ink-3">
             {ticks.map((t, i) => (
               <span
                 key={t}
@@ -226,12 +226,13 @@ function FindingCard({ o, overview, featured, onOpen }: { o: Opportunity; overvi
   return (
     <article
       className={cn(
-        'flex flex-col rounded-xl border border-line bg-surface transition-colors hover:border-line-strong',
-        featured ? 'p-6 lg:col-span-2' : 'p-5',
+        'panel flex flex-col p-6 transition-shadow hover:shadow-[0_12px_32px_-18px_rgba(20,22,48,0.3)]',
+        o.kind === 'risk' ? 'fade-coral' : 'fade-sage',
+        featured && 'lg:col-span-2',
       )}
     >
       <header className="flex flex-wrap items-center justify-between gap-2">
-        <span className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider">
+        <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider">
           <span className={cn('size-2 rounded-full', sev.dot)} aria-hidden />
           <span className={sev.ink}>{sev.label}</span>
           <span className="font-medium text-ink-3">· {o.kind === 'risk' ? 'Risk' : 'Opportunity'}</span>
@@ -270,7 +271,7 @@ function FindingCard({ o, overview, featured, onOpen }: { o: Opportunity; overvi
       <div className="mt-auto pt-5">
         {o.actions[0] && (
           <p className="border-t border-line pt-4 text-sm">
-            <span className="mr-2 text-[11px] font-semibold uppercase tracking-wider text-ink-3">Next</span>
+            <span className="mr-2 text-xs font-semibold uppercase tracking-wider text-ink-3">Next</span>
             <span className="text-ink">{o.actions[0].title}</span>
           </p>
         )}
@@ -285,7 +286,6 @@ function FindingCard({ o, overview, featured, onOpen }: { o: Opportunity; overvi
               </Link>
             </Button>
           )}
-          <AskValora question={`Explain this finding: ${o.title}`} context={{ type: 'finding', id: o.id }} label="Ask Valora" />
           <span className="ml-auto">
             <ConfidenceNote value={o.confidence} basis={o.confidence_basis} />
           </span>
@@ -347,19 +347,12 @@ export function OpportunitiesPage() {
       {open.length > 0 && <Headline open={open} gain={gains[0]} risk={risks[0]} onOpen={openDetail} />}
 
       {(gains.length > 0 || risks.length > 0) && (
-        <section className="mt-10" aria-labelledby="worth">
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <h2 id="worth" className="text-lg font-semibold tracking-tight text-ink">
-                What each finding is worth
-              </h2>
-              <p className="mt-0.5 text-sm text-ink-3">
-                Estimated yearly range. Longer bar, bigger money. Gains and risks are never added together.
-              </p>
-            </div>
-            <AskValora question="What is the biggest opportunity?" context={{ type: 'chart', chart: 'worth' }} />
-          </div>
-          <div className="grid grid-cols-1 gap-x-12 gap-y-8 rounded-xl border border-line bg-surface p-5 lg:grid-cols-2 lg:p-6">
+        <Card className="mt-5" aria-labelledby="worth">
+          <CardHeader
+            title={<span id="worth">What each finding is worth</span>}
+            subtitle="Estimated yearly range. Longer bar, bigger money. Gains and risks are never added together."
+          />
+          <CardBody className="grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-2">
             {gains.length > 0 && (
               <WorthColumn title="Opportunities" hint="to gain or free up" rows={gains} color="var(--color-gain)" onOpen={openDetail} />
             )}
@@ -368,22 +361,26 @@ export function OpportunitiesPage() {
                 <WorthColumn title="Risks" hint="money exposed" rows={risks} color="var(--color-coral-600)" onOpen={openDetail} />
               </div>
             )}
-          </div>
-        </section>
+          </CardBody>
+        </Card>
       )}
 
-      <section className="mt-12" aria-labelledby="stages">
-        <div className="mb-2 flex flex-wrap items-end justify-between gap-2">
-          <h2 id="stages" className="text-lg font-semibold tracking-tight text-ink">
-            Where each finding stands
-          </h2>
-          <span className="text-xs text-ink-3">{dismissed} dismissed · results are measured after an action starts</span>
-        </div>
-        <PipelineTrack all={all} onPick={setFilter} />
-      </section>
+      <Card className="mt-5" aria-labelledby="stages">
+        <CardHeader
+          title={<span id="stages">Where each finding stands</span>}
+          subtitle={`${dismissed} dismissed · results are measured after an action starts`}
+        />
+        <CardBody>
+          <PipelineTrack all={all} onPick={setFilter} />
+        </CardBody>
+      </Card>
 
-      <div className="mt-10 flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-line pb-3">
-        <div className="-mb-3 flex gap-5 overflow-x-auto" role="tablist" aria-label="Filter by stage">
+      <div className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-3">
+        <div
+          className="flex max-w-full gap-1 overflow-x-auto rounded-full border border-line bg-surface p-1 shadow-card"
+          role="tablist"
+          aria-label="Filter by stage"
+        >
           {(Object.keys(FILTERS) as Filter[]).map((f) => (
             <button
               key={f}
@@ -391,16 +388,16 @@ export function OpportunitiesPage() {
               aria-selected={filter === f}
               onClick={() => setFilter(f)}
               className={cn(
-                'shrink-0 whitespace-nowrap border-b-2 pb-2.5 text-sm transition-colors',
-                filter === f ? 'border-ink font-semibold text-ink' : 'border-transparent text-ink-3 hover:text-ink',
+                'min-h-9 shrink-0 whitespace-nowrap rounded-full px-4 text-sm transition-colors',
+                filter === f ? 'bg-accent-600 font-semibold text-white' : 'text-ink-2 hover:text-ink',
               )}
             >
-              {FILTER_LABEL[f]} <span className="tnum text-ink-3">{counts[f]}</span>
+              {FILTER_LABEL[f]} <span className={cn('tnum', filter === f ? 'text-white/80' : 'text-ink-3')}>{counts[f]}</span>
             </button>
           ))}
         </div>
         <div className="ml-auto flex flex-wrap items-center gap-2">
-          <div className="flex rounded-lg bg-surface-2 p-0.5 text-sm" role="group" aria-label="Filter by type">
+          <div className="flex rounded-full border border-line bg-surface p-1 text-sm shadow-card" role="group" aria-label="Filter by type">
             {(['all', 'risk', 'opportunity'] as const).map((k) => (
               <button
                 key={k}
@@ -408,8 +405,8 @@ export function OpportunitiesPage() {
                 aria-pressed={kind === k}
                 onClick={() => setKind(k)}
                 className={cn(
-                  'rounded-md px-2.5 py-1',
-                  kind === k ? 'bg-surface font-medium text-ink shadow-sm' : 'text-ink-3 hover:text-ink',
+                  'min-h-8 rounded-full px-3',
+                  kind === k ? 'bg-accent-50 font-semibold text-accent-700' : 'text-ink-2 hover:text-ink',
                 )}
               >
                 {k === 'all' ? 'All' : k === 'risk' ? 'Risks' : 'Opportunities'}
@@ -418,31 +415,31 @@ export function OpportunitiesPage() {
           </div>
           <label className="relative">
             <span className="sr-only">Search findings</span>
-            <Search className="pointer-events-none absolute left-2 top-2 size-4 text-ink-3" aria-hidden />
+            <Search className="pointer-events-none absolute left-3 top-3 size-4 text-ink-3" aria-hidden />
             <input
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Search"
               maxLength={60}
-              className="h-8 w-36 rounded-lg border border-line bg-surface pl-7 pr-7 text-sm outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100 sm:w-44"
+              className="h-10 w-40 rounded-full border border-line bg-surface pl-9 pr-8 text-sm shadow-card outline-none focus:border-accent-600 focus:ring-2 focus:ring-accent-100 sm:w-48"
             />
             {text && (
               <button
                 type="button"
                 onClick={() => setText('')}
-                className="absolute right-1.5 top-1.5 text-ink-3 hover:text-ink"
+                className="absolute right-2.5 top-3 text-ink-3 hover:text-ink"
                 aria-label="Clear search"
               >
                 <X className="size-4" />
               </button>
             )}
           </label>
-          <label className="flex items-center gap-1 text-sm text-ink-3">
-            Sort
+          <label className="flex h-10 items-center gap-1 rounded-full border border-line bg-surface pl-4 pr-2 text-sm text-ink-3 shadow-card">
+            Sort:
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as Sort)}
-              className="h-8 rounded-md bg-transparent pr-1 font-medium text-ink outline-none hover:bg-surface-2 focus:ring-2 focus:ring-accent-100"
+              className="h-8 rounded-full bg-transparent pr-1 font-medium text-ink outline-none focus:ring-2 focus:ring-accent-100"
             >
               {Object.entries(SORTS).map(([k, v]) => (
                 <option key={k} value={k}>

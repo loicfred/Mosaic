@@ -53,9 +53,13 @@ async def run(base: str, shots: Path | None) -> None:
         await step("1 sign in as owner", login(page, base, "owner@coastal.demo"), shots, page)
 
         async def overview() -> None:
-            await expect(page.get_by_text("30-day cash pressure")).to_be_visible()
-            await expect(page.get_by_text("High risk")).to_be_visible()
+            await expect(page.get_by_text("Needs attention", exact=True)).to_be_visible()
+            await expect(page.get_by_role("link", name="See what to do")).to_be_visible()
             await expect(page.get_by_text("Synthetic demo data")).to_be_visible()
+            # The detailed forecast and the model's estimate live one click away.
+            await page.get_by_role("link", name="View detailed forecast").click()
+            await expect(page.get_by_text("30-day cash pressure")).to_be_visible(timeout=15_000)
+            await expect(page.get_by_text("High risk")).to_be_visible()
         await step("2 overview shows position and prediction", overview(), shots, page)
 
         async def import_data() -> None:
@@ -70,7 +74,13 @@ async def run(base: str, shots: Path | None) -> None:
             pending_dups = page.locator("li").filter(has=page.get_by_text("Possible duplicate")).filter(
                 has=page.get_by_role("button", name="Approve"))
             while await pending_dups.count():
-                await pending_dups.first.get_by_role("button", name="Approve").click()
+                btn = pending_dups.first.get_by_role("button", name="Approve")
+                # The previous approval may still be saving; wait for the button before clicking.
+                try:
+                    await expect(btn).to_be_enabled(timeout=10_000)
+                    await btn.click(timeout=5_000)
+                except Exception:  # noqa: BLE001 - the row can be replaced while it re-renders
+                    pass
                 await page.wait_for_timeout(800)
             await expect(commit).to_be_enabled(timeout=10_000)
             await commit.click()

@@ -5,12 +5,13 @@ import { cn } from '@/lib/cn'
 import { Button } from './button'
 
 export function Skeleton({ className }: { className?: string }) {
-  return <div className={cn('animate-pulse rounded-md bg-brand-50', className)} aria-hidden />
+  return <div className={cn('animate-pulse rounded-md bg-ink/[0.07]', className)} aria-hidden />
 }
 
 export function PageSkeleton() {
   return (
     <div className="space-y-4" role="status" aria-label="Loading">
+      <h1 className="sr-only">Loading</h1>
       <Skeleton className="h-8 w-64" />
       <div className="grid gap-4 md:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
@@ -32,18 +33,38 @@ export function EmptyState({ title, children, icon }: { title: string; children?
   )
 }
 
-export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
+/**
+ * Says what happened, what it means, and what to do. The server's own message is
+ * shown only as a small reference line, never as the headline.
+ */
+export function ErrorState({
+  error,
+  onRetry,
+  title = 'This page could not be loaded.',
+  meaning = 'The latest figures are temporarily unavailable. Nothing in your records has changed.',
+}: {
+  error: unknown
+  onRetry?: () => void
+  title?: string
+  meaning?: string
+}) {
   const e = error instanceof ApiError ? error : null
   return (
     <div
       role="alert"
-      className="flex flex-col items-center justify-center rounded-xl border border-bad/20 bg-bad-bg/40 px-6 py-10 text-center"
+      className="flex flex-col items-center justify-center rounded-xl border border-bad/20 bg-bad-bg/50 px-6 py-10 text-center"
     >
-      <AlertTriangle className="mb-2 size-6 text-bad" />
-      <p className="font-medium text-ink">{e?.message ?? 'Something went wrong loading this view.'}</p>
-      {e?.requestId && <p className="mt-1 text-xs text-ink-3">Reference: {e.requestId}</p>}
+      <AlertTriangle className="mb-2 size-6 text-bad" aria-hidden />
+      <p className="font-semibold text-ink">{title}</p>
+      <p className="mt-1 max-w-md text-sm text-ink-2">{meaning}</p>
+      {e && (
+        <p className="mt-2 text-xs text-ink-3">
+          {e.message}
+          {e.requestId && <> · reference {e.requestId}</>}
+        </p>
+      )}
       {onRetry && (
-        <Button variant="secondary" size="sm" className="mt-4" onClick={onRetry}>
+        <Button variant="secondary" className="mt-4" onClick={onRetry}>
           <RefreshCw /> Try again
         </Button>
       )}

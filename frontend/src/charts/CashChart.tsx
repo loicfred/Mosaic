@@ -61,7 +61,7 @@ export function CashChart({ actual, projected = [], buffer, height = 280 }: Prop
                 x={last.date}
                 stroke={C.axis}
                 strokeWidth={1}
-                label={{ value: 'Today', position: 'insideTopRight', fill: '#6b6b67', fontSize: 11 }}
+                label={{ value: 'Today', position: 'insideTopRight', fill: '#6b6b67', fontSize: 12 }}
               />
             ) : null}
             <Area type="monotone" dataKey="actual" stroke="none" fill={C.actual} fillOpacity={0.08} isAnimationActive={false} />

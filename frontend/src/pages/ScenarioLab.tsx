@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/layout/AppShell'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardBody, CardHeader } from '@/components/ui/card'
+import { InsightStrip } from '@/components/ui/insight-strip'
 import { Slider } from '@/components/ui/slider'
 import { ErrorState, Skeleton } from '@/components/ui/states'
 import { BeforeAfter } from '@/components/viz/BeforeAfter'
@@ -220,6 +221,20 @@ export function ScenarioLabPage() {
                 />
                 <CardBody className={cn(sim.isFetching && 'opacity-60')}>
                   <ScenarioChart series={r.series} buffer={r.baseline.buffer_threshold} />
+                  {changed.length === 0 ? (
+                    <InsightStrip>
+                      Pick a preset or move a slider on the left to see how a decision would change the next 90 days. Nothing you try here
+                      is saved to your records.
+                    </InsightStrip>
+                  ) : (
+                    <InsightStrip tone={r.scenario.cash_day_90 >= r.baseline.cash_day_90 ? 'good' : 'attention'}>
+                      With these assumptions, cash in 90 days would be{' '}
+                      <strong className="font-semibold">{murCompact(r.scenario.cash_day_90)}</strong> instead of{' '}
+                      {murCompact(r.baseline.cash_day_90)} ({murCompact(r.scenario.cash_day_90 - r.baseline.cash_day_90, true)}), with{' '}
+                      {r.scenario.days_below_buffer} of 90 days under the buffer instead of {r.baseline.days_below_buffer}. This is a
+                      simulation, not a forecast.
+                    </InsightStrip>
+                  )}
                 </CardBody>
               </Card>
               <div className="grid grid-cols-1 gap-4 2xl:grid-cols-2">

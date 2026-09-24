@@ -1,10 +1,10 @@
 import { ArrowRight, ArrowUp, Info, RotateCcw, X } from 'lucide-react'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { DataKind } from '@/components/domain/labels'
 import { Sparkline } from '@/components/viz/Sparkline'
 import { cn } from '@/lib/cn'
-import { SUGGESTED, type Answer, type Visual } from '@/lib/insight/engine'
+import { suggestionsFor, type Answer, type Visual } from '@/lib/insight/engine'
 import { InsightOrb } from './InsightOrb'
 import { useInsight, type Entry } from './context'
 
@@ -40,7 +40,7 @@ function AnswerBlock({ a, onAsk, onNavigate }: { a: Answer; onAsk: (q: string) =
   return (
     <div className={cn('rounded-xl border bg-surface p-4', refused ? 'border-gold-500/50' : 'border-line')}>
       <div className="mb-2 flex items-center justify-between gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-ink-3">
+        <span className="text-xs font-semibold uppercase tracking-wider text-ink-3">
           {refused ? 'Outside Valora’s data' : a.status === 'empty' ? 'Not available yet' : 'From your data'}
         </span>
         {a.kind && <DataKind kind={a.kind} />}
@@ -130,6 +130,7 @@ function Turn({ e, onAsk, onNavigate }: { e: Entry; onAsk: (q: string) => void; 
 
 export function InsightPanel({ businessName }: { businessName: string }) {
   const ins = useInsight()
+  const { pathname } = useLocation()
   const [q, setQ] = useState('')
   const input = useRef<HTMLInputElement>(null)
   const end = useRef<HTMLDivElement>(null)
@@ -166,7 +167,7 @@ export function InsightPanel({ businessName }: { businessName: string }) {
       aria-labelledby="insight-title"
       className="panel-in no-print fixed inset-0 z-50 flex flex-col bg-page sm:inset-auto sm:bottom-24 sm:right-6 sm:h-[min(680px,calc(100vh-8rem))] sm:w-[420px] sm:overflow-hidden sm:rounded-2xl sm:border sm:border-line sm:shadow-[0_18px_48px_-18px_rgba(44,44,44,0.35)]"
     >
-      <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-line bg-surface px-4 py-3">
         <InsightOrb state={ins.orb} className="size-8 text-ink" />
         <div className="min-w-0 flex-1">
           <h2 id="insight-title" className="text-[15px] font-semibold text-ink">
@@ -193,7 +194,7 @@ export function InsightPanel({ businessName }: { businessName: string }) {
         >
           <X className="size-4" />
         </button>
-      </header>
+      </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4" aria-live="polite">
         {count === 0 ? (
@@ -202,9 +203,9 @@ export function InsightPanel({ businessName }: { businessName: string }) {
               Ask about cash, revenue, costs, customers, suppliers, findings or data quality. Every answer shows the figures it uses and
               where they come from.
             </p>
-            <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-ink-3">Suggested questions</h3>
+            <h3 className="mb-2 mt-5 text-xs font-semibold uppercase tracking-wider text-ink-3">Suggested for this page</h3>
             <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
-              {SUGGESTED.map((s) => (
+              {suggestionsFor(pathname).map((s) => (
                 <li key={s}>
                   <button
                     type="button"
@@ -262,6 +263,10 @@ export function InsightPanel({ businessName }: { businessName: string }) {
 }
 
 /** The floating launcher. Label slides out on hover or focus. */
+/**
+ * The single entry point to Valora Insight: a labelled button, bottom right, on
+ * every page. The orb only moves on hover and while Valora is reading data.
+ */
 export function InsightLauncher() {
   const ins = useInsight()
   const [hover, setHover] = useState(false)
@@ -278,20 +283,12 @@ export function InsightLauncher() {
       aria-expanded={ins.open}
       aria-label={ins.open ? 'Close Valora Insight' : 'Ask Valora'}
       className={cn(
-        'no-print group fixed bottom-5 right-5 z-40 flex h-14 items-center rounded-full border border-line bg-surface pl-2 pr-2 text-ink shadow-[0_8px_24px_-12px_rgba(44,44,44,0.35)] transition-[padding,border-color] duration-200 hover:border-accent-500 sm:bottom-6 sm:right-6',
+        'no-print fixed bottom-5 right-5 z-40 h-12 items-center gap-2 rounded-full border border-line bg-surface pl-1.5 pr-1.5 text-sm font-medium text-ink shadow-[0_8px_24px_-12px_rgba(44,44,44,0.35)] transition-colors duration-150 hover:border-accent-500 hover:text-accent-700 sm:bottom-6 sm:right-6 sm:pr-4',
         ins.open ? 'hidden sm:flex' : 'flex',
-        (hover || ins.open) && 'pr-4',
       )}
     >
-      <InsightOrb state={state} className="size-10" />
-      <span
-        className={cn(
-          'overflow-hidden whitespace-nowrap text-sm font-medium transition-[max-width,opacity,margin] duration-200',
-          hover || ins.open ? 'ml-1.5 max-w-32 opacity-100' : 'max-w-0 opacity-0',
-        )}
-      >
-        {ins.open ? 'Close' : 'Ask Valora'}
-      </span>
+      <InsightOrb state={state} className="size-9" />
+      <span className="hidden sm:inline">{ins.open ? 'Close' : 'Ask Valora'}</span>
     </button>
   )
 }
