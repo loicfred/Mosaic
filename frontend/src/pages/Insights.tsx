@@ -329,8 +329,8 @@ export function InsightsPage() {
                     dataKey="gross_margin_pct"
                     stroke={C.actual}
                     strokeWidth={2}
-                    dot={{ r: 3, fill: C.actual, stroke: '#fff', strokeWidth: 2 }}
-                    activeDot={{ r: 5, stroke: '#fff', strokeWidth: 2 }}
+                    dot={{ r: 3, fill: C.actual, stroke: 'var(--color-surface)', strokeWidth: 2 }}
+                    activeDot={{ r: 5, stroke: 'var(--color-surface)', strokeWidth: 2 }}
                     isAnimationActive={false}
                   />
                 </LineChart>

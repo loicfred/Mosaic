@@ -38,7 +38,7 @@ const ACTION_LABEL: Record<OppStatus, string> = {
 function Section({ step, title, children }: { step: string; title: string; children: React.ReactNode }) {
   return (
     <section className="border-b border-line px-6 py-5">
-      <h3 className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-ink-3">
+      <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-ink">
         <span className="rounded bg-brand-50 px-1.5 py-0.5 text-brand-800">{step}</span>
         {title}
       </h3>
@@ -358,7 +358,7 @@ export function OpportunityDetail({ id, onClose }: { id: string | null; onClose:
           </Section>
 
           <section className="px-6 py-5">
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-3">Provenance</h3>
+            <h3 className="mb-2 text-sm font-semibold text-ink">Provenance</h3>
             <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-xs text-ink-3 sm:grid-cols-2">
               <div>Engine: {String(prov.engine_version)}</div>
               <div>Detector: {String(prov.detector)}</div>

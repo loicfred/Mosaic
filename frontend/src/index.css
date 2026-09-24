@@ -189,6 +189,79 @@
   }
 }
 
+/* ---- Dark mode: quiet charcoal-navy surfaces, lifted Petrol, no glow (Display menu > Theme) ---- */
+@utility dark-tokens {
+  color-scheme: dark;
+  --color-page: #0b111a;
+  --color-surface: #121a25;
+  --color-surface-2: #18222f;
+  --color-mist: #18222f;
+  --color-line: #263244;
+  --color-line-strong: #3a475a;
+  --color-ink: #e7ebf0;
+  --color-ink-2: #c9d1db;
+  --color-ink-3: #9ba6b5;
+  --color-ink-4: #5b6778;
+  --color-brand-950: #e7ebf0;
+  --color-brand-900: #e7ebf0;
+  --color-brand-800: #c9d1db;
+  --color-brand-700: #c9d1db;
+  --color-brand-100: #18222f;
+  --color-brand-50: #18222f;
+  --color-accent-700: #7bbdd3;
+  --color-accent-600: #5aaac4;
+  --color-accent-500: #5aaac4;
+  --color-accent-100: #16323d;
+  --color-accent-50: #16323d;
+  --color-periwinkle-50: #16323d;
+  --color-periwinkle-100: #16323d;
+  --color-periwinkle-500: #5aaac4;
+  --color-periwinkle-600: #5aaac4;
+  --color-periwinkle-700: #7bbdd3;
+  --color-sage-50: #13291f;
+  --color-sage-100: #13291f;
+  --color-sage-500: #5bbf8a;
+  --color-sage-600: #5bbf8a;
+  --color-sage-700: #5bbf8a;
+  --color-gold-50: #2e2210;
+  --color-gold-100: #2e2210;
+  --color-gold-600: #e0a24a;
+  --color-gold-700: #e0a24a;
+  --color-coral-50: #321a1a;
+  --color-coral-100: #321a1a;
+  --color-coral-700: #f07a6e;
+  --color-good: #5bbf8a;
+  --color-good-ink: #5bbf8a;
+  --color-good-bg: #13291f;
+  --color-warn: #e0a24a;
+  --color-warn-ink: #e0a24a;
+  --color-warn-bg: #2e2210;
+  --color-serious: #e08a73;
+  --color-serious-ink: #e08a73;
+  --color-serious-bg: #2f1d18;
+  --color-bad: #f07a6e;
+  --color-bad-ink: #f07a6e;
+  --color-bad-bg: #321a1a;
+  --color-actual: #e7ebf0;
+  --color-projected: #5aaac4;
+  --color-band: rgba(90, 170, 196, 0.18);
+  --color-series-1: #5aaac4;
+  --color-expense: #5b6778;
+  --color-before: #5b6778;
+  --color-track: #1c2735;
+  --color-grid: #1c2735;
+  --color-axis: #3a475a;
+  --shadow-float: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+html[data-theme='dark'] {
+  @apply dark-tokens;
+}
+@media (prefers-color-scheme: dark) {
+  html[data-theme='system'] {
+    @apply dark-tokens;
+  }
+}
+
 /* ---- Accessibility preferences (set from the Accessibility menu, stored per browser) ---- */
 /* Text size: everything is sized in rem, so the whole interface scales. */
 html[data-text='large'] {
@@ -198,7 +271,7 @@ html[data-text='larger'] {
   font-size: 125%;
 }
 /* Higher contrast: darker secondary text, stronger lines, underlined links, thicker focus. */
-html[data-contrast='high'] {
+html[data-contrast='high']:not([data-theme='dark']) {
   --color-ink-2: #0e1726;
   --color-ink-3: #3b4556;
   --color-line: #6b7585;

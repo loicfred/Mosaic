@@ -63,7 +63,7 @@ export function ScenarioChart({
               stroke={C.simulated}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }}
+              activeDot={{ r: 4, strokeWidth: 2, stroke: 'var(--color-surface)' }}
               isAnimationActive={false}
             />
           </LineChart>

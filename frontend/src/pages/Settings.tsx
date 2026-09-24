@@ -245,7 +245,7 @@ function ModelsTab() {
                       dataKey="observed_rate"
                       stroke={C.actual}
                       strokeWidth={2}
-                      dot={{ r: 4, fill: C.actual, stroke: '#fff', strokeWidth: 2 }}
+                      dot={{ r: 4, fill: C.actual, stroke: 'var(--color-surface)', strokeWidth: 2 }}
                       isAnimationActive={false}
                     />
                   </LineChart>

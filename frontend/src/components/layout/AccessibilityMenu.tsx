@@ -6,6 +6,15 @@ import { cn } from '@/lib/cn'
 
 const GROUPS: { key: keyof A11yPrefs; label: string; options: { value: string; label: string }[] }[] = [
   {
+    key: 'theme',
+    label: 'Theme',
+    options: [
+      { value: 'light', label: 'Light' },
+      { value: 'dark', label: 'Dark' },
+      { value: 'system', label: 'Match system' },
+    ],
+  },
+  {
     key: 'text',
     label: 'Text size',
     options: [
@@ -45,7 +54,7 @@ export function AccessibilityMenu() {
     <M.Root>
       <M.Trigger
         className="relative flex h-8 items-center justify-center gap-2 rounded-md border border-line bg-surface px-2 text-sm font-medium text-ink-2 transition-colors hover:bg-mist hover:text-ink data-[state=open]:bg-mist sm:px-3"
-        aria-label="Accessibility settings: text size, contrast and motion"
+        aria-label="Display settings: theme, text size, contrast and motion"
       >
         <Accessibility className="size-4" aria-hidden />
         <span className="hidden sm:inline">Display</span>

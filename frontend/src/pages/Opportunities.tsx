@@ -389,10 +389,10 @@ export function OpportunitiesPage() {
               onClick={() => setFilter(f)}
               className={cn(
                 'min-h-9 shrink-0 whitespace-nowrap rounded-full px-4 text-sm transition-colors',
-                filter === f ? 'bg-accent-600 font-semibold text-white' : 'text-ink-2 hover:text-ink',
+                filter === f ? 'bg-accent-100 font-medium text-accent-600' : 'text-ink-2 hover:text-ink',
               )}
             >
-              {FILTER_LABEL[f]} <span className={cn('tnum', filter === f ? 'text-white/80' : 'text-ink-3')}>{counts[f]}</span>
+              {FILTER_LABEL[f]} <span className={cn('tnum', filter === f ? 'text-accent-600' : 'text-ink-3')}>{counts[f]}</span>
             </button>
           ))}
         </div>

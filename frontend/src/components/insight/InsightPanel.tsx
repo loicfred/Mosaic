@@ -72,7 +72,7 @@ function Busy({ a, onRetry, onRules }: { a: Answer; onRetry: () => void; onRules
           type="button"
           onClick={onRetry}
           disabled={left > 0}
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-accent-600 px-3 text-xs font-medium text-white transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
+          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-accent-600 px-3 text-xs font-medium text-surface transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
         >
           <RotateCcw className="size-3.5" aria-hidden />
           {left > 0 ? `Retry in ${left}s` : 'Retry'}
@@ -321,7 +321,7 @@ export function InsightPanel({ businessName }: { businessName: string }) {
           <button
             type="submit"
             disabled={!q.trim() || ins.orb === 'thinking'}
-            className="flex size-8 items-center justify-center rounded-lg bg-accent-600 text-white transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
+            className="flex size-8 items-center justify-center rounded-lg bg-accent-600 text-surface transition-colors hover:bg-accent-700 disabled:bg-brand-100 disabled:text-ink-3"
             aria-label="Ask"
           >
             <ArrowUp className="size-4" />

@@ -70,7 +70,7 @@ export function CashChart({ actual, projected = [], buffer, height = 280 }: Prop
               stroke={C.actual}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }}
+              activeDot={{ r: 4, strokeWidth: 2, stroke: 'var(--color-surface)' }}
               isAnimationActive={false}
             />
             <Line
@@ -80,7 +80,7 @@ export function CashChart({ actual, projected = [], buffer, height = 280 }: Prop
               strokeWidth={2}
               strokeDasharray="5 4"
               dot={false}
-              activeDot={{ r: 4, strokeWidth: 2, stroke: '#fff' }}
+              activeDot={{ r: 4, strokeWidth: 2, stroke: 'var(--color-surface)' }}
               isAnimationActive={false}
             />
           </ComposedChart>

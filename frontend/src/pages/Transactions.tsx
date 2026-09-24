@@ -262,10 +262,10 @@ export function TransactionsPage() {
               onClick={() => reset(() => setFlag(on ? '' : f.key))}
               className={cn(
                 'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3.5 py-1.5  transition-colors',
-                on ? 'border-ink bg-ink text-white' : 'border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink',
+                on ? 'border-accent-600 bg-accent-100 text-accent-600' : 'border-line bg-surface text-ink-2 hover:border-line-strong hover:text-ink',
               )}
             >
-              <f.icon className={cn('size-3.5', on ? 'text-white' : f.tone)} aria-hidden />
+              <f.icon className={cn('size-3.5', on ? 'text-accent-600' : f.tone)} aria-hidden />
               <span className="font-semibold">{f.count}</span> {f.label.toLowerCase()}
             </button>
           )
