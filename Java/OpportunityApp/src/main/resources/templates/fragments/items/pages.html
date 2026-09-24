@@ -1,8 +1,0 @@
-<!-- The four data pages ask the same kind of question of different figures; this row moves between them.
-     Each tile is one of the logo's four colours. -->
-<nav th:fragment="pageSwitch" class="page-switch" aria-label="Data pages">
-    <a th:href="@{/}" th:attr="aria-current=${page == 'sales'} ? 'page' : null"><i class="tile t-sales"></i>Sales</a>
-    <a th:href="@{/delivery}" th:attr="aria-current=${page == 'delivery'} ? 'page' : null"><i class="tile t-delivery"></i>Delivery</a>
-    <a th:href="@{/reviews}" th:attr="aria-current=${page == 'reviews'} ? 'page' : null"><i class="tile t-reviews"></i>Reviews</a>
-    <a th:href="@{/sellers}" th:attr="aria-current=${page == 'sellers'} ? 'page' : null"><i class="tile t-sellers"></i>Sellers</a>
-</nav>

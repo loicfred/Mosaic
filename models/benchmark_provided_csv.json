@@ -1,0 +1,43 @@
+{
+  "dataset": "data\\public\\small_business_cashflow.csv",
+  "sha256_prefix": "d6e39ea1f4f6c948",
+  "evaluated_at": "2026-09-23T17:03:55+00:00",
+  "rows": 1600,
+  "positive_rate": 0.1713,
+  "months_covered": [
+    "2024-01",
+    "2025-08"
+  ],
+  "sectors": [
+    "Healthcare",
+    "Hospitality",
+    "IT Services",
+    "Logistics",
+    "Manufacturing",
+    "Retail"
+  ],
+  "scheme": "StratifiedKFold(5), ROC-AUC",
+  "models": {
+    "logistic_regression": {
+      "roc_auc_mean": 0.5743,
+      "roc_auc_std": 0.0252
+    },
+    "random_forest": {
+      "roc_auc_mean": 0.5315,
+      "roc_auc_std": 0.0264
+    },
+    "hist_gradient_boosting": {
+      "roc_auc_mean": 0.5302,
+      "roc_auc_std": 0.0079
+    }
+  },
+  "best_univariate_auc": {
+    "inventory_days": 0.5703,
+    "accounts_receivable_days": 0.5388,
+    "net_margin": 0.5301,
+    "opex_usd": 0.5254,
+    "sector_Retail": 0.523
+  },
+  "finding": "All models score close to chance (ROC-AUC ~0.5-0.6). Each row is an independent snapshot without a business identifier or history, so trend features cannot be derived. We therefore use this file as an external benchmark only and train the production model on a documented synthetic panel with full ledger history.",
+  "currency_note": "Amounts are USD; OpportunityOS works in MUR, which is another reason the production model uses only scale-free ratio features."
+}
