@@ -65,7 +65,7 @@ immediately. Denials are written to the audit log.
 
 ## AI assistant
 
-* **Valora Insight** (the "Ask Valora" panel) answers with an LLM on Groq (`GROQ_MODEL`, default `llama-3.3-70b-versatile`) when `GROQ_API_KEY` is set in `backend/.env`. The key stays on the server; the browser only calls `POST /api/v1/insight/ask`.
+* **Valora Insight** (the "Ask Valora" panel) answers with an LLM on Groq (`GROQ_MODEL`, default `openai/gpt-oss-120b`) when `GROQ_API_KEY` is set in `backend/.env`. The key stays on the server; the browser only calls `POST /api/v1/insight/ask`.
 * The model receives a compact summary of figures Valora already computed (cash, projection, cash-pressure estimate, monthly totals, top categories, customers, suppliers, receivables, recurring payments, open findings, data-health warnings) plus the question and up to six earlier turns. It never receives raw transactions, descriptions, invoice numbers, user details, credentials or tokens. Counterparty names in the top-5 lists are sent.
 * Imported names are marked as untrusted data in the prompt. The model can only cite sources and charts from server-built catalogues, so links and plotted numbers always come from the analysis.
 * Questions are rate-limited per user (`LLM_RATE_LIMIT`, default 20 per minute). If the key is missing or Groq fails, the panel falls back to the local rule-based router (`frontend/src/lib/insight/engine.ts`) and says so under the answer.

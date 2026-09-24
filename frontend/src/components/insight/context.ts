@@ -6,6 +6,7 @@ export interface Entry {
   id: number
   question: string
   answer: Answer | null
+  ctx?: AskContext
 }
 
 export interface InsightState {
@@ -14,6 +15,10 @@ export interface InsightState {
   entries: Entry[]
   orb: OrbState
   ask: (question: string, ctx?: AskContext) => void
+  /** Re-sends a question that hit the AI rate limit, in place. */
+  retry: (id: number) => void
+  /** Answers a question with the built-in rules instead of the AI, in place. */
+  useRules: (id: number) => void
   clear: () => void
 }
 

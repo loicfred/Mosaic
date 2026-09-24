@@ -31,7 +31,8 @@ export interface Source {
 }
 
 export interface Answer {
-  status: 'answer' | 'refusal' | 'empty'
+  /** 'busy': the AI hit its rate limit; the question can be retried after `retryAfter` seconds. */
+  status: 'answer' | 'refusal' | 'empty' | 'busy'
   intent: string
   headline: string
   body?: string
@@ -42,6 +43,11 @@ export interface Answer {
   followUps: string[]
   /** Who answered: the LLM, or the local rules when the LLM is unavailable. */
   via?: 'llm' | 'rules'
+  /** LLM model id, shown on the answer. */
+  model?: string
+  /** True when the rules answered because the AI could not be reached (not by the user's choice). */
+  fallback?: boolean
+  retryAfter?: number
 }
 
 /** The subset of GET /insights used here. */

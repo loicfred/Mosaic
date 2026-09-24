@@ -58,7 +58,7 @@ class Settings(BaseSettings):
     # Valora Insight ("Ask Valora") answers with a Groq-hosted LLM when GROQ_API_KEY is set. Only a compact
     # summary of already-computed figures is sent; see docs/SECURITY.md "AI assistant".
     groq_api_key: str = ""
-    groq_model: str = "llama-3.3-70b-versatile"
+    groq_model: str = "openai/gpt-oss-120b"
     groq_base_url: str = "https://api.groq.com/openai/v1"
     llm_timeout_seconds: float = Field(default=20.0, gt=0, le=120)
     llm_rate_limit: int = 20  # questions per window per user

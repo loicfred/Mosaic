@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 from typing import Any
 
 import httpx
@@ -20,7 +21,15 @@ class LLMError(Exception):
     """The model could not be reached or returned something unusable."""
 
 
-def chat_json(messages: list[dict[str, str]], max_tokens: int = 900) -> dict[str, Any]:
+class LLMRateLimited(LLMError):
+    """Groq's per-minute or per-day limit was reached; `retry_after` is Groq's own wait hint in seconds."""
+
+    def __init__(self, retry_after: int) -> None:
+        super().__init__("rate limited")
+        self.retry_after = retry_after
+
+
+def chat_json(messages: list[dict[str, str]], max_tokens: int = 2000) -> dict[str, Any]:
     s = get_settings()
     if not s.external_ai_enabled:
         raise LLMError("GROQ_API_KEY is not set")
@@ -28,7 +37,9 @@ def chat_json(messages: list[dict[str, str]], max_tokens: int = 900) -> dict[str
         r = httpx.post(f"{s.groq_base_url.rstrip('/')}/chat/completions",
                        headers={"Authorization": f"Bearer {s.groq_api_key.strip()}"},
                        json={"model": s.groq_model, "messages": messages, "temperature": 0.2,
-                             "max_tokens": max_tokens, "response_format": {"type": "json_object"}},
+                             "max_tokens": max_tokens, "response_format": {"type": "json_object"},
+                             # gpt-oss models think before answering; keep that short to save tokens and time.
+                             **({"reasoning_effort": "low"} if s.groq_model.startswith("openai/gpt-oss") else {})},
                        timeout=s.llm_timeout_seconds)
     except httpx.HTTPError as e:
         raise LLMError(f"request failed: {type(e).__name__}") from None
@@ -39,6 +50,11 @@ def chat_json(messages: list[dict[str, str]], max_tokens: int = 900) -> dict[str
         except (ValueError, AttributeError):
             code = None
         log.warning("groq returned status=%s code=%s", r.status_code, code)
+        if r.status_code == 429:
+            try:
+                raise LLMRateLimited(max(1, math.ceil(float(r.headers.get("retry-after", "")))))
+            except ValueError:
+                raise LLMRateLimited(20) from None
         raise LLMError(f"status {r.status_code}")
     try:
         content = r.json()["choices"][0]["message"]["content"]

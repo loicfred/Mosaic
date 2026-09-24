@@ -50,3 +50,4 @@ class AnswerOut(BaseModel):
     sources: list[SourceOut] = Field(default_factory=list)
     followUps: list[str] = Field(default_factory=list)  # noqa: N815 - matches the frontend field name
     via: Literal["llm"] = "llm"
+    model: str | None = None

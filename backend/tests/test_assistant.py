@@ -42,8 +42,22 @@ def test_ask_falls_back_cleanly_when_the_model_fails(client: TestClient, owner: 
     monkeypatch.setattr(get_settings(), "groq_api_key", "test-key")
 
     def boom(*_: Any, **__: Any) -> dict[str, Any]:
-        raise groq.LLMError("status 429")
+        raise groq.LLMError("status 500")
 
     monkeypatch.setattr(groq, "chat_json", boom)
     r = client.post("/api/v1/insight/ask", json={"question": "How much cash do we have?"}, headers=owner)
     assert r.status_code == 503 and r.json()["error"]["code"] == "llm_unavailable"
+
+
+def test_groq_rate_limit_is_reported_with_its_wait(client: TestClient, owner: dict,
+                                                   monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(get_settings(), "groq_api_key", "test-key")
+
+    def limited(*_: Any, **__: Any) -> dict[str, Any]:
+        raise groq.LLMRateLimited(17)
+
+    monkeypatch.setattr(groq, "chat_json", limited)
+    r = client.post("/api/v1/insight/ask", json={"question": "How much cash do we have?"}, headers=owner)
+    e = r.json()["error"]
+    assert r.status_code == 429 and e["code"] == "llm_rate_limited"
+    assert e["details"] == {"retry_after": 17, "scope": "groq"}
