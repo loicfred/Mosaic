@@ -1,3 +1,6 @@
+**For the Juries: Deployed Version**
+https://valora.inazumacompetitive.ovh/
+
 # Valora
 
 **Turn raw financial data into evidence-backed decisions for small businesses.**
